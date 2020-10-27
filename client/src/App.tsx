@@ -1,15 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import { ReactComponent as SearchIconSVG } from "./images/searchIcon.svg";
+import { ReactComponent as BBCSVG } from "./images/BBCcurved.svg";
 
-const ContentWrapper = styled.div`
+const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 750px;
 `;
 
-const SearchWrapper = styled.div`
+const SearchContainer = styled.div`
   position: relative;
   width: 500px;
   margin: auto;
@@ -44,12 +45,44 @@ const SearchIcon = styled(SearchIconSVG)`
   height: 100%;
 `;
 
-const ButtonsWrapper = styled.div``;
+const TileContainer = styled.div``;
 
-const App = () => {
+const NewsIcon = styled(BBCSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+interface newsAgency {
+  agency: string;
+  url: string;
+  isDisabled: boolean;
+}
+
+const Tile = () => {
   return (
-    <ContentWrapper id="content">
-      <SearchWrapper>
+    <button>
+      <NewsIcon />
+      BBC
+    </button>
+  );
+};
+
+// <img src={/**/} />
+const App = () => {
+  let newsAgencies: newsAgency[] = [
+    { agency: "BBC", url: "https://www.bbc.co.uk", isDisabled: false },
+    { agency: "NYT", url: "https://www.nyt.com", isDisabled: false },
+    { agency: "KBC", url: "https://www.kbc.ke", isDisabled: false },
+    { agency: "SSS", url: "https://www.sss.sa", isDisabled: false },
+  ];
+
+  const renderTiles = (newsAgencies: newsAgency[]) => {
+    return newsAgencies.map((newAgency) => <button>{newAgency.agency}</button>); // change button to Tile
+  };
+
+  return (
+    <ContentContainer id="content">
+      <SearchContainer>
         <SearchIcon />
         <SearchBar
           id="input"
@@ -58,9 +91,12 @@ const App = () => {
           spellCheck="false"
           placeholder="Check a fact or statement"
         />
-      </SearchWrapper>
-      <ButtonsWrapper>{}</ButtonsWrapper>
-    </ContentWrapper>
+      </SearchContainer>
+      <TileContainer>
+        {renderTiles(newsAgencies)}
+        <Tile />
+      </TileContainer>
+    </ContentContainer>
   );
 };
 
