@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { ReactComponent as SearchIconSVG } from "./images/searchIcon.svg";
 import { ReactComponent as BBCSVG } from "./images/BBCcurved.svg";
+import { ReactComponent as NYTSVG } from "./images/NYT.svg";
+import { ReactComponent as APSVG } from "./images/AP.svg";
+import { ReactComponent as ReutersSVG } from "./images/Reuters.svg";
+import { ReactComponent as TwitterSVG } from "./images/Twitter.svg";
 
 const ContentContainer = styled.div`
   display: flex;
@@ -14,6 +18,8 @@ const SearchContainer = styled.div`
   position: relative;
   width: 500px;
   margin: auto;
+  margin-top: 300px;
+  margin-bottom: 50px;
   align-items: center;
 `;
 
@@ -45,39 +51,109 @@ const SearchIcon = styled(SearchIconSVG)`
   height: 100%;
 `;
 
-const TileContainer = styled.div``;
+const TileContainer = styled.div`
+  width: 500px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+  align-content: space-between;
+`;
 
-const NewsIcon = styled(BBCSVG)`
+const Tile = ({ agency, url }: INewsAgency) => {
+  // const [isDisabled, setDisabled] = useState(false);
+
+  const renderNewsIcon = (agency: string) => {
+    switch (agency.toUpperCase()) {
+      case "BBC":
+        return <BBCIcon />;
+      case "NYT":
+        return <NYTIcon />;
+      case "AP":
+        return <APIcon />;
+      case "REUTERS":
+        return <ReutersIcon />;
+      case "TWITTER":
+        return <TwitterIcon />;
+
+      default:
+        console.log("Agency is not recognised as a case");
+        break;
+    }
+  };
+
+  return (
+    <Button
+    // disabled={isDisabled}
+    // onClick={() => {
+    //   setDisabled(!isDisabled);
+    // }}
+    >
+      {renderNewsIcon(agency)}
+    </Button>
+  );
+};
+
+const Button = styled.button`
+  border: 1px solid #dfe1e5;
+  background-color: transparent;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  :hover {
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    border-color: rgba(223, 225, 229, 0);
+  }
+`;
+
+const BBCIcon = styled(BBCSVG)`
   height: 45px;
   width: 45px;
 `;
 
-interface newsAgency {
+const NYTIcon = styled(NYTSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+const APIcon = styled(APSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+const ReutersIcon = styled(ReutersSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+const TwitterIcon = styled(TwitterSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+interface INewsAgency {
   agency: string;
   url: string;
-  isDisabled: boolean;
 }
-
-const Tile = () => {
-  return (
-    <button>
-      <NewsIcon />
-      BBC
-    </button>
-  );
-};
 
 // <img src={/**/} />
 const App = () => {
-  let newsAgencies: newsAgency[] = [
-    { agency: "BBC", url: "https://www.bbc.co.uk", isDisabled: false },
-    { agency: "NYT", url: "https://www.nyt.com", isDisabled: false },
-    { agency: "KBC", url: "https://www.kbc.ke", isDisabled: false },
-    { agency: "SSS", url: "https://www.sss.sa", isDisabled: false },
+  let newsAgencies: INewsAgency[] = [
+    { agency: "BBC", url: "https://www.bbc.co.uk" },
+    { agency: "NYT", url: "https://www.nyt.com" },
+    { agency: "AP", url: "https://www.AP.com" },
+    { agency: "Reuters", url: "https://www.Reuters.sa" },
+    { agency: "Twitter", url: "https://www.twitter.com" },
   ];
 
-  const renderTiles = (newsAgencies: newsAgency[]) => {
-    return newsAgencies.map((newAgency) => <button>{newAgency.agency}</button>); // change button to Tile
+  const renderTiles = (newsAgencies: INewsAgency[]) => {
+    return newsAgencies.map((newsAgency) => (
+      <Tile agency={newsAgency.agency} url={newsAgency.url} />
+    ));
   };
 
   return (
@@ -92,10 +168,7 @@ const App = () => {
           placeholder="Check a fact or statement"
         />
       </SearchContainer>
-      <TileContainer>
-        {renderTiles(newsAgencies)}
-        <Tile />
-      </TileContainer>
+      <TileContainer>{renderTiles(newsAgencies)}</TileContainer>
     </ContentContainer>
   );
 };
