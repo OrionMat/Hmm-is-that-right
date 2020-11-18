@@ -2,10 +2,15 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { ReactComponent as SearchIconSVG } from "./images/searchIcon.svg";
 import { ReactComponent as BBCSVG } from "./images/BBCcurved.svg";
+import { ReactComponent as BBCGreySVG } from "./images/BBCcurvedGrey.svg";
 import { ReactComponent as NYTSVG } from "./images/NYT.svg";
+import { ReactComponent as NYTGreySVG } from "./images/NYTGrey.svg";
 import { ReactComponent as APSVG } from "./images/AP.svg";
+import { ReactComponent as APGreySVG } from "./images/APGrey.svg";
 import { ReactComponent as ReutersSVG } from "./images/Reuters.svg";
+import { ReactComponent as ReutersGreySVG } from "./images/ReutersGrey.svg";
 import { ReactComponent as TwitterSVG } from "./images/Twitter.svg";
+import { ReactComponent as TwitterGreySVG } from "./images/TwitterGrey.svg";
 
 const ContentContainer = styled.div`
   display: flex;
@@ -59,36 +64,53 @@ const TileContainer = styled.div`
   align-content: space-between;
 `;
 
-const Tile = ({ agency, url }: INewsAgency) => {
+const Tile = ({
+  agency,
+  url,
+  isActive,
+  handelClick,
+}: INewsAgency & { handelClick: (agency: string) => void }) => {
   // const [isDisabled, setDisabled] = useState(false);
 
-  const renderNewsIcon = (agency: string) => {
-    switch (agency.toUpperCase()) {
-      case "BBC":
-        return <BBCIcon />;
-      case "NYT":
-        return <NYTIcon />;
-      case "AP":
-        return <APIcon />;
-      case "REUTERS":
-        return <ReutersIcon />;
-      case "TWITTER":
-        return <TwitterIcon />;
-
-      default:
-        console.log("Agency is not recognised as a case");
-        break;
+  const renderNewsIcon = (agency: string, isActive: boolean) => {
+    if (isActive) {
+      switch (agency.toUpperCase()) {
+        case "BBC":
+          return <BBCIcon />;
+        case "NYT":
+          return <NYTIcon />;
+        case "AP":
+          return <APIcon />;
+        case "REUTERS":
+          return <ReutersIcon />;
+        case "TWITTER":
+          return <TwitterIcon />;
+        default:
+          console.log("Agency is not recognised as a case");
+          break;
+      }
+    } else {
+      switch (agency.toUpperCase()) {
+        case "BBC":
+          return <BBCGreyIcon />;
+        case "NYT":
+          return <NYTGreyIcon />;
+        case "AP":
+          return <APGreyIcon />;
+        case "REUTERS":
+          return <ReutersGreyIcon />;
+        case "TWITTER":
+          return <TwitterGreyIcon />;
+        default:
+          console.log("Agency is not recognised as a case");
+          break;
+      }
     }
   };
 
   return (
-    <Button
-    // disabled={isDisabled}
-    // onClick={() => {
-    //   setDisabled(!isDisabled);
-    // }}
-    >
-      {renderNewsIcon(agency)}
+    <Button onClick={() => handelClick(agency)}>
+      {renderNewsIcon(agency, isActive)}
     </Button>
   );
 };
@@ -108,9 +130,18 @@ const Button = styled.button`
     box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
     border-color: rgba(223, 225, 229, 0);
   }
+  :focus {
+    outline: none;
+    box-shadow: 0 0px 16px #0005;
+  }
 `;
 
 const BBCIcon = styled(BBCSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+const BBCGreyIcon = styled(BBCGreySVG)`
   height: 45px;
   width: 45px;
 `;
@@ -120,7 +151,17 @@ const NYTIcon = styled(NYTSVG)`
   width: 45px;
 `;
 
+const NYTGreyIcon = styled(NYTGreySVG)`
+  height: 45px;
+  width: 45px;
+`;
+
 const APIcon = styled(APSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+const APGreyIcon = styled(APGreySVG)`
   height: 45px;
   width: 45px;
 `;
@@ -130,7 +171,17 @@ const ReutersIcon = styled(ReutersSVG)`
   width: 45px;
 `;
 
+const ReutersGreyIcon = styled(ReutersGreySVG)`
+  height: 45px;
+  width: 45px;
+`;
+
 const TwitterIcon = styled(TwitterSVG)`
+  height: 45px;
+  width: 45px;
+`;
+
+const TwitterGreyIcon = styled(TwitterGreySVG)`
   height: 45px;
   width: 45px;
 `;
@@ -138,21 +189,79 @@ const TwitterIcon = styled(TwitterSVG)`
 interface INewsAgency {
   agency: string;
   url: string;
+  isActive: boolean;
 }
 
 // <img src={/**/} />
 const App = () => {
+  const [isActive, setActive] = useState({
+    isBbcActive: true,
+    isNytActive: true,
+    isApActive: true,
+    isReutersActive: true,
+    isTwitterActive: true,
+  });
   let newsAgencies: INewsAgency[] = [
-    { agency: "BBC", url: "https://www.bbc.co.uk" },
-    { agency: "NYT", url: "https://www.nyt.com" },
-    { agency: "AP", url: "https://www.AP.com" },
-    { agency: "Reuters", url: "https://www.Reuters.sa" },
-    { agency: "Twitter", url: "https://www.twitter.com" },
+    {
+      agency: "BBC",
+      url: "https://www.bbc.co.uk",
+      isActive: isActive.isBbcActive,
+    },
+    {
+      agency: "NYT",
+      url: "https://www.nyt.com",
+      isActive: isActive.isNytActive,
+    },
+    { agency: "AP", url: "https://www.AP.com", isActive: isActive.isApActive },
+    {
+      agency: "Reuters",
+      url: "https://www.Reuters.sa",
+      isActive: isActive.isReutersActive,
+    },
+    {
+      agency: "Twitter",
+      url: "https://www.twitter.com",
+      isActive: isActive.isTwitterActive,
+    },
   ];
 
   const renderTiles = (newsAgencies: INewsAgency[]) => {
     return newsAgencies.map((newsAgency) => (
-      <Tile agency={newsAgency.agency} url={newsAgency.url} />
+      <Tile
+        agency={newsAgency.agency}
+        url={newsAgency.url}
+        isActive={newsAgency.isActive}
+        handelClick={(agency: string) => {
+          switch (agency.toUpperCase()) {
+            case "BBC":
+              setActive({ ...isActive, isBbcActive: !isActive.isBbcActive });
+              break;
+            case "NYT":
+              setActive({ ...isActive, isNytActive: !isActive.isNytActive });
+              break;
+            case "AP":
+              setActive({ ...isActive, isApActive: !isActive.isApActive });
+              break;
+            case "REUTERS":
+              setActive({
+                ...isActive,
+                isReutersActive: !isActive.isReutersActive,
+              });
+              break;
+            case "TWITTER":
+              setActive({
+                ...isActive,
+                isTwitterActive: !isActive.isTwitterActive,
+              });
+              break;
+            default:
+              console.log(
+                "Agency is not recognised as a case. Set active state of tile error."
+              );
+              break;
+          }
+        }}
+      />
     ));
   };
 
