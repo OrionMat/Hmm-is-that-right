@@ -6,26 +6,37 @@ import serverConfig from "../config/serverConfig";
  * searches Google for the statement and returns the top links
  * 125 credits with SERP google search library
  */
-const googleSearchIntegration = async (query: string): Promise<string[]> => {
-  // set up the request parameters
-  const params = {
+export const googleSearchIntegration = async (
+  queries: string[]
+): Promise<string[][] | null> => {
+  // set up list of request parameters
+  const paramsList = queries.map((query) => ({
     api_key: serverConfig.serpSearchApiKey,
     q: query,
-  };
-  console.log("Request parameters: ", params);
+  }));
+  console.log("Request parameters: ", paramsList);
 
   // make the http GET request to Scale SERP
-  const resultsRaw = (
-    await axios.get("https://api.scaleserp.com/search", {
+  const rawResults = paramsList.map((params) =>
+    axios.get("https://api.scaleserp.com/search", {
       params,
     })
-  ).data;
-
-  const links: string[] = resultsRaw.organic_results.map(
-    (result: any) => result.link
   );
-  console.log(`links found: ${links}`);
-  return links;
-};
 
-export default googleSearchIntegration;
+  let linksArray: string[][] | null = null;
+  try {
+    const rawDataList = (await Promise.all(rawResults)).map((res) => res.data);
+    // console.log("rawDataList is", rawDataList); // remove
+    linksArray = rawDataList.map((rawData) => {
+      // console.log("rawData is", rawData); // remove
+      const results = rawData.organic_results;
+      const urls = results.map((result: any) => result.link);
+      console.log("urls are", urls); // remove
+      return urls;
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  console.log("links found:", linksArray);
+  return linksArray;
+};
