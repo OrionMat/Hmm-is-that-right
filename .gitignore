@@ -1,16 +1,17 @@
-/server
-
 # dependencies
-/node_modules
 /client/node_modules
 /client/.pnp
 /client/.pnp.js
+/server/node_modules
+/server/.env
 
 # testing
 /client/coverage
+/server/coverage
 
 # production
 /client/build
+/server/build
 
 # misc
 /client/.DS_Store
