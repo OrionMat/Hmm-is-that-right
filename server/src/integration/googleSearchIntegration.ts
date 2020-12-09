@@ -23,20 +23,19 @@ export const googleSearchIntegration = async (
     })
   );
 
-  let linksArray: string[][] | null = null;
+  let linksArrays: string[][] | null = null;
   try {
-    const rawDataList = (await Promise.all(rawResults)).map((res) => res.data);
-    // console.log("rawDataList is", rawDataList); // remove
-    linksArray = rawDataList.map((rawData) => {
-      // console.log("rawData is", rawData); // remove
+    const rawDataList = (await Promise.all(rawResults)).map(
+      (result) => result.data
+    );
+    linksArrays = rawDataList.map((rawData) => {
       const results = rawData.organic_results;
-      const urls = results.map((result: any) => result.link);
-      console.log("urls are", urls); // remove
-      return urls;
+      const links = results.map((result: any) => result.link);
+      return links;
     });
   } catch (error) {
     console.error(error);
   }
-  console.log("links found:", linksArray);
-  return linksArray;
+  console.log("links found:", linksArrays);
+  return linksArrays;
 };
