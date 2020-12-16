@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom";
 
 export const parseRawPages = async (source: string, rawPages: string[]) => {
-  console.log("parsing rawPageArrays");
+  console.log(`parseRawPages for ${source}`);
 
   const parsedNewsPieces = rawPages.map((htmlPage) => {
     const dom = new JSDOM(htmlPage).window.document;
@@ -10,7 +10,7 @@ export const parseRawPages = async (source: string, rawPages: string[]) => {
       /** parse BBC article */
       const title = dom.querySelector("#main-heading")?.textContent;
       const date = dom.getElementsByTagName("time")[0].getAttribute("datetime");
-      const author = "TODO"; // TODO: get author
+      const author = null; // TODO: get author
       const paragraphs = dom.getElementsByTagName("p");
       let body = "";
       for (let paraIdx = 0, end = paragraphs.length; paraIdx < end; paraIdx++) {
@@ -55,6 +55,24 @@ export const parseRawPages = async (source: string, rawPages: string[]) => {
       }
       return { title, date, author, body };
     } else if (source === "ap") {
+      /** parses AP article */
+      const title = dom
+        .querySelector("[Class=CardHeadline]")
+        ?.getElementsByTagName("h1")[0].textContent;
+      const date = dom
+        .querySelector("[data-key=timestamp]")
+        ?.getAttribute("data-source");
+      const author = dom
+        .querySelector("[Class=CardHeadline]")
+        ?.querySelector("[class*=Component-bylines-]")?.textContent; //data-key
+      const paragraphs = dom
+        .querySelectorAll("[data-key=article]")[0]
+        .getElementsByTagName("p");
+      let body = "";
+      for (let paraIdx = 0, end = paragraphs.length; paraIdx < end; paraIdx++) {
+        body += paragraphs[paraIdx].textContent;
+      }
+      return { title, date, author, body };
     } else {
     }
   });
