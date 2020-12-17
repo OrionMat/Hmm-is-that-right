@@ -1,75 +1,51 @@
 /** scrapes news pieces from news sources on the internet */
-import axios from "axios";
-import { JSDOM } from "jsdom";
-import googleSearchIntegration from "../integration/googleSearchIntegration";
+import { error } from "console";
+import { googleSearchIntegration } from "../integration/googleSearchIntegration";
+import { scrapePageHtml } from "../integration/scrapePageHtml";
+import { mapRawPages, NewsPiece } from "./mappingService";
 
-interface NewsPiece {
-  title: string | null | undefined;
-  date: string | null;
-  author: string | null;
-  body: string | null;
-  link: string | null;
-  source: string | null;
-}
-
-export const scrapeNewsPieceService = async (
-  statement: string,
-  sources: string[]
-) => {
+export const getNewsService = async (statement: string, sources: string[]) => {
   console.log(
     `scrapeNewsPieceService for sources "${sources}" with statement: "${statement}"`
   );
 
-  // TODO: trial async (https://kapeli.com/cheat_sheets/Axios.docset/Contents/Resources/Documents/index)
-  const newsPieces = sources.map(async (source) => {
-    const newsPiece: NewsPiece = {
-      title: null,
-      date: null,
-      author: null,
-      body: null,
-      link: null,
-      source: null,
-    };
-
-    // search internet for statement
-    const query = `${source} + ${statement}`;
-    // await googleSearchIntegration(query);
-    const links = [
-      "https://www.bbc.co.uk/news",
+  // search internet for statement
+  const queries = sources.map((source) => `${source} + ${statement}`);
+  const linksArrays = [
+    [
       "https://www.bbc.co.uk/news/world-us-canada-55193939",
       "https://www.bbc.co.uk/news/uk-politics-55191436",
-    ];
+    ],
+    [
+      "https://uk.reuters.com/article/health-coronavirus-snapshot/what-you-need-to-know-about-the-coronavirus-right-now-idUKVIRUS1",
+      "https://uk.reuters.com/article/uk-britain-sterling/sterling-drops-from-two-and-a-half-year-high-as-brexit-talks-paused-idUKKBN28E134",
+    ],
+    [
+      "https://www.nytimes.com/2020/11/15/us/politics/trump-concession-books-literature-.html",
+      "https://www.nytimes.com/2020/11/07/us/politics/joe-biden-president.html",
+    ],
+    [
+      "https://apnews.com/article/coronavirus-aid-bill-congress-08974a416131377d846d7b5b8583d250",
+    ],
+  ]; // await googleSearchIntegration(queries);
 
-    links.forEach(async (link) => {
-      const htmlPage = await axios.get(link);
-      console.log(`axios response: ${htmlPage.data}`);
-      const dom = new JSDOM(htmlPage.data).window.document;
+  // TODO: clean links, limit them
+  // const linksArrays = cleanLinks(sources, rawLinksArrays)
 
-      // get title
-      newsPiece.title = dom.querySelector("#main-heading")?.textContent;
+  // scrape related web pages
+  const rawPageArrays = await scrapePageHtml(linksArrays);
+  if (!rawPageArrays) throw new Error("No html pages have been scraped");
 
-      // get date
-      newsPiece.date = dom
-        .getElementsByTagName("time")[0]
-        .getAttribute("datetime");
+  // parse html web pages
+  let newsPieces: NewsPiece[] = [];
+  for (let i = 0, end = sources.length; i < end; i++) {
+    const newsPieceArray = await mapRawPages(
+      sources[i],
+      linksArrays[i],
+      rawPageArrays[i]
+    );
+    newsPieces = newsPieces.concat(newsPieceArray);
+  }
 
-      // get author TODO
-
-      // get body
-      const paragraphs = dom.getElementsByTagName("p");
-      let body = "";
-      for (let paraIdx = 0, end = paragraphs.length; paraIdx < end; paraIdx++) {
-        body += paragraphs[paraIdx].textContent;
-      }
-
-      // get link
-      newsPiece.link = link;
-
-      // get source
-      newsPiece.source = source;
-      console.log("hello again", newsPiece);
-    });
-
-    return newsPiece;
-  });
+  return newsPieces;
 };

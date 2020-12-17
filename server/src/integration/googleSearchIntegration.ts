@@ -16,15 +16,15 @@ export const googleSearchIntegration = async (
   }));
   console.log("Request parameters: ", paramsList);
 
-  // make the http GET request to Scale SERP
-  const rawResults = paramsList.map((params) =>
-    axios.get("https://api.scaleserp.com/search", {
-      params,
-    })
-  );
-
   let linksArrays: string[][] | null = null;
   try {
+    // make the http GET request to Scale SERP
+    const rawResults = paramsList.map((params) =>
+      axios.get("https://api.scaleserp.com/search", {
+        params,
+      })
+    );
+
     const rawDataList = (await Promise.all(rawResults)).map(
       (result) => result.data
     );
