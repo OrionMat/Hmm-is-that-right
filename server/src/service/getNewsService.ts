@@ -4,7 +4,12 @@ import { googleSearchIntegration } from "../integration/googleSearchIntegration"
 import { scrapePageHtml } from "../integration/scrapePageHtml";
 import { mapRawPages, NewsPiece } from "./mappingService";
 
-export const getNewsService = async (statement: string, sources: string[]) => {
+export const getNewsService = async (requestBody: {
+  statement: string;
+  sources: string[];
+}) => {
+  const statement = requestBody.statement;
+  const sources = requestBody.sources;
   console.log(
     `scrapeNewsPieceService for sources "${sources}" with statement: "${statement}"`
   );
