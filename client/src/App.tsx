@@ -11,6 +11,7 @@ import { ReactComponent as ReutersSVG } from "./images/Reuters.svg";
 import { ReactComponent as ReutersGreySVG } from "./images/ReutersGrey.svg";
 import { ReactComponent as TwitterSVG } from "./images/Twitter.svg";
 import { ReactComponent as TwitterGreySVG } from "./images/TwitterGrey.svg";
+import { getNewsPieces, NewsPiece } from "./getNewsPieces";
 
 const ContentContainer = styled.div`
   display: flex;
@@ -19,12 +20,12 @@ const ContentContainer = styled.div`
   height: 750px;
 `;
 
-const SearchContainer = styled.div`
+const SearchForm = styled.form`
   position: relative;
   width: 500px;
   margin: auto;
   margin-top: 300px;
-  margin-bottom: 50px;
+  margin-bottom: 25px;
   align-items: center;
 `;
 
@@ -62,6 +63,8 @@ const TileContainer = styled.div`
   flex-flow: row wrap;
   justify-content: space-evenly;
   align-content: space-between;
+  margin-top: 25px;
+  margin-bottom: 50px;
 `;
 
 const Tile = ({
@@ -186,6 +189,27 @@ const TwitterGreyIcon = styled(TwitterGreySVG)`
   width: 45px;
 `;
 
+const NewsResultsTable = styled.table`
+  width: 75%;
+  margin-top: 25px;
+  font-family: "Nunito", sans-serif;
+
+  th {
+    font-weight: 600;
+  }
+
+  td {
+    border: 1px solid black;
+  }
+
+  td > div {
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+`;
+
 interface INewsAgency {
   agency: string;
   url: string;
@@ -194,6 +218,7 @@ interface INewsAgency {
 
 // <img src={/**/} />
 const App = () => {
+  const [statement, setStatement] = useState("");
   const [isActive, setActive] = useState({
     isBbcActive: true,
     isNytActive: true,
@@ -201,6 +226,8 @@ const App = () => {
     isReutersActive: true,
     isTwitterActive: true,
   });
+  const [newsPieces, setNewsPieces] = useState<NewsPiece[]>([]);
+
   let newsAgencies: INewsAgency[] = [
     {
       agency: "BBC",
@@ -265,9 +292,46 @@ const App = () => {
     ));
   };
 
+  const renderNewsResults = () => {
+    return (
+      <tbody>
+        {newsPieces.map((newsPiece) => {
+          return (
+            <tr>
+              <td>
+                <div>{newsPiece.source}</div>
+              </td>
+              <td>
+                <div>{newsPiece.title}</div>
+              </td>
+              <td>
+                <div>{newsPiece.date}</div>
+              </td>
+              <td>
+                <div>{newsPiece.author}</div>
+              </td>
+              <td>
+                <div>{newsPiece.body}</div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    );
+  };
+
   return (
     <ContentContainer id="content">
-      <SearchContainer>
+      <SearchForm
+        onSubmit={async (e) => {
+          e.preventDefault();
+          console.log(JSON.stringify(isActive));
+          console.log(statement);
+          const news = await getNewsPieces(statement, isActive);
+          setNewsPieces(news);
+          console.log("news pieces:", newsPieces);
+        }}
+      >
         <SearchIcon />
         <SearchBar
           id="input"
@@ -275,9 +339,22 @@ const App = () => {
           autoComplete="off"
           spellCheck="false"
           placeholder="Check a fact or statement"
+          onChange={(event) => setStatement(event.target.value)}
         />
-      </SearchContainer>
+      </SearchForm>
       <TileContainer>{renderTiles(newsAgencies)}</TileContainer>
+      <NewsResultsTable>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Author</th>
+            <th>Body</th>
+          </tr>
+        </thead>
+        {renderNewsResults()}
+      </NewsResultsTable>
     </ContentContainer>
   );
 };
