@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import { getNewsService } from "./service/getNewsService";
 
 const app = express(); // creates express app -> handles creating web servers and parsing http requests
-const port = 3000;
+const port = 3001;
 
 app.use(express.json()); // adds functionality to parse json request bodies
 app.use("/", express.static(path.join(__dirname, "../../client/build"))); // serves a static resource defined in given directory
@@ -16,19 +16,24 @@ app.use((request: Request, response: Response, inNext) => {
 });
 
 app.get("/getNewsPieces", async (request: Request, response: Response) => {
-  console.log(`received request with body: ${request.body}`);
+  console.log(`received request with body: ${JSON.stringify(request.query)}`);
+  const statement = request.query.statement;
+  const sources = request.query.sources;
+  if (!statement || !sources) {
+    response.send("error receiving data");
+  }
+
   try {
-    const newsPieces = await getNewsService(request.body);
+    const newsPieces = await getNewsService(
+      statement as string,
+      sources as string[]
+    );
     response.json(newsPieces);
   } catch (error) {
     response.send("error");
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`app listening at http://localhost:${port}`);
 });
