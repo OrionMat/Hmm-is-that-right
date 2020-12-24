@@ -224,7 +224,7 @@ const App = () => {
     isNytActive: true,
     isApActive: true,
     isReutersActive: true,
-    isTwitterActive: true,
+    isTwitterActive: false,
   });
   const [newsPieces, setNewsPieces] = useState<NewsPiece[]>([]);
 
@@ -245,11 +245,11 @@ const App = () => {
       url: "https://www.Reuters.sa",
       isActive: isActive.isReutersActive,
     },
-    {
-      agency: "Twitter",
-      url: "https://www.twitter.com",
-      isActive: isActive.isTwitterActive,
-    },
+    // {
+    //   agency: "Twitter",
+    //   url: "https://www.twitter.com",
+    //   isActive: isActive.isTwitterActive,
+    // },
   ];
 
   const renderTiles = (newsAgencies: INewsAgency[]) => {
