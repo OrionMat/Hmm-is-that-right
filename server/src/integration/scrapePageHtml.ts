@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const scrapePageHtml = async (linksArray: string[][]) => {
-  let rawDataArrays: string[][] | null = null;
+  console.log("scrapePageHtml");
+  let rawDataArrays: string[][] = [];
   try {
     // concurrent requests => [[promise1, promise2], [promise3, promise4]]
     const rawResultsList = linksArray.map((links) => {

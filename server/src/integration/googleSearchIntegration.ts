@@ -8,7 +8,7 @@ import serverConfig from "../config/serverConfig";
  */
 export const googleSearchIntegration = async (
   queries: string[]
-): Promise<string[][] | null> => {
+): Promise<string[][]> => {
   // set up list of request parameters
   const paramsList = queries.map((query) => ({
     api_key: serverConfig.serpSearchApiKey,
@@ -16,7 +16,7 @@ export const googleSearchIntegration = async (
   }));
   console.log("Request parameters: ", paramsList);
 
-  let linksArrays: string[][] | null = null;
+  let linksArrays: string[][] = [];
   try {
     // make the http GET request to Scale SERP
     const rawResults = paramsList.map((params) =>
