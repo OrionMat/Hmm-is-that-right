@@ -9,15 +9,18 @@ export interface NewsPiece {
   source: string;
 }
 
-export const mapRawPages = async (
+const mapRawPages = async (
   source: string,
   links: string[],
   rawPages: string[]
 ) => {
   console.log(`mapRawPages for ${source}`);
 
-  const parsedNewsPieces: NewsPiece[] = rawPages.map((htmlPage, pageIndex) => {
+  let parsedNewsPieces: NewsPiece[] = [];
+  for (let pageIndex = 0, end = rawPages.length; pageIndex < end; pageIndex++) {
+    const htmlPage = rawPages[pageIndex];
     const link = links[pageIndex];
+
     try {
       const dom = new JSDOM(htmlPage).window.document;
 
@@ -37,7 +40,7 @@ export const mapRawPages = async (
         ) {
           body += paragraphs[paraIdx].textContent;
         }
-        return { title, date, author, body, link, source };
+        parsedNewsPieces.push({ title, date, author, body, link, source });
       } else if (source === "reuters") {
         /** parses Reuters article */
         const title = dom.querySelector("[class*=ArticleHeader-headline]")
@@ -56,7 +59,7 @@ export const mapRawPages = async (
         ) {
           body += paragraphs[paraIdx].textContent;
         }
-        return { title, date, author, body, link, source };
+        parsedNewsPieces.push({ title, date, author, body, link, source });
       } else if (source === "nyt") {
         /** parses New York Times article */
         const title = dom.querySelectorAll("[data-test-id=headline]")?.[0]
@@ -84,7 +87,7 @@ export const mapRawPages = async (
         ) {
           body += paragraphs[paraIdx].textContent;
         }
-        return { title, date, author, body, link, source };
+        parsedNewsPieces.push({ title, date, author, body, link, source });
       } else if (source === "ap") {
         /** parses AP article */
         const title = dom
@@ -107,30 +110,33 @@ export const mapRawPages = async (
         ) {
           body += paragraphs[paraIdx].textContent;
         }
-        return { title, date, author, body, link, source };
+        parsedNewsPieces.push({ title, date, author, body, link, source });
       } else {
         console.log("source not recognised");
-        return {
-          title: undefined,
-          date: undefined,
-          author: undefined,
-          body: "",
-          link,
-          source,
-        };
       }
     } catch (error) {
-      console.log("Error:", error);
-      return {
-        title: undefined,
-        date: undefined,
-        author: undefined,
-        body: "",
-        link,
-        source,
-      };
+      console.log("mappingService Error:", error);
     }
-  });
+  }
+
   console.log(parsedNewsPieces);
   return parsedNewsPieces;
+};
+
+export const mappingService = async (
+  sources: string[],
+  linksArrays: string[][],
+  rawPageArrays: string[][]
+): Promise<NewsPiece[]> => {
+  let newsPieces: NewsPiece[] = [];
+  for (let i = 0, end = sources.length; i < end; i++) {
+    // calls map Raw pages with the source, the links, and the corresponding raw pages
+    const newsPieceArray = await mapRawPages(
+      sources[i],
+      linksArrays[i],
+      rawPageArrays[i]
+    );
+    newsPieces = newsPieces.concat(newsPieceArray);
+  }
+  return newsPieces;
 };
