@@ -37,3 +37,5 @@ The project is mainly written in TypeScript (a statically typed superset of Java
    then paste your google API search key (can get a free one from [here](https://app.scaleserp.com/signup))
 4. Run an `npm run build` in the server directory
 5. Change into the Client directory and run a `npm run start`. This should kick off the UI.
+
+now testing git reset
