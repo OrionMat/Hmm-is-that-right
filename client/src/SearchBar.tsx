@@ -46,8 +46,8 @@ const SearchBar = (props: Props) => {
     <SearchForm
       onSubmit={async (event) => {
         event.preventDefault();
-        console.log(`submitted statement: ${statement}`);
-        console.log(`active sources: ${props.sourceStates}`);
+        console.log("submitted statement: ", statement);
+        console.log("active sources: ", props.sourceStates);
 
         const news = await getNewsPieces(statement, props.sourceStates);
         props.setNewsPieces(news);
