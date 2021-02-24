@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components";
 import { ReactComponent as SearchIconSVG } from "./images/searchIcon.svg";
 import { ReactComponent as BBCSVG } from "./images/BBCcurved.svg";
@@ -70,3 +71,39 @@ export const TwitterGreyIcon = styled(TwitterGreySVG)`
   height: ${iconStandardHeight};
   width: ${iconStandardWidth};
 `;
+
+export const SelectNewsIcon = (source: string, isActive: boolean) => {
+  if (isActive) {
+    switch (source.toUpperCase()) {
+      case "BBC":
+        return <BBCIcon />;
+      case "NYT":
+        return <NYTIcon />;
+      case "AP":
+        return <APIcon />;
+      case "REUTERS":
+        return <ReutersIcon />;
+      case "TWITTER":
+        return <TwitterIcon />;
+      default:
+        console.log("Source is not recognised as a case");
+        break;
+    }
+  } else {
+    switch (source.toUpperCase()) {
+      case "BBC":
+        return <BBCGreyIcon />;
+      case "NYT":
+        return <NYTGreyIcon />;
+      case "AP":
+        return <APGreyIcon />;
+      case "REUTERS":
+        return <ReutersGreyIcon />;
+      case "TWITTER":
+        return <TwitterGreyIcon />;
+      default:
+        console.log("Agency is not recognised as a case");
+        break;
+    }
+  }
+};

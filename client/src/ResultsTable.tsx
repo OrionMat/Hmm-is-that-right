@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { NewsPiece } from "./dataModel/dataModel";
+import { SelectNewsIcon as selectNewsIcon } from "./Icons";
 
 interface Props {
   newsPieces: NewsPiece[];
@@ -10,45 +11,57 @@ const Table = styled.table`
   width: 75%;
   margin-top: 25px;
   font-family: "Nunito", sans-serif;
+  border-collapse: collapse;
 
-  th {
-    font-weight: 600;
-  }
+  tbody {
+    tr {
+      border-radius: 0.25rem;
+      box-shadow: 0 1px 6px -1px rgba(32, 33, 36, 0.28);
+      td {
+        padding: 20px;
+        div {
+          min-width: 250px;
+          text-align: justify;
+          display: -webkit-box;
+          -webkit-line-clamp: 6;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
 
-  td {
-    border: 1px solid black;
-  }
+          &.news-icon {
+            min-width: initial;
+          }
 
-  td > div {
-    display: -webkit-box;
-    -webkit-line-clamp: 6;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+          &.news-title {
+            min-width: 300px;
+          }
+
+          &.news-body {
+            max-width: max-content;
+          }
+        }
+      }
+    }
   }
 `;
 
 const ResultsTable = (props: Props) => {
   return (
     <Table>
-      <thead>
-        <tr>
-          <td>source</td>
-          <td>title</td>
-          <td>body</td>
-          <td>date</td>
-        </tr>
-      </thead>
       <tbody>
         {props.newsPieces.map((newsPiece) => (
           <tr>
             <td>
-              <div>{newsPiece.source}</div>
+              <div className="news-icon">
+                {selectNewsIcon(newsPiece.source, true)}
+              </div>
             </td>
             <td>
-              <div>{newsPiece.title}</div>
+              <div className="news-title">
+                <a href={newsPiece.link}>{newsPiece.title}</a>
+              </div>
             </td>
             <td>
-              <div>{newsPiece.body}</div>
+              <div className="news-body">{newsPiece.body}</div>
             </td>
             <td>
               <div>{newsPiece.date}</div>
