@@ -1,6 +1,6 @@
 import path from "path";
 import express, { Request, Response } from "express";
-import { getNewsService } from "./service/getNewsService";
+import { getNewsService } from "./getNewsPieces";
 
 const app = express(); // creates express app -> handles creating web servers and parsing http requests
 const port = 3001;

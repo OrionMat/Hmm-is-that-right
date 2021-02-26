@@ -1,9 +1,8 @@
 /** scrapes news pieces from news sources on the internet */
-import { error } from "console";
-import { googleSearchIntegration } from "../integration/googleSearchIntegration";
-import { scrapePageHtml } from "../integration/scrapePageHtml";
-import { cleanLinks } from "./cleaningService";
-import { mappingService } from "./mappingService";
+import { googleSearch } from "./integration/googleSearch";
+import { scrapePageHtml } from "./integration/scrapePageHtml";
+import { cleanUrls } from "./service/cleanUrls";
+import { parseHtml } from "./service/parseHtml";
 
 export const getNewsService = async (statement: string, sources: string[]) => {
   console.log(
@@ -12,16 +11,16 @@ export const getNewsService = async (statement: string, sources: string[]) => {
 
   // search internet for statement
   const queries = sources.map((source) => `${source} + ${statement}`);
-  const rawLinksArrays = await googleSearchIntegration(queries);
+  const rawLinksArrays = await googleSearch(queries);
 
   // clean links, limit them
-  const linksArrays = await cleanLinks(sources, rawLinksArrays);
+  const linksArrays = await cleanUrls(sources, rawLinksArrays);
 
   // scrape related web pages
   const rawPageArrays = await scrapePageHtml(linksArrays);
 
   // parse html web pages
-  let newsPieces = await mappingService(sources, linksArrays, rawPageArrays);
+  let newsPieces = await parseHtml(sources, linksArrays, rawPageArrays);
 
   return newsPieces;
 };

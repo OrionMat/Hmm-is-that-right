@@ -6,9 +6,7 @@ import serverConfig from "../config/serverConfig";
  * searches Google for the statement and returns the top links
  * 125 credits with SERP google search library
  */
-export const googleSearchIntegration = async (
-  queries: string[]
-): Promise<string[][]> => {
+export const googleSearch = async (queries: string[]): Promise<string[][]> => {
   // set up list of request parameters
   const paramsList = queries.map((query) => ({
     api_key: serverConfig.serpSearchApiKey,

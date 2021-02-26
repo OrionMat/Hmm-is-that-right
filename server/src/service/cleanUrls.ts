@@ -1,4 +1,4 @@
-const filterLinks = async (source: string, sourceRawLinks: string[]) => {
+const filterUrls = async (source: string, sourceRawLinks: string[]) => {
   let filterKey = "";
   switch (source.toLowerCase()) {
     case "bbc":
@@ -22,7 +22,7 @@ const filterLinks = async (source: string, sourceRawLinks: string[]) => {
   return links;
 };
 
-export const cleanLinks = async (
+export const cleanUrls = async (
   sources: string[],
   rawLinks: string[][]
 ): Promise<string[][]> => {
@@ -34,7 +34,7 @@ export const cleanLinks = async (
   ) {
     const source = sources[sourceIndex];
     const sourceRawLinks = rawLinks[sourceIndex];
-    const sourceLinks = await filterLinks(source, sourceRawLinks);
+    const sourceLinks = await filterUrls(source, sourceRawLinks);
     cleanLinks.push(sourceLinks);
   }
   return cleanLinks;

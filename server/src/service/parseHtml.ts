@@ -123,7 +123,7 @@ const mapRawPages = async (
   return parsedNewsPieces;
 };
 
-export const mappingService = async (
+export const parseHtml = async (
   sources: string[],
   linksArrays: string[][],
   rawPageArrays: string[][]
