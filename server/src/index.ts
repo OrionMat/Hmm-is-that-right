@@ -1,39 +1,47 @@
 import path from "path";
 import express, { Request, Response } from "express";
 import { getNewsService } from "./getNewsPieces";
+import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
 
-const app = express(); // creates express app -> handles creating web servers and parsing http requests
-const port = 3001;
+computeSentenceSimilarities("The cat sat on the mat", [
+  "The feline sat on the carpet",
+  "The dog ran in the garden. The cat played on the may.",
+  "The fox jumped over the hedge",
+  "The cat rested on the mat",
+]);
 
-app.use(express.json()); // adds functionality to parse json request bodies
-app.use("/", express.static(path.join(__dirname, "../../client/build"))); // serves a static resource defined in given directory
-// CORS (Cross-Origin-Resource-Sharing) by default limits what dormains can call the api -> reduce the limitations
-app.use((request: Request, response: Response, inNext) => {
-  response.header("Access-Control-Allow-Origin", "*");
-  response.header("Access-Control-Allow-Methods", "GET,OPTIONS");
-  response.header("Access-Control-Allow-Headers", "Content-Type");
-  inNext();
-});
+// const app = express(); // creates express app -> handles creating web servers and parsing http requests
+// const port = 3001;
 
-app.get("/getNewsPieces", async (request: Request, response: Response) => {
-  console.log(`received request with body: ${JSON.stringify(request.query)}`);
-  const statement = request.query.statement;
-  const sources = request.query.sources;
-  if (!statement || !sources) {
-    response.send("error receiving data");
-  }
+// app.use(express.json()); // adds functionality to parse json request bodies
+// app.use("/", express.static(path.join(__dirname, "../../client/build"))); // serves a static resource defined in given directory
+// // CORS (Cross-Origin-Resource-Sharing) by default limits what dormains can call the api -> reduce the limitations
+// app.use((request: Request, response: Response, inNext) => {
+//   response.header("Access-Control-Allow-Origin", "*");
+//   response.header("Access-Control-Allow-Methods", "GET,OPTIONS");
+//   response.header("Access-Control-Allow-Headers", "Content-Type");
+//   inNext();
+// });
 
-  try {
-    const newsPieces = await getNewsService(
-      statement as string,
-      sources as string[]
-    );
-    response.json(newsPieces);
-  } catch (error) {
-    response.send("error");
-  }
-});
+// app.get("/getNewsPieces", async (request: Request, response: Response) => {
+//   console.log(`received request with body: ${JSON.stringify(request.query)}`);
+//   const statement = request.query.statement;
+//   const sources = request.query.sources;
+//   if (!statement || !sources) {
+//     response.send("error receiving data");
+//   }
 
-app.listen(port, () => {
-  console.log(`app listening at http://localhost:${port}`);
-});
+//   try {
+//     const newsPieces = await getNewsService(
+//       statement as string,
+//       sources as string[]
+//     );
+//     response.json(newsPieces);
+//   } catch (error) {
+//     response.send("error");
+//   }
+// });
+
+// app.listen(port, () => {
+//   console.log(`app listening at http://localhost:${port}`);
+// });
