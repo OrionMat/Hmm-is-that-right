@@ -123,18 +123,24 @@ const mapRawPages = async (
   return parsedNewsPieces;
 };
 
+/**
+ *
+ * @param sources Array of news sources. i.e ["bbc", "nyt", ...]
+ * @param urlArrays Array of URLS for each source. i.e [["www.bbc...", "www.bbc..."], ["www.nyt...", "www.nyt..."], ...]
+ * @param htmlWebPageArrays
+ */
 export const parseHtml = async (
   sources: string[],
-  linksArrays: string[][],
-  rawPageArrays: string[][]
+  urlArrays: string[][],
+  htmlWebPageArrays: string[][]
 ): Promise<NewsPiece[]> => {
   let newsPieces: NewsPiece[] = [];
   for (let i = 0, end = sources.length; i < end; i++) {
     // calls map Raw pages with the source, the links, and the corresponding raw pages
     const newsPieceArray = await mapRawPages(
       sources[i],
-      linksArrays[i],
-      rawPageArrays[i]
+      urlArrays[i],
+      htmlWebPageArrays[i]
     );
     newsPieces = newsPieces.concat(newsPieceArray);
   }

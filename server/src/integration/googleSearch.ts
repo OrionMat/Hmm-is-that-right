@@ -3,8 +3,9 @@ import axios from "axios";
 import serverConfig from "../config/serverConfig";
 
 /**
- * searches Google for the statement and returns the top links
- * 125 credits with SERP google search library
+ * Searches Google for the query statement and returns the top result URLs. 125 credits with SERP google search library
+ * @param queries Array of search queries. i.e ["bbc + Kenya win 7s", "nyt + New York best summer"]
+ * @returns Array of URLS for each source. i.e [["www.bbc...", "www.bbc..."], ["www.nyt...", "www.nyt..."], ...]
  */
 export const googleSearch = async (queries: string[]): Promise<string[][]> => {
   // set up list of request parameters

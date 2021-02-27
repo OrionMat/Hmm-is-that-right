@@ -1,5 +1,9 @@
 import axios from "axios";
 
+/**
+ * Scrapes the webpage HTML
+ * @param linksArray
+ */
 export const scrapePageHtml = async (linksArray: string[][]) => {
   console.log("scrapePageHtml");
   let rawDataArrays: string[][] = [];

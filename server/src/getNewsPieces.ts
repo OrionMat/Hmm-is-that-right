@@ -11,16 +11,16 @@ export const getNewsService = async (statement: string, sources: string[]) => {
 
   // search internet for statement
   const queries = sources.map((source) => `${source} + ${statement}`);
-  const rawLinksArrays = await googleSearch(queries);
+  const rawUrlArrays = await googleSearch(queries);
 
-  // clean links, limit them
-  const linksArrays = await cleanUrls(sources, rawLinksArrays);
+  // clean URLS and limit their number
+  const urlArrays = await cleanUrls(sources, rawUrlArrays);
 
   // scrape related web pages
-  const rawPageArrays = await scrapePageHtml(linksArrays);
+  const htmlWebPageArrays = await scrapePageHtml(urlArrays);
 
   // parse html web pages
-  let newsPieces = await parseHtml(sources, linksArrays, rawPageArrays);
+  let newsPieces = await parseHtml(sources, urlArrays, htmlWebPageArrays);
 
   return newsPieces;
 };
