@@ -1,13 +1,21 @@
 /** searches google for statement */
 import axios from "axios";
 import serverConfig from "../config/serverConfig";
+import { SourceUrls } from "../dataModel/dataModel";
 
 /**
  * Searches Google for the query statement and returns the top result URLs. 125 credits with SERP google search library
- * @param queries Array of search queries. i.e ["bbc + Kenya win 7s", "nyt + New York best summer"]
- * @returns Array of URLS for each source. i.e [["www.bbc...", "www.bbc..."], ["www.nyt...", "www.nyt..."], ...]
+ * @param statement Statement to be fact checked
+ * @param sources Sources to cross check statement with
+ * @returns Array of URLS for each source. i.e {bbc: ["www.bbc...", "www.bbc..."], nyt: ["www.nyt...", "www.nyt..."], ...}
  */
-export const googleSearch = async (queries: string[]): Promise<string[][]> => {
+export const googleSearch = async (
+  statement: string,
+  sources: string[]
+): Promise<SourceUrls> => {
+  // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + New York best summer"]
+  const queries = sources.map((source) => `${source} + ${statement}`);
+
   // set up list of request parameters
   const paramsList = queries.map((query) => ({
     api_key: serverConfig.serpSearchApiKey,
@@ -15,7 +23,7 @@ export const googleSearch = async (queries: string[]): Promise<string[][]> => {
   }));
   console.log("Request parameters: ", paramsList);
 
-  let linksArrays: string[][] = [];
+  let sourceUrls: SourceUrls = {};
   try {
     // make the http GET request to Scale SERP
     const rawResults = paramsList.map((params) =>
@@ -24,17 +32,20 @@ export const googleSearch = async (queries: string[]): Promise<string[][]> => {
       })
     );
 
+    // resolve all promised search results
     const rawDataList = (await Promise.all(rawResults)).map(
       (result) => result.data
     );
-    linksArrays = rawDataList.map((rawData) => {
+
+    // map raw data to arrays of urls for each news source
+    rawDataList.forEach((rawData, index) => {
       const results = rawData.organic_results;
-      const links = results.map((result: any) => result.link);
-      return links;
+      const urls = results.map((result: any) => result.link);
+      sourceUrls[sources[index]] = urls;
     });
   } catch (error) {
     console.error(error);
   }
-  console.log("links found:", linksArrays);
-  return linksArrays;
+  console.log("urls found for:", JSON.stringify(sourceUrls));
+  return sourceUrls;
 };

@@ -1,6 +1,6 @@
 import path from "path";
 import express, { Request, Response } from "express";
-import { getNewsService } from "./getNewsPieces";
+import { getNewsPieces } from "./service/getNewsPieces";
 import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
 
 computeSentenceSimilarities("The cat sat on the mat", [

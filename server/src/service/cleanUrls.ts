@@ -1,41 +1,46 @@
-const filterUrls = async (source: string, sourceRawLinks: string[]) => {
-  let filterKey = "";
-  switch (source.toLowerCase()) {
-    case "bbc":
-      filterKey = "https://www.bbc.";
-      break;
-    case "nyt":
-      filterKey = "https://www.nytimes.";
-      break;
-    case "ap":
-      filterKey = "https://apnews.";
-      break;
-    case "reuters":
-      filterKey = "https://www.reuters.";
-      break;
-    default:
-      console.log("filterLinks Error: no source match");
-      break;
-  }
+import { SourceUrls } from "../dataModel/dataModel";
 
-  const links = sourceRawLinks.filter((rawLink) => rawLink.includes(filterKey));
-  return links;
-};
-
+/**
+ * Filters/Cleans URLs
+ * @param rawSourceUrls  Sources with a list of URLs for each source
+ * @returns Sources with a clean list of URls for each source
+ */
 export const cleanUrls = async (
-  sources: string[],
-  rawLinks: string[][]
-): Promise<string[][]> => {
-  let cleanLinks: string[][] = [];
-  for (
-    let sourceIndex = 0, sourceNum = sources.length;
-    sourceIndex < sourceNum;
-    sourceIndex++
-  ) {
-    const source = sources[sourceIndex];
-    const sourceRawLinks = rawLinks[sourceIndex];
-    const sourceLinks = await filterUrls(source, sourceRawLinks);
-    cleanLinks.push(sourceLinks);
+  rawSourceUrls: SourceUrls
+): Promise<SourceUrls> => {
+  let cleanSourceUrls: SourceUrls = {};
+  for (const source in rawSourceUrls) {
+    const rawUrls = rawSourceUrls[source];
+
+    let filterKey: string | null = null;
+    switch (source.toLowerCase()) {
+      case "bbc":
+        filterKey = "https://www.bbc.";
+        break;
+      case "nyt":
+        filterKey = "https://www.nytimes.";
+        break;
+      case "ap":
+        filterKey = "https://apnews.";
+        break;
+      case "reuters":
+        filterKey = "https://www.reuters.";
+        break;
+      default:
+        console.log(
+          "cleanURLs: No cleaning/filtering of URLs as no source match"
+        );
+        break;
+    }
+
+    let urls: string[] | null = null;
+    if (filterKey) {
+      urls = rawUrls.filter((rawUrl) => rawUrl.includes(filterKey as string));
+    } else {
+      urls = rawUrls;
+    }
+
+    cleanSourceUrls[source] = urls;
   }
-  return cleanLinks;
+  return cleanSourceUrls;
 };

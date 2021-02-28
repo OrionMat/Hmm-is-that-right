@@ -1,148 +1,71 @@
 import { JSDOM } from "jsdom";
+import { SourcePages, SourcePieces } from "../dataModel/dataModel";
 
-export interface NewsPiece {
-  title: string | null | undefined;
-  date: string | null | undefined;
-  author: string | null | undefined;
-  body: string;
-  link: string;
-  source: string;
-}
-
-const mapRawPages = async (
-  source: string,
-  links: string[],
-  rawPages: string[]
-) => {
-  console.log(`mapRawPages for ${source}`);
-
-  let parsedNewsPieces: NewsPiece[] = [];
-  for (let pageIndex = 0, end = rawPages.length; pageIndex < end; pageIndex++) {
-    const htmlPage = rawPages[pageIndex];
-    const link = links[pageIndex];
-
-    try {
-      const dom = new JSDOM(htmlPage).window.document;
-
-      if (source === "bbc") {
-        /** parse BBC article */
-        const title = dom.querySelector("#main-heading")?.textContent;
-        const date = dom
-          .getElementsByTagName("time")?.[0]
-          .getAttribute("datetime");
-        const author = null; // TODO: get author
-        const paragraphs = dom.getElementsByTagName("p");
-        let body = "";
-        for (
-          let paraIdx = 0, end = paragraphs.length;
-          paraIdx < end;
-          paraIdx++
-        ) {
-          body += paragraphs[paraIdx].textContent;
-        }
-        parsedNewsPieces.push({ title, date, author, body, link, source });
-      } else if (source === "reuters") {
-        /** parses Reuters article */
-        const title = dom.querySelector("[class*=ArticleHeader-headline]")
-          ?.textContent;
-        const date = null; // TODO: no dates
-        const author = dom.querySelectorAll("[class*=ArticleBody-byline]")?.[1]
-          .textContent;
-        const paragraphs = dom
-          .querySelectorAll("[class*=ArticleBodyWrapper]")?.[0]
-          .getElementsByTagName("p");
-        let body = "";
-        for (
-          let paraIdx = 0, end = paragraphs.length;
-          paraIdx < end;
-          paraIdx++
-        ) {
-          body += paragraphs[paraIdx].textContent;
-        }
-        parsedNewsPieces.push({ title, date, author, body, link, source });
-      } else if (source === "nyt") {
-        /** parses New York Times article */
-        const title = dom.querySelectorAll("[data-test-id=headline]")?.[0]
-          .textContent;
-        const date = dom
-          .getElementsByTagName("time")?.[0]
-          .getAttribute("datetime");
-        const authorTags = dom.querySelectorAll("[class*=byline-prefix]")?.[0]
-          .parentNode?.children;
-        let author = "";
-        authorTags
-          ? (author = Array.from(authorTags)
-              .slice(1)
-              .map((authorTag) => author + authorTag.textContent)
-              .join(", "))
-          : null;
-        const paragraphs = dom
-          .getElementsByName("articleBody")?.[0]
-          .getElementsByTagName("p");
-        let body = "";
-        for (
-          let paraIdx = 0, end = paragraphs.length;
-          paraIdx < end;
-          paraIdx++
-        ) {
-          body += paragraphs[paraIdx].textContent;
-        }
-        parsedNewsPieces.push({ title, date, author, body, link, source });
-      } else if (source === "ap") {
-        /** parses AP article */
-        const title = dom
-          .querySelector("[Class=CardHeadline]")
-          ?.getElementsByTagName("h1")?.[0].textContent;
-        const date = dom
-          .querySelector("[data-key=timestamp]")
-          ?.getAttribute("data-source");
-        const author = dom
-          .querySelector("[Class=CardHeadline]")
-          ?.querySelector("[class*=Component-bylines-]")?.textContent;
-        const paragraphs = dom
-          .querySelectorAll("[data-key=article]")?.[0]
-          .getElementsByTagName("p");
-        let body = "";
-        for (
-          let paraIdx = 0, end = paragraphs.length;
-          paraIdx < end;
-          paraIdx++
-        ) {
-          body += paragraphs[paraIdx].textContent;
-        }
-        parsedNewsPieces.push({ title, date, author, body, link, source });
-      } else {
-        console.log("source not recognised");
-      }
-    } catch (error) {
-      console.log("mappingService Error:", error);
-    }
+const getSelectors = (source: string) => {
+  switch (source.toLowerCase()) {
+    case "bbc":
+      const titleSelector = "#main-heading";
+      const dateSelector = "time[data-testid='timestamp'";
+      const paragraphSelector = "p";
+      return [titleSelector, dateSelector, null, paragraphSelector];
+    default:
+      return [null, null, null, null];
   }
-
-  console.log(parsedNewsPieces);
-  return parsedNewsPieces;
 };
 
+const getData = (selector: string | null, dom: Document) =>
+  selector ? dom.querySelector(selector)?.textContent : null;
+
 /**
- *
- * @param sources Array of news sources. i.e ["bbc", "nyt", ...]
- * @param urlArrays Array of URLS for each source. i.e [["www.bbc...", "www.bbc..."], ["www.nyt...", "www.nyt..."], ...]
- * @param htmlWebPageArrays
+ * Parses HTML webpages and extracts relevant information
+ * @param sourcePages HTML webpages and URLs for each source. i.e {bbc: {urls: ["www.bbc...", "www.bbc..."], webpages: [bbcHTML, bbcHTML, ...]}, nyt: {urls: ["www.nyt...", "www.nyt..."], webpages: [...]}, ...}
+ * @returns News pieces
  */
 export const parseHtml = async (
-  sources: string[],
-  urlArrays: string[][],
-  htmlWebPageArrays: string[][]
-): Promise<NewsPiece[]> => {
-  let newsPieces: NewsPiece[] = [];
-  for (let i = 0, end = sources.length; i < end; i++) {
-    // calls map Raw pages with the source, the links, and the corresponding raw pages
-    const newsPieceArray = await mapRawPages(
-      sources[i],
-      urlArrays[i],
-      htmlWebPageArrays[i]
-    );
-    newsPieces = newsPieces.concat(newsPieceArray);
+  sourcePages: SourcePages
+): Promise<SourcePieces> => {
+  let sourcePieces: SourcePieces = {};
+  for (const source in sourcePages) {
+    const urls = sourcePages[source].urls; // [bbcHTML, bbcHTML, ...]
+    const htmlPages = sourcePages[source].webPages; // [bbcHTML, bbcHTML, ...]
+
+    // get CSS selectors to find the news piece title, date, author, etc.
+    const [
+      titleSelector,
+      dateSelector,
+      authorSelector,
+      paragraphSelector,
+    ] = getSelectors(source);
+
+    // extract the news piece title, data, author, etc.
+    const titles: Array<string | null | undefined> = [];
+    const dates: Array<string | null | undefined> = [];
+    const authors: Array<string | null | undefined> = [];
+    const bodies: Array<Array<string | null | undefined>> = [];
+    for (const htmlPage in htmlPages) {
+      try {
+        const dom = new JSDOM(htmlPage).window.document;
+
+        const title = getData(titleSelector, dom);
+        const date = getData(dateSelector, dom);
+        const author = getData(authorSelector, dom);
+        const paragraphs: Array<string | null> = [];
+        paragraphSelector
+          ? dom
+              .querySelectorAll(paragraphSelector)
+              .forEach((element) => paragraphs.push(element.textContent))
+          : null;
+
+        titles.push(title);
+        dates.push(date);
+        authors.push(author);
+        bodies.push(paragraphs);
+      } catch (error) {
+        console.log("Error parsing webpage HTML: ", error);
+      }
+    }
+    sourcePieces[source] = { urls, titles, dates, authors, bodies };
   }
-  return newsPieces;
+
+  return sourcePieces;
 };
