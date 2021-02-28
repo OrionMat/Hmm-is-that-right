@@ -2,6 +2,13 @@ require("@tensorflow/tfjs");
 import * as tf from "@tensorflow/tfjs";
 import * as sentenceEncoder from "@tensorflow-models/universal-sentence-encoder";
 
+// computeSentenceSimilarities("The cat sat on the mat", [
+//   "The feline sat on the carpet",
+//   "The dog ran in the garden. The cat played on the may.",
+//   "The fox jumped over the hedge",
+//   "The cat rested on the mat",
+// ]);
+
 /**
  * Finds the 3 most similar sentences in an article
  * @param querySentence The base sentence

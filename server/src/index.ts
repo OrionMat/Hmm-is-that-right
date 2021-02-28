@@ -2,13 +2,9 @@ import path from "path";
 import express, { Request, Response } from "express";
 import { getNewsPieces } from "./service/getNewsPieces";
 import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
+import { googleSearch } from "./integration/googleSearch";
 
-computeSentenceSimilarities("The cat sat on the mat", [
-  "The feline sat on the carpet",
-  "The dog ran in the garden. The cat played on the may.",
-  "The fox jumped over the hedge",
-  "The cat rested on the mat",
-]);
+googleSearch("covid lockdown lift", ["bbc", "nyt"]);
 
 // const app = express(); // creates express app -> handles creating web servers and parsing http requests
 // const port = 3001;

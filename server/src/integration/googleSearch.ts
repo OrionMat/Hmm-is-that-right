@@ -13,6 +13,8 @@ export const googleSearch = async (
   statement: string,
   sources: string[]
 ): Promise<SourceUrls> => {
+  console.log(`Searching news sources for statement: ${statement}`);
+
   // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + New York best summer"]
   const queries = sources.map((source) => `${source} + ${statement}`);
 
@@ -21,7 +23,6 @@ export const googleSearch = async (
     api_key: serverConfig.serpSearchApiKey,
     q: query,
   }));
-  console.log("Request parameters: ", paramsList);
 
   let sourceUrls: SourceUrls = {};
   try {
@@ -44,7 +45,7 @@ export const googleSearch = async (
       sourceUrls[sources[index]] = urls;
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error searching Google: ", error);
   }
   console.log("urls found for:", JSON.stringify(sourceUrls));
   return sourceUrls;
