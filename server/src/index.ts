@@ -2,7 +2,7 @@ import path from "path";
 import express, { Request, Response } from "express";
 import { getNewsPieces } from "./service/getNewsPieces";
 import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
-import { googleSearch } from "./integration/googleSearch";
+import { googleSearch } from "./integration/googleSearch/googleSearch";
 
 googleSearch("covid lockdown lift", ["bbc", "nyt"]);
 

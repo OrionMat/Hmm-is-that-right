@@ -1,7 +1,7 @@
 /** searches google for statement */
 import axios from "axios";
-import serverConfig from "../config/serverConfig";
-import { SourceUrls } from "../dataModel/dataModel";
+import serverConfig from "../../config/serverConfig";
+import { SourceUrls } from "../../dataModel/dataModel";
 
 /**
  * Searches Google for the query statement and returns the top result URLs. 125 credits with SERP google search library
@@ -39,13 +39,14 @@ export const googleSearch = async (
     );
 
     // map raw data to arrays of urls for each news source
-    rawDataList.forEach((rawData, index) => {
-      const results = rawData.organic_results;
+    sources.forEach((source, index) => {
+      const results = rawDataList[index].organic_results;
       const urls = results.map((result: any) => result.link);
-      sourceUrls[sources[index]] = urls;
+      sourceUrls[source] = urls;
     });
   } catch (error) {
-    console.error("Error searching Google: ", error);
+    console.log("Error searching Google: ", error);
+    throw new Error(`Searching Google: ${error}`);
   }
   console.log("urls found for:", JSON.stringify(sourceUrls));
   return sourceUrls;

@@ -1,7 +1,7 @@
 /** scrapes news pieces from internet news sources */
-import { googleSearch } from "../integration/googleSearch";
+import { googleSearch } from "../integration/googleSearch/googleSearch";
 import { scrapePageHtml } from "../integration/scrapePageHtml";
-import { cleanUrls } from "./cleanUrls";
+import { cleanUrls } from "./cleanUrls/cleanUrls";
 import { parseHtml } from "./parseHtml";
 
 // TODO test throughy. Add unit test for each function

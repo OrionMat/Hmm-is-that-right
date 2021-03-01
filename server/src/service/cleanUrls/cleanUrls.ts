@@ -1,4 +1,4 @@
-import { SourceUrls } from "../dataModel/dataModel";
+import { SourceUrls } from "../../dataModel/dataModel";
 
 /**
  * Filters/Cleans URLs
@@ -10,7 +10,7 @@ export const cleanUrls = async (
 ): Promise<SourceUrls> => {
   let cleanSourceUrls: SourceUrls = {};
   for (const source in rawSourceUrls) {
-    const rawUrls = rawSourceUrls[source];
+    const rawUrls = rawSourceUrls[source]; // ["www.", "www.", "www.", ...]
 
     let filterKey: string | null = null;
     switch (source.toLowerCase()) {
@@ -27,6 +27,7 @@ export const cleanUrls = async (
         filterKey = "https://www.reuters.";
         break;
       default:
+        filterKey = "https://www.";
         console.log(
           "cleanURLs: No cleaning/filtering of URLs as no source match"
         );
@@ -34,13 +35,10 @@ export const cleanUrls = async (
     }
 
     let urls: string[] | null = null;
-    if (filterKey) {
-      urls = rawUrls.filter((rawUrl) => rawUrl.includes(filterKey as string));
-    } else {
-      urls = rawUrls;
-    }
+    urls = rawUrls.filter((rawUrl) => rawUrl.includes(filterKey as string));
 
     cleanSourceUrls[source] = urls;
   }
+  console.log("Cleaned URLS: ", cleanSourceUrls);
   return cleanSourceUrls;
 };
