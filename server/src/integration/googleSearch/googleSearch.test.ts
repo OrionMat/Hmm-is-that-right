@@ -100,7 +100,7 @@ describe("Get URLs to related articles via Google search", () => {
     expect(sourceUrls["horse"]).toEqual([""]);
   });
 
-  test("Non ideal case: No data is returned by Axios", async () => {
+  test("Non-ideal case: No data is returned by Axios", async () => {
     // setup
     const axiosResponse: any = [];
 
@@ -123,7 +123,7 @@ describe("Get URLs to related articles via Google search", () => {
     );
   });
 
-  test("Non ideal case: Axios throws an error response", async () => {
+  test("Non-ideal case: Axios throws an error response", async () => {
     // setup
     const axiosResponse = { status: 500 };
 

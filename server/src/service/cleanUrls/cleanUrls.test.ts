@@ -70,7 +70,7 @@ describe("Filtering for HTTP URLs", () => {
     });
   });
 
-  test("Non ideal calse: No sources are provided", async () => {
+  test("Non-ideal calse: No sources are provided", async () => {
     // setup
     const rawSourceUrls = { "fancy source": [] };
 

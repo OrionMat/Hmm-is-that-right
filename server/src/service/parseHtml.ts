@@ -26,8 +26,8 @@ export const parseHtml = async (
 ): Promise<SourcePieces> => {
   let sourcePieces: SourcePieces = {};
   for (const source in sourcePages) {
-    const urls = sourcePages[source].urls; // [bbcHTML, bbcHTML, ...]
-    const htmlPages = sourcePages[source].webPages; // [bbcHTML, bbcHTML, ...]
+    const urls = sourcePages[source].urls;
+    const htmlPages = sourcePages[source].webpages;
 
     // get CSS selectors to find the news piece title, date, author, etc.
     const [

@@ -1,6 +1,6 @@
 /** searches google for statement */
 import axios from "axios";
-import serverConfig from "../../config/serverConfig";
+import { serverConfig } from "../../config/serverConfig";
 import { SourceUrls } from "../../dataModel/dataModel";
 
 /**
