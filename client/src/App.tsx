@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import SearchBar from "./SearchBar";
+import { SearchBar } from "./SearchBar";
 import {
   NewsPiece,
   permanentSourceUrls,
   PermanentNewsSources,
 } from "./dataModel/dataModel";
-import Tile from "./Tile";
-import ResultsTable from "./ResultsTable";
+import { Tile } from "./Tile";
+import { ResultsTable } from "./ResultsTable";
 
 const initialNewsSources = {
   bbc: true,
@@ -34,7 +34,7 @@ const TileContainer = styled.div`
   margin-bottom: 50px;
 `;
 
-const App = () => {
+export const App = () => {
   /** active/desabled states for news agencies */
   const [sourceStates, setSourceStates] = useState(initialNewsSources);
   const newSourceStates = Object.assign({}, sourceStates);
@@ -77,5 +77,3 @@ const App = () => {
     </ContentContainer>
   );
 };
-
-export default App;

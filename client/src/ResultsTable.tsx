@@ -44,7 +44,7 @@ const Table = styled.table`
   }
 `;
 
-const ResultsTable = (props: Props) => {
+export const ResultsTable = (props: Props) => {
   return (
     <Table>
       <tbody>
@@ -72,5 +72,3 @@ const ResultsTable = (props: Props) => {
     </Table>
   );
 };
-
-export default ResultsTable;

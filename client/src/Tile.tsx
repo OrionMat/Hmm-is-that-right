@@ -30,12 +30,10 @@ const Button = styled.button`
   }
 `;
 
-const Tile = (props: Props) => {
+export const Tile = (props: Props) => {
   return (
     <Button onClick={() => props.handelClick(!props.isActive)}>
       {SelectNewsIcon(props.source, props.isActive)}
     </Button>
   );
 };
-
-export default Tile;

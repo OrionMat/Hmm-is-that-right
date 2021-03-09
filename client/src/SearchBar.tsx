@@ -39,7 +39,7 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchBar = (props: Props) => {
+export const SearchBar = (props: Props) => {
   const [statement, setStatement] = useState("");
 
   return (
@@ -65,5 +65,3 @@ const SearchBar = (props: Props) => {
     </SearchForm>
   );
 };
-
-export default SearchBar;
