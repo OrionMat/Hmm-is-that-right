@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SourceUrls, SourcePages } from "../dataModel/dataModel";
+import { SourceUrls, SourcePages } from "../../dataModel/dataModel";
 
 /**
  * Scrapes webpage HTML for each URL
@@ -17,10 +17,15 @@ export const scrapePageHtml = async (sourceUrls: SourceUrls) => {
       const promisedResults = urls.map((url) => axios.get(url));
 
       // resolve all http request promises. i.e results = [response1, response2, ...]
-      const rawResults = await Promise.all(promisedResults);
+      const rawResults = await Promise.allSettled(promisedResults);
 
       // get html response data. i.e data = [webPage1, webPage2, ...]
-      const webpages = rawResults.map((result) => result.data as string);
+      const webpages: string[] = [];
+      rawResults.forEach((result) =>
+        result.status === "fulfilled"
+          ? webpages.push(result.value.data)
+          : undefined
+      );
 
       sourcePages[source] = { webpages, urls };
     }

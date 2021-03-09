@@ -102,7 +102,7 @@ describe("Scrape webpage HTML for each URL", () => {
     mockAxios.get.mockResolvedValueOnce({ data: bbcWebPages[0] });
     mockAxios.get.mockResolvedValueOnce({ data: nytWebPages[0] });
     mockAxios.get.mockRejectedValueOnce({ data: nytWebPages[1] }); // rejection case
-    mockAxios.get.mockResolvedValueOnce({ data: reutersWebpages[0] });
+    mockAxios.get.mockRejectedValueOnce({ data: reutersWebpages[0] }); // rejection case
 
     // run test
     const sourcePages = await scrapePageHtml(sourceUrls);
@@ -110,7 +110,7 @@ describe("Scrape webpage HTML for each URL", () => {
     // asserts
     expect(mockAxios.get).toBeCalledTimes(4);
     expect(sourcePages["bbc"].webpages).toEqual(bbcWebPages);
-    expect(sourcePages["nyt"].webpages).toEqual(nytWebPages);
-    expect(sourcePages["reuters"].webpages).toEqual(reutersWebpages);
+    expect(sourcePages["nyt"].webpages).toEqual([nytWebPages[0]]);
+    expect(sourcePages?.["reuters"].webpages).toEqual([]);
   });
 });
