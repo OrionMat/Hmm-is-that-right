@@ -11,7 +11,7 @@ export interface SourceUrls {
  * i.e {bbc: {urls: ["www.bbc...", "www.bbc..."], webpages: [bbcHTML, bbcHTML, ...]}, nyt: {urls: ["www.nyt...", "www.nyt..."], webpages: [...]}, ...}
  */
 export interface SourcePages {
-  [source: string]: { urls: string[]; webPages: string[] };
+  [source: string]: { urls: string[]; webpages: string[] };
 }
 
 /**

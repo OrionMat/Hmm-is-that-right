@@ -6,8 +6,6 @@ interface serverConfigI {
   serpSearchApiKey: string | undefined;
 }
 
-const serverConfig: serverConfigI = {
+export const serverConfig: serverConfigI = {
   serpSearchApiKey: process.env.SERP_SEARCH_API_KEY,
 };
-
-export default serverConfig;

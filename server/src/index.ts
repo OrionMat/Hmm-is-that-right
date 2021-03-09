@@ -3,8 +3,22 @@ import express, { Request, Response } from "express";
 import { getNewsPieces } from "./service/getNewsPieces";
 import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
 import { googleSearch } from "./integration/googleSearch/googleSearch";
+import { scrapePageHtml } from "./integration/scrapePageHtml";
 
-googleSearch("covid lockdown lift", ["bbc", "nyt"]);
+const sourceUrls = {
+  bbc: ["https://www.bbc.co.uk/news/in-pictures-54118899"],
+  nyt: [
+    "https://www.nytimes.com/column/i-was-misinformed",
+    "https://www.nytimes.com/2018/06/18/nyregion/et-doesnt-like-the-bike-path-either.html",
+  ],
+  reuters: [
+    "https://www.reuters.com/article/us-spain-chess-queens-gambit/spanish-chess-board-sales-soar-after-queens-gambit-cameo-idUSKBN2AG0VJ",
+  ],
+};
+
+scrapePageHtml(sourceUrls).then((sourceUrls) => console.log(sourceUrls));
+
+// googleSearch("covid lockdown lift", ["bbc", "nyt"]);
 
 // const app = express(); // creates express app -> handles creating web servers and parsing http requests
 // const port = 3001;

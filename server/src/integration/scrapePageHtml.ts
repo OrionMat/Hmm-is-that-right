@@ -8,7 +8,7 @@ import { SourceUrls, SourcePages } from "../dataModel/dataModel";
  */
 export const scrapePageHtml = async (sourceUrls: SourceUrls) => {
   console.log("scraping page HTML.");
-  let results: SourcePages = {};
+  let sourcePages: SourcePages = {};
   try {
     for (const source in sourceUrls) {
       const urls = sourceUrls[source];
@@ -22,11 +22,10 @@ export const scrapePageHtml = async (sourceUrls: SourceUrls) => {
       // get html response data. i.e data = [webPage1, webPage2, ...]
       const webpages = rawResults.map((result) => result.data as string);
 
-      results[source].webPages = webpages;
-      results[source].urls = urls;
+      sourcePages[source] = { webpages, urls };
     }
   } catch (error) {
-    console.error(error);
+    console.error("Error scraping webpages: ", error);
   }
-  return results;
+  return sourcePages;
 };
