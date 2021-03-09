@@ -4,7 +4,7 @@ import { googleSearch } from "./googleSearch";
 
 jest.mock("axios");
 jest.mock("../../config/serverConfig", () => ({
-  serpSearchApiKey: "NOT_TELLING",
+  serverConfig: { serpSearchApiKey: "NOT_TELLING" },
 }));
 
 const mockAxios = axios as jest.Mocked<typeof axios>;
@@ -42,21 +42,21 @@ describe("Get URLs to related articles via Google search", () => {
       },
       {
         data: {
-          organic_results: [{ link: "" }],
+          organic_results: [{ link: "www.sneakyWoodenHorse.com" }],
         },
       },
     ];
 
     // mocks
     mockAxios.get.mockResolvedValueOnce(axiosResponses[0]);
-    mockAxios.get.mockResolvedValueOnce(axiosResponses[1]);
+    mockAxios.get.mockRejectedValueOnce(axiosResponses[1]); // reject
     mockAxios.get.mockResolvedValueOnce(axiosResponses[2]);
-    mockAxios.get.mockResolvedValueOnce(axiosResponses[3]);
+    mockAxios.get.mockRejectedValueOnce(axiosResponses[3]); // reject
 
     // run test
     const sourceUrls = await googleSearch(statement, sources);
 
-    // asserts
+    // asserts: axios called with correct parameters
     expect(mockAxios.get.mock.calls[0][0]).toBe(
       "https://api.scaleserp.com/search"
     );
@@ -84,20 +84,17 @@ describe("Get URLs to related articles via Google search", () => {
         q: "pure shmorce + Kenya win 7s",
       },
     });
-
+    // asserts: correct urls are returned
     expect(sourceUrls["fancy source"]).toEqual([
       "www.fancy.com/article-1",
       "www.fancy.com/article-2",
     ]);
-    expect(sourceUrls["shmancy source"]).toEqual([
-      "www.shmancy.com/article-1",
-      "www.shmancy.com/article-2",
-    ]);
+    expect(sourceUrls?.["shmancy source"]).toBeUndefined();
     expect(sourceUrls["pure shmorce"]).toEqual([
       "www.shmorce.com/article-1",
       "www.shmorce.com/article-2",
     ]);
-    expect(sourceUrls["horse"]).toEqual([""]);
+    expect(sourceUrls?.["horse"]).toBeUndefined();
   });
 
   test("Non-ideal case: No data is returned by Axios", async () => {

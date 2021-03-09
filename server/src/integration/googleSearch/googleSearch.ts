@@ -34,15 +34,17 @@ export const googleSearch = async (
     );
 
     // resolve all promised search results
-    const rawDataList = (await Promise.all(rawResults)).map(
-      (result) => result.data
+    const rawDataList = (await Promise.allSettled(rawResults)).map((result) =>
+      result.status === "fulfilled" ? result.value.data : undefined
     );
 
     // map raw data to arrays of urls for each news source
     sources.forEach((source, index) => {
-      const results = rawDataList[index].organic_results;
-      const urls = results.map((result: any) => result.link);
-      sourceUrls[source] = urls;
+      if (rawDataList[index]) {
+        const results = rawDataList[index].organic_results;
+        const urls: string[] = results.map((result: any) => result.link);
+        sourceUrls[source] = urls;
+      }
     });
   } catch (error) {
     console.log("Error searching Google: ", error);
