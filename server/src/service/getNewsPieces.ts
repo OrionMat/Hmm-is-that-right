@@ -1,6 +1,6 @@
 /** scrapes news pieces from internet news sources */
 import { googleSearch } from "../integration/googleSearch/googleSearch";
-import { scrapePageHtml } from "../integration/scrapePageHtml";
+import { scrapePageHtml } from "../integration/scrapePageHtml/scrapePageHtml";
 import { cleanUrls } from "./cleanUrls/cleanUrls";
 import { parseHtml } from "./parseHtml";
 

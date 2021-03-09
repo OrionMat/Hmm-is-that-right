@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import { getNewsPieces } from "./service/getNewsPieces";
 import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
 import { googleSearch } from "./integration/googleSearch/googleSearch";
-import { scrapePageHtml } from "./integration/scrapePageHtml";
+import { scrapePageHtml } from "./integration//scrapePageHtml/scrapePageHtml";
 
 const sourceUrls = {
   bbc: ["https://www.bbc.co.uk/news/in-pictures-54118899"],
