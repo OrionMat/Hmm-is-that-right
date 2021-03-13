@@ -103,6 +103,36 @@ const reutersParagraphs = [
   "Writing by Jessica Jones; Editing by Ingrid Melander and Mike Collett-White",
   "Our Standards: The Thomson Reuters Trust Principles.",
 ];
+const apParagraphs = [
+  "BOSTON (AP) — Neil Diamond posts a fireside rendition of “Sweet Caroline” with its familiar lyrics tweaked to say, “Hands ... washing hands.” A news anchor asks when social distancing will end because “my husband keeps trying to get into the house.” And a sign outside a neighborhood church reads: “Had not planned on giving up quite this much for Lent.”",
+  "Are we allowed to chuckle yet? We’d better, psychologists and humorists say. Laughter can be the best medicine, they argue, so long as it’s within the bounds of good taste. And in a crisis, it can be a powerful coping mechanism.",
+  "“It’s more than just medicine. It’s survival,” said Erica Rhodes, a Los Angeles comedian.",
+  "“Even during the Holocaust, people told jokes,” Rhodes said in a telephone interview with The Associated Press. “Laughter is a symbol of hope, and it becomes one of our greatest needs of life, right up there with toilet paper. It’s a physical need people have. You can’t underestimate how it heals people and gives them hope.”",
+  "For most people, the new coronavirus causes mild or moderate symptoms, such as fever and cough that clear up in two to three weeks. For some, especially older adults and people with existing health problems, it can cause more severe illness, including pneumonia, and death.",
+  "Those are scary words and scary prospects. But history has shown that its heaviest moments are often leavened by using humor and laughter as conscious choices — ways to cope when other things aren’t working as expected. ",
+  "“There’s so much fear and horror out there. All the hand washing in the world isn’t going to clear up your head,” said Loretta LaRoche, a suburban Boston stress management consultant who’s using humor to help people defuse the anxiety the pandemic has wrought.",
+  "“Some people will say this is not a time for laughter. The bottom line is, there is always a time for laughter,” LaRoche said. “We have 60,000 thoughts a day and many of them are very disturbing. Laughter helps the brain relax.”",
+  "That explains why social media feeds are peppered with coronavirus-themed memes, cartoons and amusing personal anecdotes.",
+  "Here’s Diamond posting a video of himself singing “Sweet Caroline” with the lyrics altered to say: “Hands ... washing hands ... don’t touch me ... I won’t touch you.”",
+  "There’s Fox News anchor Julie Banderas tweeting: “How long is this social distancing supposed to last? My husband keeps trying to get into the house.”",
+  "Here’s Austin restaurant El Arroyo, still smarting economically from the outbreak-induced postponement of the South by Southwest music festival, turning its outdoor message board into a mock dating app: “Single man w/TP seeks single woman w/hand sanitizer for good clean fun.”",
+  "And over here, see novelist Curtis Sittenfeld, sharing a photo of herself eating lunch in her wedding dress after her kids asked her to wear it “and I couldn’t think of a reason not to.”",
+  "For centuries, laughter in tough times has been cathartic, said Wayne Maxwell, a Canadian psychologist who has done extensive research on “gallows humor.” The term originated in medieval Britain, where hangings took place in parks near pubs and patrons told jokes at the victims’ expense.",
+  "“Even in some of the writings of ancient Egypt, there are descriptions of military personnel returning from the front lines and using humor to cope,” said Maxwell, of Halifax, Nova Scotia.",
+  "But, he warns, there exists a kind of comedy continuum: While humor can helpfully lighten things up, too much laughter and flippancy can signal a person is trying to escape from reality.",
+  "There are also questions of taste. No one wants to poke fun at medical misery or death. Quarantining and social distancing, though, are fair game, and self-deprecating humor is almost always safe — though LaRoche cautions that humor, like beauty, is always in the eye of the beholder.",
+  "“It all depends on how your brain functions,” she said. “Give yourself permission to find humor. It’s almost like a spiritual practice, finding ways to laugh at yourself.”",
+  "For those millions of parents struggling to work from home and teach their housebound children, she’s preaching to the choir. Witness this widely shared meme: a photo of an elderly, white-haired woman with the caption: “Here’s Sue. 31 years old, home schooling her kids for the last 5 days. Great job Sue. Keep it up.”",
+  "Michael Knight, a 29-year-old musician and a caseworker for people with mental disabilities, has been breaking the tension by posting memes like: “They said a mask and gloves were enough to go to the grocery store. They lied. Everyone else had clothes on.”",
+  "“It helps me decompress,” said Knight, of Plymouth, Massachusetts. “It kind of offsets the paralyzing effects of the bogeyman that is the pandemic.”",
+  "Rhodes, who’s out more than $30,000 after three festivals and her first taped special were canceled, is trying to see the humor in her own predicament.",
+  "She recently posted iPhone video of herself pretending to work a nonexistent crowd  on an outdoor stage she happened upon during a walk. “How’s everyone not doing?” she cracks.",
+  "“The best material comes from a place that’s very truthful and somewhat dark,” Rhodes said.",
+  "Her prediction: When life eventually edges back to normal, “Saturday Night Live” and the latest Netflix standup specials will be powered by quarantine humor.",
+  "“Just a month ago, who would have appreciated being given a roll of toilet paper?” she said. “I mean, the whole world is upside down.”",
+  "___",
+  "William J. Kole is the New England editor for The Associated Press. Follow him on Twitter at http://twitter.com/billkole",
+];
 
 describe("Extract news piece information from HTML webpages", () => {
   test("Ideal case: Article information is correctly extracted", async () => {
@@ -113,7 +143,7 @@ describe("Extract news piece information from HTML webpages", () => {
     expect(sourcePieces["bbc"][0].title).toEqual(
       "Scientists unlock mysteries of world's oldest 'computer'"
     );
-    expect(sourcePieces["bbc"][0].date).toEqual("8 hours ago");
+    expect(sourcePieces["bbc"][0].date).toEqual("18 hours ago");
     expect(sourcePieces["bbc"][0].body).toEqual(bbcParagraphs);
 
     // asserts nyt
@@ -128,11 +158,18 @@ describe("Extract news piece information from HTML webpages", () => {
     expect(sourcePieces["nyt"][1].date).toEqual("June 18, 2018");
     expect(sourcePieces["nyt"][1].body).toEqual(nytParagraphs[1]);
 
+    // asserts AP
+    expect(sourcePieces["ap"][0].title).toEqual(
+      "If you don’t laugh, you cry: Coping with virus through humor"
+    );
+    expect(sourcePieces["ap"][0].date).toEqual("March 26, 2020 GMT");
+    expect(sourcePieces["ap"][0].body).toEqual(apParagraphs);
+
     // asserts reuters
     expect(sourcePieces["reuters"][0].title).toEqual(
       "Spanish chess board sales soar after 'Queen's Gambit' cameo"
     );
-    expect(sourcePieces["reuters"][0].date).toEqual(null); // TODO
+    expect(sourcePieces["reuters"][0].date).toEqual(null); // NOTE: Reuters dates are difficult to get as they are in Javascript code. Can pull from meta tags.
     expect(sourcePieces["reuters"][0].body).toEqual(reutersParagraphs);
   });
 });

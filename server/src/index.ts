@@ -5,39 +5,30 @@ import { computeSentenceSimilarities } from "./integration/computeSentenceSimila
 import { googleSearch } from "./integration/googleSearch/googleSearch";
 import { scrapePageHtml } from "./integration//scrapePageHtml/scrapePageHtml";
 import { writeFile } from "fs";
+import { getTestHtml } from "./service/parseHtml/getTestHtml";
 
-// const sourceUrls = {
-//   bbc: ["https://www.bbc.co.uk/news/in-pictures-54118899"],
+getTestHtml();
+
+// scrapePageHtml({
+//   bbc: ["https://www.bbc.co.uk/news/science-environment-56377567"],
 //   nyt: [
-//     "https://www.nytimes.com/column/i-was-misinformed",
+//     "https://www.nytimes.com/2021/03/08/science/math-crumple-fragmentation-andrejevic.html",
 //     "https://www.nytimes.com/2018/06/18/nyregion/et-doesnt-like-the-bike-path-either.html",
 //   ],
 //   reuters: [
 //     "https://www.reuters.com/article/us-spain-chess-queens-gambit/spanish-chess-board-sales-soar-after-queens-gambit-cameo-idUSKBN2AG0VJ",
 //   ],
-// };
-
-// scrapePageHtml(sourceUrls).then((sourceUrls) => console.log(sourceUrls));
-
-scrapePageHtml({
-  bbc: ["https://www.bbc.co.uk/news/science-environment-56377567"],
-  nyt: [
-    "https://www.nytimes.com/2021/03/08/science/math-crumple-fragmentation-andrejevic.html",
-    "https://www.nytimes.com/2018/06/18/nyregion/et-doesnt-like-the-bike-path-either.html",
-  ],
-  reuters: [
-    "https://www.reuters.com/article/us-spain-chess-queens-gambit/spanish-chess-board-sales-soar-after-queens-gambit-cameo-idUSKBN2AG0VJ",
-  ],
-}).then((sourceUrls) =>
-  writeFile(
-    "C:\\Users\\Orion\\Documents\\GitHub\\Hmm-is-that-right\\server\\src\\service\\parseHtml\\sourcePages.json",
-    JSON.stringify(sourceUrls),
-    (err) => {
-      if (err) throw err;
-      console.log("The file has been saved!");
-    }
-  )
-);
+//   ap: ["https://apnews.com/article/7d86ffc9a7737e8f7b98a0492f850589"],
+// }).then((sourceUrls) =>
+//   writeFile(
+//     "C:\\Users\\Orion\\Documents\\GitHub\\Hmm-is-that-right\\server\\src\\service\\parseHtml\\sourcePages.json",
+//     JSON.stringify(sourceUrls),
+//     (err) => {
+//       if (err) throw err;
+//       console.log("The file has been saved!");
+//     }
+//   )
+// );
 
 // googleSearch("covid lockdown lift", ["bbc", "nyt"]);
 

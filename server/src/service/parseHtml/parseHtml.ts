@@ -1,3 +1,4 @@
+/** pulls out relevant news article information from the soup of html returned by the website */
 import { JSDOM } from "jsdom";
 import { SourcePages, SourcePieces } from "../../dataModel/dataModel";
 
@@ -11,29 +12,53 @@ import { SourcePages, SourcePieces } from "../../dataModel/dataModel";
 const getSelectors = (source: string) => {
   switch (source.toLowerCase()) {
     case "bbc":
-      return [["#main-heading", "h1"], ["time"], ["article p", "p"]];
+      return {
+        titleSelectors: ["#main-heading", "h1"],
+        dateSelectors: ["time"],
+        contentSelectors: ["article p", "p"],
+      };
     case "nyt":
-      return [
-        ["h1"],
-        ["time > span:first-child", "time"],
-        ["section[name*='articleBody'] p", "p"],
-      ];
+      return {
+        titleSelectors: ["h1"],
+        dateSelectors: ["time > span:first-child", "time"],
+        contentSelectors: ["section[name*='articleBody'] p", "p"],
+      };
+    case "ap":
+      return {
+        titleSelectors: ["[data-key='card-headline'] > h1", "h1"],
+        dateSelectors: [
+          "[data-key='timestamp'][class*='Timestamp']",
+          "[data-key='timestamp']",
+          "[class*='Timestamp']",
+        ],
+        contentSelectors: [
+          "[data-key='article'][class='Article'] p",
+          "[data-key='article'] p",
+          "[class='Article'] p",
+          "p",
+        ],
+      };
     case "reuters":
-      return [
-        ["h1"],
-        [
+      return {
+        titleSelectors: ["h1"],
+        // NOTE: could look at getting publishedDate with "meta[name*='REVISION_DATE']"
+        dateSelectors: [
           "[class*='ArticleHeader-date'] > time:first-child",
           "time:first-child",
-          // TODO: "meta[name*='REVISION_DATE']",
+          "time",
         ],
-        [
+        contentSelectors: [
           "article[class*='ArticlePage'] p",
           "[class='ArticleBodyWrapper'] p",
           "p",
         ],
-      ];
+      };
     default:
-      return [["h1"], ["time"], ["p"]];
+      return {
+        titleSelectors: ["h1"],
+        dateSelectors: ["time", "class*='Timestamp'"],
+        contentSelectors: ["p"],
+      };
   }
 };
 
@@ -41,14 +66,21 @@ const getSelectors = (source: string) => {
  * Extract information from webpage
  * @param dom The parsed HTML webpage
  * @param selectors The CSS selector to extract information
+ * @param source The news source
  */
-const extractNewsInfo = (dom: Document, selectors: string[]) => {
+const extractNewsInfo = (
+  dom: Document,
+  selectors: string[],
+  source: string
+) => {
   for (const selector of selectors) {
     const targetContent = dom.querySelector(selector)?.textContent;
     if (targetContent) return targetContent;
   }
   console.log(
-    "target content not found with information selectors: ",
+    "target content not found for source:",
+    source,
+    ", with information selectors:",
     selectors
   );
   return null;
@@ -57,12 +89,17 @@ const extractNewsInfo = (dom: Document, selectors: string[]) => {
 /**
  * Extract article body from webpage
  * @param dom The parsed HTML webpage
- * @param bodySelectors The CSS selector to extract body content
+ * @param contentSelectors The CSS selector to extract body content
+ * @param source The news source
  */
-const extractNewsBody = (dom: Document, bodySelectors: string[]) => {
+const extractNewsBody = (
+  dom: Document,
+  contentSelectors: string[],
+  source: string
+) => {
   // extract news piece body with most a (hopefully) valid selector
   let htmlParagraphs: NodeListOf<Element> | null = null;
-  for (const selector of bodySelectors) {
+  for (const selector of contentSelectors) {
     const targetContent = dom.querySelectorAll(selector);
     if (targetContent) {
       htmlParagraphs = targetContent;
@@ -74,8 +111,10 @@ const extractNewsBody = (dom: Document, bodySelectors: string[]) => {
 
   if (!htmlParagraphs)
     console.log(
-      "target content not found with body selectors: ",
-      bodySelectors
+      "target content not found for source:",
+      source,
+      ", with content selectors:",
+      contentSelectors
     );
   return paragraphs;
 };
@@ -95,7 +134,7 @@ export const parseHtml = async (
     const htmlPages = sourcePages[source].webpages;
 
     // get CSS selectors to find the news piece title, date and content
-    const [titleSelectors, dateSelectors, contentSelector] = getSelectors(
+    const { titleSelectors, dateSelectors, contentSelectors } = getSelectors(
       source
     );
 
@@ -105,9 +144,9 @@ export const parseHtml = async (
 
         // extract the news piece url, title, date and content
         const url = urls[pageIndex];
-        const title = extractNewsInfo(dom, titleSelectors);
-        const date = extractNewsInfo(dom, dateSelectors);
-        const paragraphs = extractNewsBody(dom, contentSelector);
+        const title = extractNewsInfo(dom, titleSelectors, source);
+        const date = extractNewsInfo(dom, dateSelectors, source);
+        const paragraphs = extractNewsBody(dom, contentSelectors, source);
 
         sourcePieces[source].push({ url, title, date, body: paragraphs });
       } catch (error) {
