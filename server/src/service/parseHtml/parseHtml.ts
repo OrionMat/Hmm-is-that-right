@@ -129,7 +129,9 @@ export const parseHtml = async (
 ): Promise<SourcePieces> => {
   let sourcePieces: SourcePieces = {};
   for (const source in sourcePages) {
+    // initialise source to have an empty array so news articles can be pushed in
     sourcePieces[source] = [];
+
     const urls = sourcePages[source].urls;
     const htmlPages = sourcePages[source].webpages;
 
@@ -138,11 +140,11 @@ export const parseHtml = async (
       source
     );
 
+    // for each html page extract the relevant news article information and push it into the empty array for that source
     htmlPages.forEach((htmlPage, pageIndex) => {
       try {
         const dom = new JSDOM(htmlPage).window.document;
 
-        // extract the news piece url, title, date and content
         const url = urls[pageIndex];
         const title = extractNewsInfo(dom, titleSelectors, source);
         const date = extractNewsInfo(dom, dateSelectors, source);

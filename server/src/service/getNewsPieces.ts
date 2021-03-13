@@ -4,8 +4,8 @@ import { scrapePageHtml } from "../integration/scrapePageHtml/scrapePageHtml";
 import { cleanUrls } from "./cleanUrls/cleanUrls";
 import { parseHtml } from "./parseHtml/parseHtml";
 
-// TODO test throughy. Add unit test for each function
-// TODO make immutable data flow. Currently have to many objects referencing the same locations in memory
+// TODO extract and consolidate the dataModel
+// TODO more testing of non-ideal cases
 // TODO add extraction of most similar sentences/paragraphs
 
 /**
