@@ -2,7 +2,7 @@
 import { googleSearch } from "../integration/googleSearch/googleSearch";
 import { scrapePageHtml } from "../integration/scrapePageHtml/scrapePageHtml";
 import { cleanUrls } from "./cleanUrls/cleanUrls";
-import { parseHtml } from "./parseHtml";
+import { parseHtml } from "./parseHtml/parseHtml";
 
 // TODO test throughy. Add unit test for each function
 // TODO make immutable data flow. Currently have to many objects referencing the same locations in memory

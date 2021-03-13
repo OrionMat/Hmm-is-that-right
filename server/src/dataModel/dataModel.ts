@@ -16,20 +16,19 @@ export interface SourcePages {
 
 /**
  * News pieces
- * @property bodies is an array of paragraphs for each news piece. i.e [[para1, para2, ...], [paraA, paraB, ...], ...]
+ * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020"}, {body: ["list", "of", "paragraphs"]}
  */
 export interface NewsPieces {
-  urls: Array<string>;
-  titles: Array<string | null | undefined>;
-  dates: Array<string | null | undefined>;
-  authors: Array<string | null | undefined>;
-  bodies: Array<Array<string | null | undefined>>;
+  url: string;
+  title: string | null | undefined;
+  date: string | null | undefined;
+  body: Array<string | null | undefined>;
 }
 
 /**
  * Object of sources with news piece data for each source
- * i.e {bbc: {titles: ["Tea Pots", "Flamingo Pineapples", ...], dates: ["01/01/2020", "02/02/2050", ...], ... }, nyt: {urls: ["www.nyt...", "www.nyt..."], dates: [...]}, ...}
+ * i.e {bbc: [{url: "www.bbc...", title: "Tea Pots", date: "01/01/2020"}, {body: ["list", "of", "paragraphs"]}, nyt: [{...}, {...}, ], ...], ... }
  */
 export interface SourcePieces {
-  [source: string]: NewsPieces;
+  [source: string]: Array<NewsPieces>;
 }

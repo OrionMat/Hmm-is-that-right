@@ -4,19 +4,40 @@ import { getNewsPieces } from "./service/getNewsPieces";
 import { computeSentenceSimilarities } from "./integration/computeSentenceSimilarities";
 import { googleSearch } from "./integration/googleSearch/googleSearch";
 import { scrapePageHtml } from "./integration//scrapePageHtml/scrapePageHtml";
+import { writeFile } from "fs";
 
-const sourceUrls = {
-  bbc: ["https://www.bbc.co.uk/news/in-pictures-54118899"],
+// const sourceUrls = {
+//   bbc: ["https://www.bbc.co.uk/news/in-pictures-54118899"],
+//   nyt: [
+//     "https://www.nytimes.com/column/i-was-misinformed",
+//     "https://www.nytimes.com/2018/06/18/nyregion/et-doesnt-like-the-bike-path-either.html",
+//   ],
+//   reuters: [
+//     "https://www.reuters.com/article/us-spain-chess-queens-gambit/spanish-chess-board-sales-soar-after-queens-gambit-cameo-idUSKBN2AG0VJ",
+//   ],
+// };
+
+// scrapePageHtml(sourceUrls).then((sourceUrls) => console.log(sourceUrls));
+
+scrapePageHtml({
+  bbc: ["https://www.bbc.co.uk/news/science-environment-56377567"],
   nyt: [
-    "https://www.nytimes.com/column/i-was-misinformed",
+    "https://www.nytimes.com/2021/03/08/science/math-crumple-fragmentation-andrejevic.html",
     "https://www.nytimes.com/2018/06/18/nyregion/et-doesnt-like-the-bike-path-either.html",
   ],
   reuters: [
     "https://www.reuters.com/article/us-spain-chess-queens-gambit/spanish-chess-board-sales-soar-after-queens-gambit-cameo-idUSKBN2AG0VJ",
   ],
-};
-
-scrapePageHtml(sourceUrls).then((sourceUrls) => console.log(sourceUrls));
+}).then((sourceUrls) =>
+  writeFile(
+    "C:\\Users\\Orion\\Documents\\GitHub\\Hmm-is-that-right\\server\\src\\service\\parseHtml\\sourcePages.json",
+    JSON.stringify(sourceUrls),
+    (err) => {
+      if (err) throw err;
+      console.log("The file has been saved!");
+    }
+  )
+);
 
 // googleSearch("covid lockdown lift", ["bbc", "nyt"]);
 
