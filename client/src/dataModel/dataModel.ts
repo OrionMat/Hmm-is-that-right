@@ -1,9 +1,12 @@
+/**
+ * News piece
+ * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020"}, {body: ["list", "of", "paragraphs"]}
+ */
 export interface NewsPiece {
+  url: string;
   title: string | null | undefined;
   date: string | null | undefined;
-  author: string | null | undefined;
-  body: string;
-  link: string;
+  body: Array<string | null | undefined>;
   source: string;
 }
 

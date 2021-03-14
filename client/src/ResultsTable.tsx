@@ -57,11 +57,11 @@ export const ResultsTable = (props: Props) => {
             </td>
             <td>
               <div className="news-title">
-                <a href={newsPiece.link}>{newsPiece.title}</a>
+                <a href={newsPiece.url}>{newsPiece.title}</a>
               </div>
             </td>
             <td>
-              <div className="news-body">{newsPiece.body}</div>
+              <div className="news-body">{newsPiece.body[0]}</div>
             </td>
             <td>
               <div>{newsPiece.date}</div>
