@@ -28,7 +28,7 @@ export const getNewsPieces = async (statement: string, sources: string[]) => {
   const sourcePages = await scrapePageHtml(sourceUrls);
 
   // parse html web pages
-  const sourcePieces = await parseHtml(sourcePages);
+  const newsPieces = await parseHtml(sourcePages);
 
-  return sourcePieces;
+  return newsPieces;
 };

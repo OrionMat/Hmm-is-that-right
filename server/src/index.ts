@@ -24,11 +24,11 @@ app.get("/getNewsPieces", async (request: Request, response: Response) => {
   }
 
   try {
-    const sourcePieces = await getNewsPieces(
+    const newsPieces = await getNewsPieces(
       statement as string,
       sources as string[]
     );
-    response.json(sourcePieces);
+    response.json(newsPieces);
   } catch (error) {
     response.send("error");
   }

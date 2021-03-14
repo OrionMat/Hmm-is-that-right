@@ -5,7 +5,7 @@ import { scrapePageHtml } from "../../integration/scrapePageHtml/scrapePageHtml"
 /**
  * calls scrapePageHtml with live URLs to get real HTML webpages and writes them to the sourcePages.json file
  */
-export const getTestHtml = async () => {
+export const getTestHtmlData = async () => {
   const sourceUrls = await scrapePageHtml({
     bbc: ["https://www.bbc.co.uk/news/science-environment-56377567"],
     nyt: [
