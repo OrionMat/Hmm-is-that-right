@@ -1,6 +1,6 @@
 /** pulls out relevant news article information from the soup of html returned by the website */
 import { JSDOM } from "jsdom";
-import { SourcePages, NewsPieces } from "../../dataModel/dataModel";
+import { SourcePages, NewsPiece } from "../../dataModel/dataModel";
 
 /**
  * Get CSS selectors for title, date and content.
@@ -126,12 +126,9 @@ const extractNewsBody = (
  */
 export const parseHtml = async (
   sourcePages: SourcePages
-): Promise<NewsPieces> => {
-  let newsPieces: NewsPieces = {};
+): Promise<NewsPiece[]> => {
+  let newsPieces: NewsPiece[] = [];
   for (const source in sourcePages) {
-    // initialise source to have an empty array so news articles can be pushed in
-    newsPieces[source] = [];
-
     const urls = sourcePages[source].urls;
     const htmlPages = sourcePages[source].webpages;
 
@@ -150,7 +147,7 @@ export const parseHtml = async (
         const date = extractNewsInfo(dom, dateSelectors, source);
         const paragraphs = extractNewsBody(dom, contentSelectors, source);
 
-        newsPieces[source].push({ url, title, date, body: paragraphs });
+        newsPieces.push({ url, title, date, body: paragraphs, source });
       } catch (error) {
         console.log("Error parsing webpage HTML: ", error);
       }

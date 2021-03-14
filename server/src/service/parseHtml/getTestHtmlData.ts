@@ -12,10 +12,10 @@ export const getTestHtmlData = async () => {
       "https://www.nytimes.com/2021/03/08/science/math-crumple-fragmentation-andrejevic.html",
       "https://www.nytimes.com/2018/06/18/nyregion/et-doesnt-like-the-bike-path-either.html",
     ],
+    ap: ["https://apnews.com/article/7d86ffc9a7737e8f7b98a0492f850589"],
     reuters: [
       "https://www.reuters.com/article/us-spain-chess-queens-gambit/spanish-chess-board-sales-soar-after-queens-gambit-cameo-idUSKBN2AG0VJ",
     ],
-    ap: ["https://apnews.com/article/7d86ffc9a7737e8f7b98a0492f850589"],
   });
 
   writeFile(

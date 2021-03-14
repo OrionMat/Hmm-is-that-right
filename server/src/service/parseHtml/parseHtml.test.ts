@@ -140,36 +140,36 @@ describe("Extract news piece information from HTML webpages", () => {
     const sourcePieces = await parseHtml(sourcePages);
 
     // asserts bbc
-    expect(sourcePieces["bbc"][0].title).toEqual(
+    expect(sourcePieces[0].title).toEqual(
       "Scientists unlock mysteries of world's oldest 'computer'"
     );
-    expect(sourcePieces["bbc"][0].date).toEqual("18 hours ago");
-    expect(sourcePieces["bbc"][0].body).toEqual(bbcParagraphs);
+    expect(sourcePieces[0].date).toEqual("1 day ago");
+    expect(sourcePieces[0].body).toEqual(bbcParagraphs);
 
     // asserts nyt
-    expect(sourcePieces["nyt"][0].title).toEqual(
+    expect(sourcePieces[1].title).toEqual(
       "The Latest Wrinkle in Crumple Theory"
     );
-    expect(sourcePieces["nyt"][0].date).toEqual("March 8, 2021");
-    expect(sourcePieces["nyt"][0].body).toEqual(nytParagraphs[0]);
-    expect(sourcePieces["nyt"][1].title).toEqual(
+    expect(sourcePieces[1].date).toEqual("March 8, 2021");
+    expect(sourcePieces[1].body).toEqual(nytParagraphs[0]);
+    expect(sourcePieces[2].title).toEqual(
       "E.T. Doesn’t Like the Bike Path Either"
     );
-    expect(sourcePieces["nyt"][1].date).toEqual("June 18, 2018");
-    expect(sourcePieces["nyt"][1].body).toEqual(nytParagraphs[1]);
+    expect(sourcePieces[2].date).toEqual("June 18, 2018");
+    expect(sourcePieces[2].body).toEqual(nytParagraphs[1]);
 
     // asserts AP
-    expect(sourcePieces["ap"][0].title).toEqual(
+    expect(sourcePieces[3].title).toEqual(
       "If you don’t laugh, you cry: Coping with virus through humor"
     );
-    expect(sourcePieces["ap"][0].date).toEqual("March 26, 2020 GMT");
-    expect(sourcePieces["ap"][0].body).toEqual(apParagraphs);
+    expect(sourcePieces[3].date).toEqual("March 26, 2020 GMT");
+    expect(sourcePieces[3].body).toEqual(apParagraphs);
 
     // asserts reuters
-    expect(sourcePieces["reuters"][0].title).toEqual(
+    expect(sourcePieces[4].title).toEqual(
       "Spanish chess board sales soar after 'Queen's Gambit' cameo"
     );
-    expect(sourcePieces["reuters"][0].date).toEqual(null); // NOTE: Reuters dates are difficult to get as they are in Javascript code. Can pull from meta tags.
-    expect(sourcePieces["reuters"][0].body).toEqual(reutersParagraphs);
+    expect(sourcePieces[4].date).toEqual(null); // NOTE: Reuters dates are difficult to get as they are in Javascript code. Can pull from meta tags.
+    expect(sourcePieces[4].body).toEqual(reutersParagraphs);
   });
 });
