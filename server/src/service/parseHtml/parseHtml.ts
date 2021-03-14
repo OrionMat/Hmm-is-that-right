@@ -122,7 +122,7 @@ const extractNewsBody = (
 /**
  * Parses HTML webpages and extracts relevant information
  * @param sourcePages HTML webpages and URLs for each source. i.e {bbc: {urls: ["www.bbc...", "www.bbc..."], webpages: [bbcHTML, bbcHTML, ...]}, nyt: {urls: ["www.nyt...", "www.nyt..."], webpages: [...]}, ...}
- * @returns News pieces. i.e {bbc: [{url: "www.bbc...", title: "fancy title", date: "silly date"}, {body: ["list", "of", "paragraphs"]}, nyt: [{...}, {...}, ], ...], ... }
+ * @returns Array of news pieces. i.e [{source: "bbc", url: "www.bbc...", title: "fancy title", date: "silly date", body: ["list", "of", "paragraphs"]}, {source: "nyt", ...}, ...]
  */
 export const parseHtml = async (
   sourcePages: SourcePages

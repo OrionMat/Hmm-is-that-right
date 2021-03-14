@@ -61,7 +61,7 @@ export const ResultsTable = (props: Props) => {
               </div>
             </td>
             <td>
-              <div className="news-body">{newsPiece.body[0]}</div>
+              <div className="news-body">{newsPiece.body.join("\n")}</div>
             </td>
             <td>
               <div>{newsPiece.date}</div>
