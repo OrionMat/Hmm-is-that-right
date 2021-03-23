@@ -54,7 +54,7 @@ export const computeSentenceSimilarities = async (
 
         // push the results into a sentence array and a score array
         articleSentences.push(sentence);
-        const score = await scoreTensor.array();
+        const score = await scoreTensor.data();
         sentenceScores = sentenceScores.concat(score);
       }
     }

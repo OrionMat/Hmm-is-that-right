@@ -3,6 +3,7 @@ import { googleSearch } from "../integration/googleSearch/googleSearch";
 import { scrapePageHtml } from "../integration/scrapePageHtml/scrapePageHtml";
 import { cleanUrls } from "./cleanUrls/cleanUrls";
 import { parseHtml } from "./parseHtml/parseHtml";
+import { extractSimilarText } from "src/integration/extractSimilarText/extractSimilarText";
 
 // TODO extract and consolidate the dataModel
 // TODO more testing of non-ideal cases
@@ -30,5 +31,8 @@ export const getNewsPieces = async (statement: string, sources: string[]) => {
   // parse html web pages
   const newsPieces = await parseHtml(sourcePages);
 
-  return newsPieces;
+  // extract most similar sentences
+  const relevantNews = await extractSimilarText(statement, newsPieces);
+
+  return relevantNews;
 };
