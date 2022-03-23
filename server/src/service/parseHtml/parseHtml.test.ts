@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { SourcePages } from "src/dataModel/dataModel";
+import { SourcePages } from "../../dataModel/dataModel";
 import { parseHtml } from "./parseHtml";
 
 let sourcePages: SourcePages = JSON.parse(

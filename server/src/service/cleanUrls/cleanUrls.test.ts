@@ -1,7 +1,7 @@
 import { cleanUrls } from "./cleanUrls";
 
 describe("Filtering for HTTP URLs", () => {
-  test("Ideal calse: Non HTTPs URLs are filtered out of the URLs list", async () => {
+  test("Ideal calse: Non HTTPs URLs are filtered out of the URLs list", () => {
     // setup
     const rawSourceUrls = {
       "fancy source": [
@@ -17,7 +17,7 @@ describe("Filtering for HTTP URLs", () => {
     };
 
     // run test
-    const urls = await cleanUrls(rawSourceUrls);
+    const urls = cleanUrls(rawSourceUrls);
 
     // asserts
     expect(urls).toEqual({
@@ -30,7 +30,7 @@ describe("Filtering for HTTP URLs", () => {
     });
   });
 
-  test("Ideal calse: for a known source only URLs to their webpages remain", async () => {
+  test("Ideal calse: for a known source only URLs to their webpages remain", () => {
     // setup
     const rawSourceUrls = {
       bbc: [
@@ -51,7 +51,7 @@ describe("Filtering for HTTP URLs", () => {
     };
 
     // run test
-    const urls = await cleanUrls(rawSourceUrls);
+    const urls = cleanUrls(rawSourceUrls);
 
     // asserts
     expect(urls).toEqual({
@@ -70,12 +70,12 @@ describe("Filtering for HTTP URLs", () => {
     });
   });
 
-  test("Non-ideal calse: No sources are provided", async () => {
+  test("Non-ideal calse: No sources are provided", () => {
     // setup
     const rawSourceUrls = { "fancy source": [] };
 
     // run test
-    const urls = await cleanUrls(rawSourceUrls);
+    const urls = cleanUrls(rawSourceUrls);
 
     // asserts
     expect(urls).toEqual({ "fancy source": [] });

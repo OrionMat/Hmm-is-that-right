@@ -5,14 +5,12 @@ import { SourceUrls } from "../../dataModel/dataModel";
  * @param rawSourceUrls  Sources with a list of URLs for each source
  * @returns Sources with a clean list of URls for each source
  */
-export const cleanUrls = async (
-  rawSourceUrls: SourceUrls
-): Promise<SourceUrls> => {
+export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
   let cleanSourceUrls: SourceUrls = {};
   for (const source in rawSourceUrls) {
     const rawUrls = rawSourceUrls[source]; // ["www.", "www.", "www.", ...]
 
-    let filterKey: string | null = null;
+    let filterKey = "";
     switch (source.toLowerCase()) {
       case "bbc":
         filterKey = "https://www.bbc.";
@@ -41,4 +39,4 @@ export const cleanUrls = async (
   }
   console.log("Cleaned URLS: ", cleanSourceUrls);
   return cleanSourceUrls;
-};
+}

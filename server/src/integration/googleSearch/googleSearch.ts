@@ -9,10 +9,10 @@ import { SourceUrls } from "../../dataModel/dataModel";
  * @param sources Sources to cross check statement with
  * @returns Array of URLS for each source. i.e {bbc: ["www.bbc...", "www.bbc..."], nyt: ["www.nyt...", "www.nyt..."], ...}
  */
-export const googleSearch = async (
+export async function googleSearch(
   statement: string,
   sources: string[]
-): Promise<SourceUrls> => {
+): Promise<SourceUrls> {
   console.log(`Searching news sources for statement: ${statement}`);
 
   // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + New York best summer"]
@@ -52,4 +52,4 @@ export const googleSearch = async (
   }
   console.log("urls found for:", JSON.stringify(sourceUrls));
   return sourceUrls;
-};
+}

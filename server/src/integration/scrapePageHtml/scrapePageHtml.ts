@@ -6,7 +6,9 @@ import { SourceUrls, SourcePages } from "../../dataModel/dataModel";
  * @param sourceUrls Sources with a list of URls for each source. i.e {bbc: ["www.bbc...", "www.bbc..."], nyt: ["www.nyt...", "www.nyt..."], ...}
  * @returns webpages and URLs for each source. i.e {bbc: {urls: ["www.bbc...", "www.bbc..."], webpages: [bbcHTML, bbcHTML, ...]}, nyt: {urls: ["www.nyt...", "www.nyt..."], webpages: [...]}, ...}
  */
-export const scrapePageHtml = async (sourceUrls: SourceUrls) => {
+export async function scrapePageHtml(
+  sourceUrls: SourceUrls
+): Promise<SourcePages> {
   console.log("scraping page HTML.");
   let sourcePages: SourcePages = {};
   try {
@@ -33,4 +35,4 @@ export const scrapePageHtml = async (sourceUrls: SourceUrls) => {
     console.error("Error scraping webpages: ", error);
   }
   return sourcePages;
-};
+}

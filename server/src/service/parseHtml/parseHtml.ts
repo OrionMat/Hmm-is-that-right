@@ -9,7 +9,11 @@ import { SourcePages, NewsPiece } from "../../dataModel/dataModel";
  * @param source News source
  * @returns CSS selectors for title, date and content
  */
-const getSelectors = (source: string) => {
+function getSelectors(source: string): {
+  titleSelectors: string[];
+  dateSelectors: string[];
+  contentSelectors: string[];
+} {
   switch (source.toLowerCase()) {
     case "bbc":
       return {
@@ -60,7 +64,7 @@ const getSelectors = (source: string) => {
         contentSelectors: ["p"],
       };
   }
-};
+}
 
 /**
  * Extract information from webpage
@@ -68,11 +72,11 @@ const getSelectors = (source: string) => {
  * @param selectors The CSS selector to extract information
  * @param source The news source
  */
-const extractNewsInfo = (
+function extractNewsInfo(
   dom: Document,
   selectors: string[],
   source: string
-) => {
+): string | null {
   for (const selector of selectors) {
     const targetContent = dom.querySelector(selector)?.textContent;
     if (targetContent) return targetContent;
@@ -84,7 +88,7 @@ const extractNewsInfo = (
     selectors
   );
   return null;
-};
+}
 
 /**
  * Extract article body from webpage
@@ -92,11 +96,11 @@ const extractNewsInfo = (
  * @param contentSelectors The CSS selector to extract body content
  * @param source The news source
  */
-const extractNewsBody = (
+function extractNewsBody(
   dom: Document,
   contentSelectors: string[],
   source: string
-) => {
+): (string | null)[] {
   // extract news piece body with most a (hopefully) valid selector
   let htmlParagraphs: NodeListOf<Element> | null = null;
   for (const selector of contentSelectors) {
@@ -117,25 +121,22 @@ const extractNewsBody = (
       contentSelectors
     );
   return paragraphs;
-};
+}
 
 /**
  * Parses HTML webpages and extracts relevant information
  * @param sourcePages HTML webpages and URLs for each source. i.e {bbc: {urls: ["www.bbc...", "www.bbc..."], webpages: [bbcHTML, bbcHTML, ...]}, nyt: {urls: ["www.nyt...", "www.nyt..."], webpages: [...]}, ...}
  * @returns Array of news pieces. i.e [{source: "bbc", url: "www.bbc...", title: "fancy title", date: "silly date", body: ["list", "of", "paragraphs"]}, {source: "nyt", ...}, ...]
  */
-export const parseHtml = async (
-  sourcePages: SourcePages
-): Promise<NewsPiece[]> => {
+export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
   let newsPieces: NewsPiece[] = [];
   for (const source in sourcePages) {
     const urls = sourcePages[source].urls;
     const htmlPages = sourcePages[source].webpages;
 
     // get CSS selectors to find the news piece title, date and content
-    const { titleSelectors, dateSelectors, contentSelectors } = getSelectors(
-      source
-    );
+    const { titleSelectors, dateSelectors, contentSelectors } =
+      getSelectors(source);
 
     // for each html page extract the relevant news article information and push it into the empty array for that source
     htmlPages.forEach((htmlPage, pageIndex) => {
@@ -149,10 +150,10 @@ export const parseHtml = async (
 
         newsPieces.push({ url, title, date, body: paragraphs, source });
       } catch (error) {
-        console.log("Error parsing webpage HTML: ", error);
+        console.error("Error parsing webpage HTML: ", error);
       }
     });
   }
 
   return newsPieces;
-};
+}

@@ -1,16 +1,27 @@
 require("@tensorflow/tfjs");
 import * as tf from "@tensorflow/tfjs";
 import * as sentenceEncoder from "@tensorflow-models/universal-sentence-encoder";
-import { NewsPiece, RelevantNewsPiece } from "src/dataModel/dataModel";
+import { NewsPiece, RelevantNewsPiece } from "../../dataModel/dataModel";
 
-export const extractSimilarText = async (
+/** Cached universal sentence encoder model */
+let model: sentenceEncoder.UniversalSentenceEncoder | undefined = undefined;
+
+/**
+ * Extract similar text from the news piece
+ * @param statement
+ * @param newsPieces
+ * @returns
+ */
+export async function addSimilarText(
   statement: string,
   newsPieces: NewsPiece[]
-) => {
+): Promise<RelevantNewsPiece[]> {
   const relevantNewsPieces: RelevantNewsPiece[] = [];
 
   // load model
-  const model = await sentenceEncoder.load();
+  if (model === undefined) {
+    model = await sentenceEncoder.load();
+  }
 
   // calculate statement embedding
   const statementEmbedding = await model.embed(statement);
@@ -68,4 +79,4 @@ export const extractSimilarText = async (
     });
   }
   return relevantNewsPieces;
-};
+}
