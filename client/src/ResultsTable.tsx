@@ -1,11 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { NewsPiece } from "./dataModel/dataModel";
+import { RelevantNewsPiece } from "./dataModel/dataModel";
 import { SelectNewsIcon as selectNewsIcon } from "./Icons";
-
-interface Props {
-  newsPieces: NewsPiece[];
-}
 
 const Table = styled.table`
   width: 75%;
@@ -44,12 +40,12 @@ const Table = styled.table`
   }
 `;
 
-export const ResultsTable = (props: Props) => {
+export const ResultsTable = (props: { newsPieces: RelevantNewsPiece[] }) => {
   return (
     <Table>
       <tbody>
-        {props.newsPieces.map((newsPiece) => (
-          <tr>
+        {props.newsPieces.map((newsPiece, newsPieceIndex) => (
+          <tr key={newsPieceIndex}>
             <td>
               <div className="news-icon">
                 {selectNewsIcon(newsPiece.source, true)}
@@ -61,7 +57,12 @@ export const ResultsTable = (props: Props) => {
               </div>
             </td>
             <td>
-              <div className="news-body">{newsPiece.body.join("\n")}</div>
+              <div className="news-body">{newsPiece.mostSimilarParagraph}</div>
+            </td>
+            <td>
+              <div className="news-most-similar-sentence">
+                {newsPiece.mostSimilarSentence}
+              </div>
             </td>
             <td>
               <div>{newsPiece.date}</div>

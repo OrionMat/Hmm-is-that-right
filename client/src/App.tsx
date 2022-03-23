@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { SearchBar } from "./SearchBar";
 import {
-  NewsPiece,
+  RelevantNewsPiece,
   permanentSourceUrls,
   PermanentNewsSources,
 } from "./dataModel/dataModel";
@@ -40,7 +40,7 @@ export const App = () => {
   const newSourceStates = Object.assign({}, sourceStates);
 
   /** state popullated by retrieved news pieces */
-  const [newsPieces, setNewsPieces] = useState<NewsPiece[]>([]);
+  const [newsPieces, setNewsPieces] = useState<RelevantNewsPiece[]>([]);
 
   /** builds array of news agencies to populate the select tiles */
   const newsSources = Object.entries(sourceStates).map(
@@ -62,10 +62,9 @@ export const App = () => {
             source={source}
             isActive={isActive}
             url={url}
-            handelClick={(newIsActive) => {
-              newSourceStates[
-                source as keyof PermanentNewsSources
-              ] = newIsActive;
+            handelClick={(newsIsActive) => {
+              newSourceStates[source as keyof PermanentNewsSources] =
+                newsIsActive;
               setSourceStates(newSourceStates);
             }}
           />

@@ -10,6 +10,19 @@ export interface NewsPiece {
   source: string;
 }
 
+/**
+ * News piece containing relevant information
+ * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020", mostSimilarSentence: "I am a sentence", mostSimilarParagraph: "I am several. Sentences..."}
+ */
+export interface RelevantNewsPiece {
+  url: string;
+  title: string | null | undefined;
+  date: string | null | undefined;
+  source: string;
+  mostSimilarSentence: string;
+  mostSimilarParagraph: string;
+}
+
 export interface NewsSource {
   source: string;
   url: string;

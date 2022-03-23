@@ -1,10 +1,10 @@
 import axios, { AxiosResponse } from "axios";
-import { NewsPiece, IsActiveNewsSources } from "./dataModel/dataModel";
+import { RelevantNewsPiece, IsActiveNewsSources } from "./dataModel/dataModel";
 
 export async function getNewsPieces(
   statement: string,
   sourceStates: IsActiveNewsSources
-): Promise<NewsPiece[]> {
+): Promise<RelevantNewsPiece[]> {
   const sources = Object.keys(sourceStates).filter(
     (sourceName) => sourceStates[sourceName as keyof IsActiveNewsSources]
   );

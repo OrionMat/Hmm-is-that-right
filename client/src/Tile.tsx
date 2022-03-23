@@ -2,13 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { SelectNewsIcon } from "./Icons";
 
-interface Props {
-  source: string;
-  isActive: boolean;
-  url: string;
-  handelClick(toggledState: boolean): void;
-}
-
 const Button = styled.button`
   border: 1px solid #dfe1e5;
   background-color: transparent;
@@ -30,7 +23,12 @@ const Button = styled.button`
   }
 `;
 
-export const Tile = (props: Props) => {
+export const Tile = (props: {
+  source: string;
+  isActive: boolean;
+  url: string;
+  handelClick(toggledState: boolean): void;
+}) => {
   return (
     <Button onClick={() => props.handelClick(!props.isActive)}>
       {SelectNewsIcon(props.source, props.isActive)}

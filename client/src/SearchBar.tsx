@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { IsActiveNewsSources, NewsPiece } from "./dataModel/dataModel";
+import { IsActiveNewsSources, RelevantNewsPiece } from "./dataModel/dataModel";
 import { getNewsPieces } from "./getNewsPieces";
 import { SearchIcon } from "./Icons";
-
-interface Props {
-  sourceStates: IsActiveNewsSources;
-  setNewsPieces(newsPieces: NewsPiece[]): void;
-}
 
 const SearchForm = styled.form`
   position: relative;
@@ -39,7 +34,10 @@ const SearchInput = styled.input`
   }
 `;
 
-export const SearchBar = (props: Props) => {
+export const SearchBar = (props: {
+  sourceStates: IsActiveNewsSources;
+  setNewsPieces(newsPieces: RelevantNewsPiece[]): void;
+}) => {
   const [statement, setStatement] = useState("");
 
   return (
