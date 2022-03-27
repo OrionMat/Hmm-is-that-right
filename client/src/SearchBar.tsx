@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { IsActiveNewsSources, RelevantNewsPiece } from "./dataModel/dataModel";
+import { IsActiveNewsSources, NewsPiece } from "./dataModel/dataModel";
 import { getNewsPieces } from "./getNewsPieces";
 import { SearchIcon } from "./Icons";
 
@@ -36,7 +36,7 @@ const SearchInput = styled.input`
 
 export const SearchBar = (props: {
   sourceStates: IsActiveNewsSources;
-  setNewsPieces(newsPieces: RelevantNewsPiece[]): void;
+  setNewsPieces(newsPieces: NewsPiece[]): void;
 }) => {
   const [statement, setStatement] = useState("");
 

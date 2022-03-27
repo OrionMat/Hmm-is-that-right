@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { RelevantNewsPiece } from "./dataModel/dataModel";
+import { NewsPiece } from "./dataModel/dataModel";
 import { SelectNewsIcon as selectNewsIcon } from "./Icons";
 
 const Table = styled.table`
@@ -40,7 +40,7 @@ const Table = styled.table`
   }
 `;
 
-export const ResultsTable = (props: { newsPieces: RelevantNewsPiece[] }) => {
+export const ResultsTable = (props: { newsPieces: NewsPiece[] }) => {
   return (
     <Table>
       <tbody>
@@ -57,12 +57,7 @@ export const ResultsTable = (props: { newsPieces: RelevantNewsPiece[] }) => {
               </div>
             </td>
             <td>
-              <div className="news-body">{newsPiece.mostSimilarParagraph}</div>
-            </td>
-            <td>
-              <div className="news-most-similar-sentence">
-                {newsPiece.mostSimilarSentence}
-              </div>
+              <div className="news-body">{newsPiece.body.join("\n")}</div>
             </td>
             <td>
               <div>{newsPiece.date}</div>
