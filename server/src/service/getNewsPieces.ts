@@ -3,8 +3,7 @@ import { googleSearch } from "../integration/googleSearch/googleSearch";
 import { scrapePageHtml } from "../integration/scrapePageHtml/scrapePageHtml";
 import { cleanUrls } from "./cleanUrls/cleanUrls";
 import { parseHtml } from "./parseHtml/parseHtml";
-import { addSimilarText } from "../integration/extractSimilarText/addSimilarText";
-import { RelevantNewsPiece } from "../dataModel/dataModel";
+import { NewsPiece } from "../dataModel/dataModel";
 
 /**
  * Gets news pieces that can be used to cross check a statement.
@@ -14,7 +13,7 @@ import { RelevantNewsPiece } from "../dataModel/dataModel";
 export async function getNewsPieces(
   statement: string,
   sources: string[]
-): Promise<RelevantNewsPiece[]> {
+): Promise<NewsPiece[]> {
   console.log(
     `scrapeNewsPieceService for sources "${sources}" with statement: "${statement}"`
   );
@@ -31,8 +30,5 @@ export async function getNewsPieces(
   // parse html web pages
   const newsPieces = parseHtml(sourcePages);
 
-  // extract most similar sentences
-  const relevantNews = await addSimilarText(statement, newsPieces);
-
-  return relevantNews;
+  return newsPieces;
 }
