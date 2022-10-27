@@ -1,6 +1,9 @@
 /** pulls out relevant news article information from the soup of html returned by the website */
 import { JSDOM } from "jsdom";
+import { getLogger } from "src/logger";
 import { SourcePages, NewsPiece } from "../../dataModel/dataModel";
+
+const log = getLogger("service/parseHtml");
 
 /**
  * Get CSS selectors for title, date and content.
@@ -14,6 +17,8 @@ function getSelectors(source: string): {
   dateSelectors: string[];
   contentSelectors: string[];
 } {
+  log.debug(`Getting CSS selector for ${source}`);
+
   switch (source.toLowerCase()) {
     case "bbc":
       return {
@@ -77,11 +82,13 @@ function extractNewsInfo(
   selectors: string[],
   source: string
 ): string | null {
+  log.debug(`Extracting news information for ${source}`);
+
   for (const selector of selectors) {
     const targetContent = dom.querySelector(selector)?.textContent;
     if (targetContent) return targetContent;
   }
-  console.log(
+  log.warn(
     "target content not found for source:",
     source,
     ", with information selectors:",
@@ -101,6 +108,8 @@ function extractNewsBody(
   contentSelectors: string[],
   source: string
 ): (string | null)[] {
+  log.debug(`Extracting news piece body for ${source}`);
+
   // extract news piece body with most a (hopefully) valid selector
   let htmlParagraphs: NodeListOf<Element> | null = null;
   for (const selector of contentSelectors) {
@@ -114,7 +123,7 @@ function extractNewsBody(
   htmlParagraphs?.forEach((element) => paragraphs.push(element.textContent));
 
   if (!htmlParagraphs)
-    console.log(
+    log.warn(
       "target content not found for source:",
       source,
       ", with content selectors:",
@@ -129,6 +138,8 @@ function extractNewsBody(
  * @returns Array of news pieces. i.e [{source: "bbc", url: "www.bbc...", title: "fancy title", date: "silly date", body: ["list", "of", "paragraphs"]}, {source: "nyt", ...}, ...]
  */
 export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
+  log.info("Parsing HTML webpage results");
+
   let newsPieces: NewsPiece[] = [];
   for (const source in sourcePages) {
     const urls = sourcePages[source].urls;
@@ -137,6 +148,8 @@ export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
     // get CSS selectors to find the news piece title, date and content
     const { titleSelectors, dateSelectors, contentSelectors } =
       getSelectors(source);
+
+    log.trace(`Retrieved selectors for ${source}`);
 
     // for each html page extract the relevant news article information and push it into the empty array for that source
     htmlPages.forEach((htmlPage, pageIndex) => {
@@ -150,10 +163,11 @@ export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
 
         newsPieces.push({ url, title, date, body: paragraphs, source });
       } catch (error) {
-        console.error("Error parsing webpage HTML: ", error);
+        log.warn("Error parsing webpage HTML: ", error);
       }
     });
   }
 
+  log.info("Finished parsing HTML webpage results");
   return newsPieces;
 }

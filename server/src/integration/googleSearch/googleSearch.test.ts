@@ -115,7 +115,7 @@ describe("Get URLs to related articles via Google search", () => {
     // asserts
     expect(dataError).toEqual(
       new Error(
-        "Searching Google: TypeError: Cannot read property 'data' of undefined"
+        "Searching Google: TypeError: Cannot read properties of undefined (reading 'data')"
       )
     );
   });

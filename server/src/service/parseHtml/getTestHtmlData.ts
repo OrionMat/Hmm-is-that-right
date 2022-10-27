@@ -3,7 +3,8 @@ import { writeFile } from "fs";
 import { scrapePageHtml } from "../../integration/scrapePageHtml/scrapePageHtml";
 
 /**
- * calls scrapePageHtml with live URLs to get real HTML webpages and writes them to the sourcePages.json file
+ * calls scrapePageHtml with live URLs to get real HTML webpages and writes them to the sourcePages.json file which is used in unit testing
+ * NOTE: This does not need to be run again and if the online articles change running it again could mess up the unit tests
  */
 export const getTestHtmlData = async () => {
   const sourceUrls = await scrapePageHtml({

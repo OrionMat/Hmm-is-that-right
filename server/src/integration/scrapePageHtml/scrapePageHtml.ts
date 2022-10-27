@@ -1,5 +1,8 @@
 import axios from "axios";
+import { getLogger } from "../../logger";
 import { SourceUrls, SourcePages } from "../../dataModel/dataModel";
+
+const log = getLogger("integration/scrapePageHtml");
 
 /**
  * Scrapes webpage HTML for each URL
@@ -9,7 +12,8 @@ import { SourceUrls, SourcePages } from "../../dataModel/dataModel";
 export async function scrapePageHtml(
   sourceUrls: SourceUrls
 ): Promise<SourcePages> {
-  console.log("scraping page HTML.");
+  log.info(`Scraping page HTML for news sources ${JSON.stringify(sourceUrls)}`);
+
   let sourcePages: SourcePages = {};
   try {
     for (const source in sourceUrls) {
@@ -17,9 +21,11 @@ export async function scrapePageHtml(
 
       // concurrent http requests. i.e promisedResults = [promise1, promise2, ...]
       const promisedResults = urls.map((url) => axios.get(url));
+      log.debug(`Made axios requests for web pages`);
 
       // resolve all http request promises. i.e results = [response1, response2, ...]
       const rawResults = await Promise.allSettled(promisedResults);
+      log.debug(`Resolved all request results`);
 
       // get html response data. i.e data = [webPage1, webPage2, ...]
       const webpages: string[] = [];
@@ -32,7 +38,9 @@ export async function scrapePageHtml(
       sourcePages[source] = { webpages, urls };
     }
   } catch (error) {
-    console.error("Error scraping webpages: ", error);
+    log.error("Error scraping webpages: ", error);
   }
+
+  log.info("Successfully scraped HTML for news sources.");
   return sourcePages;
 }

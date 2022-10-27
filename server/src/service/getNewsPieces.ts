@@ -4,6 +4,9 @@ import { scrapePageHtml } from "../integration/scrapePageHtml/scrapePageHtml";
 import { cleanUrls } from "./cleanUrls/cleanUrls";
 import { parseHtml } from "./parseHtml/parseHtml";
 import { NewsPiece } from "../dataModel/dataModel";
+import { getLogger } from "../logger";
+
+const log = getLogger("services/getNewsPieces");
 
 /**
  * Gets news pieces that can be used to cross check a statement.
@@ -14,8 +17,8 @@ export async function getNewsPieces(
   statement: string,
   sources: string[]
 ): Promise<NewsPiece[]> {
-  console.log(
-    `scrapeNewsPieceService for sources "${sources}" with statement: "${statement}"`
+  log.info(
+    `Getting news pieces from sources: ${sources}. For statement: ${statement}`
   );
 
   // search internet for source and statement
@@ -30,5 +33,6 @@ export async function getNewsPieces(
   // parse html web pages
   const newsPieces = parseHtml(sourcePages);
 
+  log.info(`Successfully got news pieces: ${JSON.stringify(newsPieces)}`);
   return newsPieces;
 }

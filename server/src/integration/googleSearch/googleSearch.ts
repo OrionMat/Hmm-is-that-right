@@ -1,7 +1,10 @@
 /** searches google for statement */
 import axios from "axios";
+import { getLogger } from "../../logger";
 import { serverConfig } from "../../config/serverConfig";
 import { SourceUrls } from "../../dataModel/dataModel";
+
+const log = getLogger("integration/googleSearch");
 
 /**
  * Searches Google for the query statement and returns the top result URLs. 125 credits with SERP google search library
@@ -13,9 +16,11 @@ export async function googleSearch(
   statement: string,
   sources: string[]
 ): Promise<SourceUrls> {
-  console.log(`Searching news sources for statement: ${statement}`);
+  log.info(
+    `Google searching news sources: ${sources}. With statement: ${statement}`
+  );
 
-  // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + New York best summer"]
+  // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + Kenya win 7s"]
   const queries = sources.map((source) => `${source} + ${statement}`);
 
   // set up list of request parameters
@@ -32,11 +37,13 @@ export async function googleSearch(
         params,
       })
     );
+    log.debug(`Made get request to Google`);
 
     // resolve all promised search results
     const rawDataList = (await Promise.allSettled(rawResults)).map((result) =>
       result.status === "fulfilled" ? result.value.data : undefined
     );
+    log.trace(`Resolved search results ${JSON.stringify(rawDataList)}`);
 
     // map raw data to arrays of urls for each news source
     sources.forEach((source, index) => {
@@ -47,9 +54,10 @@ export async function googleSearch(
       }
     });
   } catch (error) {
-    console.log("Error searching Google: ", error);
+    log.error(`Error searching Google: ${JSON.stringify(error)}`);
     throw new Error(`Searching Google: ${error}`);
   }
-  console.log("urls found for:", JSON.stringify(sourceUrls));
+
+  log.info(`URLs found: ${JSON.stringify(sourceUrls)}`);
   return sourceUrls;
 }

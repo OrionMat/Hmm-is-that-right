@@ -1,11 +1,16 @@
+import { getLogger } from "../../logger";
 import { SourceUrls } from "../../dataModel/dataModel";
+
+const log = getLogger("service/cleanUrls");
 
 /**
  * Filters/Cleans URLs
- * @param rawSourceUrls  Sources with a list of URLs for each source
+ * @param rawSourceUrls Sources with a list of URLs for each source
  * @returns Sources with a clean list of URls for each source
  */
 export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
+  log.info(`Cleaning URLs: ${JSON.stringify(rawSourceUrls)}`);
+
   let cleanSourceUrls: SourceUrls = {};
   for (const source in rawSourceUrls) {
     const rawUrls = rawSourceUrls[source]; // ["www.", "www.", "www.", ...]
@@ -26,9 +31,7 @@ export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
         break;
       default:
         filterKey = "https://www.";
-        console.log(
-          "cleanURLs: No cleaning/filtering of URLs as no source match"
-        );
+        log.warn("No cleaning/filtering of URLs as no source match");
         break;
     }
 
@@ -37,6 +40,7 @@ export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
 
     cleanSourceUrls[source] = urls;
   }
-  console.log("Cleaned URLS: ", cleanSourceUrls);
+
+  log.info(`Cleaned URLS: ${JSON.stringify(cleanSourceUrls)}`);
   return cleanSourceUrls;
 }
