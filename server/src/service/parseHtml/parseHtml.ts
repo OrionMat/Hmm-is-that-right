@@ -1,6 +1,6 @@
 /** pulls out relevant news article information from the soup of html returned by the website */
 import { JSDOM } from "jsdom";
-import { getLogger } from "src/logger";
+import { getLogger } from "../../logger";
 import { SourcePages, NewsPiece } from "../../dataModel/dataModel";
 
 const log = getLogger("service/parseHtml");

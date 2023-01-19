@@ -1,5 +1,7 @@
 # Hmmm is that right?
 
+The start of a project aimed to be a market place for the exchange of information. i.e market place where news sources meet news readers.
+
 A web app for made for quick **fact checking**. 🔎📰
 
 A web-app to help people quickly fact check statements and news claims. The idea is to automate as much of the cross-checking process as possible.

@@ -8,9 +8,9 @@ let model: sentenceEncoder.UniversalSentenceEncoder | undefined = undefined;
 
 /**
  * Extract similar text from the news piece
- * @param statement
- * @param newsPieces
- * @returns
+ * @param statement The statement to compare the news piece to
+ * @param newsPieces The news pieces to extract similar text from
+ * @returns Array of relevant news pieces (i.e most similar sentence, most similar paragraph etc.)
  */
 export async function addSimilarText(
   statement: string,
@@ -25,6 +25,7 @@ export async function addSimilarText(
 
   // calculate statement embedding
   const statementEmbedding = await model.embed(statement);
+  console.log("statementEmbedding: ", statementEmbedding);
 
   for (const newsPiece of newsPieces) {
     let mostSimilarSentence = "";
@@ -34,12 +35,14 @@ export async function addSimilarText(
     let maxParagraphScore = 0;
 
     const paragraphs = newsPiece.body;
+    console.log("paragraphs: ", paragraphs);
 
     // for each paragraph, split into sentences and calculate each sentence's similarity
     for (const paragraph of paragraphs) {
       if (paragraph) {
         let paragraphScore = 0;
         const sentences = paragraph.split(".");
+        console.log("sentences: ", sentences);
 
         for (const sentence of sentences) {
           // calculate article sentence embedding
@@ -78,5 +81,7 @@ export async function addSimilarText(
       mostSimilarParagraph,
     });
   }
+
+  console.log("Computed relevant news pieces: ", relevantNewsPieces);
   return relevantNewsPieces;
 }

@@ -1,4 +1,5 @@
 import pino from "pino";
+import { serverConfig } from "./config/serverConfig";
 
 /**
  * Gets logger.
@@ -15,5 +16,6 @@ export function getLogger(fileName: string) {
         ignore: "pid,hostname",
       },
     },
+    level: serverConfig.loggingLevel,
   });
 }

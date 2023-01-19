@@ -33,6 +33,9 @@ export async function getNewsPieces(
   // parse html web pages
   const newsPieces = parseHtml(sourcePages);
 
-  log.info(`Successfully got news pieces: ${JSON.stringify(newsPieces)}`);
+  // TODO: find most similar sentence/paragraph to display to the user
+  // i.e call addSimilarText, or computeSentenceSimilarities functions (still works in progress)
+
+  log.trace(`Successfully got news pieces: ${JSON.stringify(newsPieces)}`);
   return newsPieces;
 }
