@@ -36,6 +36,7 @@ export async function getNewsPieces(
   // TODO: find most similar sentence/paragraph to display to the user
   // i.e call addSimilarText, or computeSentenceSimilarities functions (still works in progress)
 
-  log.trace(`Successfully got news pieces: ${JSON.stringify(newsPieces)}`);
+  log.info("Successfully got news pieces");
+  log.trace(`Retrieved news pieces: ${JSON.stringify(newsPieces)}`);
   return newsPieces;
 }
