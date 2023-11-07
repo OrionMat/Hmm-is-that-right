@@ -1,0 +1,183 @@
+# TODO: go through sample SAM repo and read: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
+
+# This is a template to use to deploy resources using CloudFormation. It should include:
+# Useful comments about what things are, what they do, and why they are needed (research into different resources, and deploying them with CloudFormation)
+# Commented out resource parameters that could be useful in the future and what their default, min and max values are
+
+# CloudFormation summary:
+# Infrastructure as code tool that helps deploy and manage AWS resources
+# CloudFormation works with templates and stacks
+# CloudFormation templates defined all the AWS resources you want, and the CloudFormation engine takes care of calling the AWS API's to provision and configuring those resources in the cloud (creating a stack)
+#     Can easily specify multiple resources in a template and configure them to work together
+# Simplifies infrastructure management by deploying resources in a stack.
+#     Easy to create, update, and delete a collection of resources by creating, updating, and deleting stacks. Stacks also allow you to see all deployed resources
+#     Can work with stacks via the CloudFormation console, API, or AWS CLI
+#     CloudFormation stacks get created by specifying the location of the template file (path if on local computer) or an S3 URL (if template has been uploaded to an S3 bucket)
+#     If stack creation fails, CloudFormation rolls back the changes and deletes the resources it created. Restores the stack to the last known working state
+#     To create a stack run the aws cloudformation create-stack command. Must provide the stack name, the location of a template, and any input parameters (parameters are separated with a space and the key names are case sensitive)
+#         aws cloudformation create-stack \
+#         --stack-name MyStackName \
+#         --template-body file:///home/testuser/mytemplate.yaml \
+#         --parameters ParameterKey=Parm1,ParameterValue=test1 ParameterKey=Parm2,ParameterValue=test2
+#         (i.e aws cloudformation create-stack --stack-name HmmmIsThatRightApp --template-body file://getNewsPiecesBackend.yaml --capabilities CAPABILITY_NAMED_IAM)
+#     Other useful commands: aws cloudformation list-stacks, aws cloudformation describe-stacks
+
+# Benefits:
+# Change sets - before making changes to resources, you can generate a change set (a summary of your proposed changes, which shows the proposed changes to running resources)
+#     Create a change set by uploading a modified version of the stack template, different input parameter values, or both
+#     Change sets don't tell you whether your stack update will be successful (i.e could fail if hitting account quota's or have insufficient permissions to change a resource)
+#     CloudFormation updates the stack by updating only the resources that have been modified
+# Makes it simple to replicate infrastructure in multiple regions (create resources in a consistent and repeatable manner)
+# Can use version control (git) to track changes in infrastructure (IaC) and easily roll back changes if things go wrong
+
+# Notes:
+# Security - Do not put credentials in templates
+# Security - can improve security of your VPC by configuring CloudFormation to use an interface VPC endpoint
+#     This allows you to privately access CloudFormation APIs from private IP addresses (i.e. CloudFormation can only be accessed when connected to your VPN)
+#     Not required to configure PrivateLink, but it's recommended (a potential TODO)
+# Security - create a CloudFormation service role to restrict the resources users can create/update/delete, and make the CloudFormation access/permissions separate to their user permissions
+#     CloudFormation uses the service role's policy to make calls instead of the user's policy
+# Security - research "Logging AWS CloudFormation API calls with AWS CloudTrail."
+# CloudFormation can only perform actions that you have permission to do -> so the identity that you are logged-in as will need the permissions to create/update/delete the resources
+# For local templates, CloudFormation uploads the template to an S3 bucket. CloudFormation creates the bucket in the specified region for the resources to be created in
+#     If a bucket has already been created by CloudFormation, the template is added to that bucket
+# Stacks can be nested as resources in a top level template (see AWS::CloudFormation::Stack)
+# Serverless Application Model (SAM) templates are an extension of CloudFormation templates. It's a framework to build serverless applications
+#     If code contains native libraries build the deployment package with AWS SAM
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: A CloudFormation template to deploy test resources. Should be used as a template for other projects
+
+# Input parameters whose values are specified when you create the CloudFormation stack
+# Parameters require a type which constrains the value given. The type can be: String, Number, or an AWS-specific type
+# Optional attributes include:
+#     Default -> value used if none given by user (if no default user is required to enter a value)
+#     NoEcho -> if true CloudFormation returns the parameter value masked as asterisks (*****)
+#     For String type you can declare the following constraints: MinLength, MaxLength, Default, AllowedValues, and AllowedPattern
+#     For Number type you can declare the following constraints: MinValue, MaxValue, Default, and AllowedValues
+Parameters:
+  SerpSearchApiKey:
+    Type: String
+    Default: test-key
+    Description: API key for performing a google search to find relevant news articles
+
+# Resources:
+# The Resources section declares the list of resources the CloudFormation template will create
+# Each resources must have a 'Type' attribute to tell AWS they type of resource you want to create (type attribute format: 'AWS::ProductIdentifier::ResourceType')
+# Each resource in configured using its 'Properties' attribute (some properties are optional and will have default values)
+#     DependsOn ensures the creation on one resource follows another
+#     See here for properties of each resource: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
+# The name used for a resource at the top level is its logical name. This could be anything
+#     When CloudFormation creates a resource, it generates a physical name -> the physical name is based on the logical name, the stack name, and a unique ID
+# CloudFormation has functions that allow you to refer to resources and their properties
+#     Ref function can be used to refer to an identifying property of a resource (i.e. the physical name of the resource, IP address, or Amazon Resource Name (ARN))
+#     GetAtt can be used to get attributes of resources (takes two parameters: the logical name of the resource and the name of the attribute to be retrieved)
+#     FindInMap
+#     Join can concatenate parameters to form a string (takes two parameters, a delimiter that separates the values and an array of values)
+# CloudFormation has Pseudo parameters that can be used to customise templates and resource configurations (Pseudo parameters are resolved by CloudFormation when you create the stack)
+#     AWS::Region resolves to the region where the stack is created
+Resources:
+  # log group for lambda
+  GetNewsPiecesLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: "/aws/lambda/get-news-pieces-lambda"
+      # Tags:
+      #   - Key: "Project"
+      #     Value: "hmmm-is-that-right"
+    # DataProtectionPolicy:
+    # KmsKeyId:
+    # RetentionInDays:
+
+  GetNewsPiecesLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "get-news-pieces-lambda-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "get-news-pieces-lambda-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:CreateLogGroup"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/get-news-pieces-lambda*:*"
+            # - Effect: Allow
+            #   Action:
+            #     - lambda:InvokeFunction
+            #   Resource: !GetAtt GetNewsPiecesLambda.Arn
+      # Tags:
+      #   - Key: "Project"
+      #     Value: "hmmm-is-that-right"
+      # Path:
+      # MaxSessionDuration:
+      # ManagedPolicyArns:
+      # PermissionsBoundary
+
+  # lambda function to get new pieces
+  GetNewsPiecesLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "get-news-pieces-lambda"
+      # CodeUri: ./build
+      Description: Lambda function to scrape relevant articles from a few different news sources
+      Handler: getNewsPiecesHandler
+      Role: !GetAtt GetNewsPiecesLambdaRole.Arn
+      Timeout: 180
+      Runtime: nodejs16.x
+      Environment:
+        Variables:
+          SERP_SEARCH_API_KEY: !Ref SerpSearchApiKey
+      # Tags:
+      #   - Key: "Project"
+      #     Value: "hmmm-is-that-right"
+      # VpcConfig:
+      #   SecurityGroupIds:
+      #     - sg-085912345678492fb
+      #   SubnetIds:
+      #     - subnet-071f712345678e7c8
+      #     - subnet-07fd123456788a036
+  # The Outputs object contains the values that you want to have available after the stack is created (so other resources can use them)
+  # Each output has a name, value and optional description (can be seen using aws cloudformation describe-stacks)
+
+  # GetNewsPiecesLambdaUrl:
+  #   Type: AWS::Lambda::Url
+  #   Properties:
+  #     AuthType: "NONE" # TODO: Auth is none but it is missing permissions for public access
+  #     TargetFunctionArn: !GetAtt GetNewsPiecesLambda.Arn
+  #     # Cors:
+  #     # InvokeMode:
+  #     # Qualifier:
+
+  # GetNewsPiecesLambdaUrl:
+  #   Type: "AWS::Serverless::Api"
+  #   Properties:
+  #     StageName: Prod
+  #     DefinitionBody:
+  #       swagger: "2.0"
+  #       info:
+  #         version: 1.0
+  #         title: "GetNewsPiecesLambda API"
+  #       paths:
+  #         /get-news-pieces:
+  #           get:
+  #             x-amazon-apigateway-integration:
+  #               type: "AWS_PROXY"
+  #               uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetNewsPiecesLambda.Arn}/invocations"
+  #               httpMethod: "POST"
+  #               responses: {}
+  #     Tags:
+  #       - Key: "Project"
+  #         Value: "hmmm-is-that-right"

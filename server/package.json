@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
+    "esbuild": "esbuild src/getNewsPiecesHandler.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/getNewsPiecesHandler.js",
     "start": "npx tsc && node ./build/index.js",
     "dev": "node ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run start\"",
-    "test": "jest"
+    "test": "jest",
+    "samBuild": "sam build --template-file getNewsPiecesBackend.yaml --build-dir ./dist",
+    "deploy": "sam deploy --template-file getNewsPiecesBackend.yaml --stack-name HmmmIsThatRight --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --s3-bucket hmmm-dev-storage-bucket --region eu-west-2"
   },
   "keywords": [
     "news",
