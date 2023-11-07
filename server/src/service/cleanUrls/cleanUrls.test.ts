@@ -1,5 +1,7 @@
 import { cleanUrls } from "./cleanUrls";
 
+jest.mock("../../logger.ts");
+
 describe("Filtering for HTTP URLs", () => {
   test("Ideal calse: Non HTTPs URLs are filtered out of the URLs list", () => {
     // setup

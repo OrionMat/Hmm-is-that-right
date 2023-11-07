@@ -1,6 +1,7 @@
 import axios from "axios";
 import { scrapePageHtml } from "./scrapePageHtml";
 
+jest.mock("../../logger.ts");
 jest.mock("axios");
 
 const mockAxios = axios as jest.Mocked<typeof axios>;

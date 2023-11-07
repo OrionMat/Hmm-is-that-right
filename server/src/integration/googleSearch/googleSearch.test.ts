@@ -3,6 +3,7 @@ import axios from "axios";
 import { googleSearch } from "./googleSearch";
 
 jest.mock("axios");
+jest.mock("../../logger.ts");
 jest.mock("../../config/serverConfig", () => ({
   serverConfig: { serpSearchApiKey: "NOT_TELLING" },
 }));
