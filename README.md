@@ -29,6 +29,11 @@ The project is mainly written in TypeScript (a statically typed superset of Java
 - [Scale SERP](https://scaleserp.com/) is used as an interface with Google to search for relevant news and get the article links.
   > To run the web app you will need a google API key to get search results. This can be obtained for free [here](https://app.scaleserp.com/signup)
 
+Creating a front-end react app:
+
+- easiest way is to use create-react-app by running `npx create-react-app <my-app-name>`, then run `npm start` to run the application. (vite may be the newer way of doing this)
+- core philosophy of React is composing applications from many specialized reusable components. The other key feature is that Javascript can be embedded and evaluated within components
+
 ## Run the Project
 
 1. Clone the project [here](https://github.com/OrionMat/Hmm-is-that-right)
@@ -39,5 +44,3 @@ The project is mainly written in TypeScript (a statically typed superset of Java
    then paste your google API search key (can get a free one from [here](https://app.scaleserp.com/signup))
 4. Run an `npm run build` in the server directory
 5. Change into the Client directory and run a `npm run start`. This should kick off the UI.
-
-now testing git reset

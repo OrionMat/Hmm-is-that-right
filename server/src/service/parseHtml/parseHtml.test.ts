@@ -2,6 +2,8 @@ import { readFileSync } from "fs";
 import { SourcePages } from "../../dataModel/dataModel";
 import { parseHtml } from "./parseHtml";
 
+jest.mock("../../logger.ts");
+
 let sourcePages: SourcePages = JSON.parse(
   readFileSync("src/service/parseHtml/sourcePages.json", "utf8")
 );
