@@ -4,6 +4,7 @@
 /client/.pnp.js
 /server/node_modules
 /server/.env
+/single-spa/node_modules
 
 # testing
 /client/coverage

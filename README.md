@@ -44,3 +44,14 @@ Creating a front-end react app:
    then paste your google API search key (can get a free one from [here](https://app.scaleserp.com/signup))
 4. Run an `npm run build` in the server directory
 5. Change into the Client directory and run a `npm run start`. This should kick off the UI.
+
+## TODO list
+
+1. Deploy app on AWS to ping a live version (on branch deploy-app-aws-cloudFormation)
+2. Integrate with ChatGPT API to get better stance detection between different news sources
+   - summarise article, retrieve most similar/agreed sentence
+3. Add single-spa so that I can create micro frontends with the latest technology
+
+## Deploy
+
+aws cloudformation create-stack --stack-name HmmmIsThatRightApp --template-body file://getNewsPiecesBackend.yaml --capabilities CAPABILITY_NAMED_IAM
