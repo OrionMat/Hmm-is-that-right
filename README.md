@@ -44,3 +44,37 @@ Creating a front-end react app:
    then paste your google API search key (can get a free one from [here](https://app.scaleserp.com/signup))
 4. Run an `npm run build` in the server directory
 5. Change into the Client directory and run a `npm run start`. This should kick off the UI.
+
+## single-spa
+
+single-apa is a javascript router for front-end microservices.
+
+- Can have multiple frameworks in a single-page application (Angular, React, Vue.js, etc). Great for massive company UIs. Can deploy microfrontends independently
+- Can write code using a new framework without rewriting the existing app
+
+single-spa apps consist of the following:
+
+1. A single-spa root config, which renders the HTML page and the JavaScript that registers applications. Each application is registered with three things: a name, a function to load the application's code, and a function that determines when the application is active/inactive
+2. Applications, i.e single-page applications packaged up into modules. Each application must know how to bootstrap, mount, and unmount itself from the DOM. The applications must be able to coexist as they do not each have their own HTML page.
+   - For example, your React or Angular SPAs are applications. When active, they can listen to url routing events and put content on the DOM.
+   - When inactive, they do not listen to url routing events and are totally removed from the DOM.
+
+The orgName should be the same across all applications as it is used as a namespace to enable in-browser module resolution.
+
+### TODO: single-spa
+
+- I've got the example application up and running, `cd Hmm-is-that-right\single-spa` and run `npm run start`. Next steps:
+
+1. go through the example application and build up my understanding of how its working
+2. migrate my existing hmmm app frontend into single-spa
+3. migrate single spa into my existing frontend and merge to master
+
+## TODO list
+
+1. Deploy app on AWS to ping a live version (on branch deploy-app-aws-cloudFormation)
+2. Integrate with ChatGPT API to get better stance detection between different news sources
+   - summarise article, retrieve most similar/agreed sentence
+
+## Deploy
+
+aws cloudformation create-stack --stack-name HmmmIsThatRightApp --template-body file://getNewsPiecesBackend.yaml --capabilities CAPABILITY_NAMED_IAM
