@@ -10,20 +10,22 @@ export async function getNewsPieces(
   );
   console.log(sources);
 
-  let response: AxiosResponse = {
-    status: 500,
-    data: {},
-    statusText: "Error",
-    headers: [],
-    config: {},
-  };
+  let response: AxiosResponse | undefined;
   try {
     response = await axios.get("http://localhost:3001/getNewsPieces", {
       params: { statement, sources },
     });
-    console.log(response.data);
+    console.log(response?.data);
   } catch (error) {
     console.log(error);
   }
-  return response.data;
+  return (
+    response?.data || {
+      status: 500,
+      data: {},
+      statusText: "Error",
+      headers: [],
+      config: {},
+    }
+  );
 }

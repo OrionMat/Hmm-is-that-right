@@ -38,19 +38,20 @@ Creating a front-end react app:
 
 1. Clone the project [here](https://github.com/OrionMat/Hmm-is-that-right)
 2. Install the dependencies:
-   Open the terminal and change directory into the `client` folder (`cd client`). Then run the command `npm install` to install all the dependencies for the UI.
-   Change directory into the server (`cd ../server` if you're still in the client folder) and run another `npm install`.
-3. Create a file in the server folder called `.env` and paste: **SERP_SEARCH_API_KEY=**
+   - Open a terminal and change directory into the `client` folder (`cd client`). Then run the command `npm install` to install all the dependencies for the UI.
+   - Open a second terminal and change directory into the server (`cd server`) and run another `npm install`.
+3. Create a file in the server folder called `.env` and paste: `SERP_SEARCH_API_KEY=`
    then paste your google API search key (can get a free one from [here](https://app.scaleserp.com/signup))
-4. Run an `npm run build` in the server directory
-5. Change into the Client directory and run a `npm run start`. This should kick off the UI.
+4. Run an `npm run build` in the server directory and then `npm run start`
+5. In the Client directory run a `npm run start`. This should kick off the UI.
 
 ## TODO list
 
-1. Deploy app on AWS to ping a live version (on branch deploy-app-aws-cloudFormation)
-2. Integrate with ChatGPT API to get better stance detection between different news sources
+1. Setup UI so that it is talking to a mock-server: https://www.npmjs.com/package/mockserver
+2. Deploy app on AWS to ping a live version (on branch deploy-app-aws-cloudFormation)
+3. Integrate with ChatGPT API to get better stance detection between different news sources
    - summarise article, retrieve most similar/agreed sentence
-3. Add single-spa so that I can create micro frontends with the latest technology
+4. Add single-spa so that I can create micro frontends with the latest technology
 
 ## Deploy
 

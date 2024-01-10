@@ -6,7 +6,8 @@ import { SelectNewsIcon as selectNewsIcon } from "./Icons";
 const Table = styled.table`
   width: 75%;
   margin-top: 25px;
-  font-family: "Nunito", sans-serif;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+    Liberation Mono, monospace;
   border-collapse: collapse;
 
   tbody {

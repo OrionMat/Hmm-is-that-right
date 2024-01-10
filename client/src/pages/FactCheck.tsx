@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { SearchBar } from "./SearchBar";
+import { SearchBar } from "../SearchBar";
 import {
   NewsPiece,
   permanentSourceUrls,
   PermanentNewsSources,
-} from "./dataModel/dataModel";
-import { Tile } from "./Tile";
-import { ResultsTable } from "./ResultsTable";
+} from "../dataModel/dataModel";
+import { Tile } from "../Tile";
+import { ResultsTable } from "../ResultsTable";
 
 const initialNewsSources = {
   bbc: true,
@@ -21,7 +21,8 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 750px;
+  width: 100%;
+  padding: 3rem;
 `;
 
 const TileContainer = styled.div`
@@ -34,12 +35,12 @@ const TileContainer = styled.div`
   margin-bottom: 50px;
 `;
 
-export const App = () => {
-  /** active/desabled states for news agencies */
+export const FactCheck = () => {
+  /** active/disabled states for news agencies */
   const [sourceStates, setSourceStates] = useState(initialNewsSources);
   const newSourceStates = Object.assign({}, sourceStates);
 
-  /** state popullated by retrieved news pieces */
+  /** state populated by retrieved news pieces */
   const [newsPieces, setNewsPieces] = useState<NewsPiece[]>([]);
 
   /** builds array of news agencies to populate the select tiles */

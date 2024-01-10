@@ -20,6 +20,8 @@ const SearchInput = styled.input`
   border-radius: 25px;
   z-index: 3;
   padding-left: 60px;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+    Liberation Mono, monospace;
   :hover {
     box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
     border-color: rgba(223, 225, 229, 0);
@@ -42,7 +44,7 @@ export const SearchBar = (props: {
 
   return (
     <SearchForm
-      onSubmit={async (event) => {
+      onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         console.log("submitted statement: ", statement);
         console.log("active sources: ", props.sourceStates);
@@ -58,7 +60,9 @@ export const SearchBar = (props: {
         autoComplete="off"
         spellCheck="false"
         placeholder="Check a fact or statement"
-        onChange={(event) => setStatement(event.target.value)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          setStatement(event.target.value)
+        }
       />
     </SearchForm>
   );
