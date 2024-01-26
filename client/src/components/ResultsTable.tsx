@@ -1,19 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import { NewsPiece } from "./dataModel/dataModel";
-import { SelectNewsIcon as selectNewsIcon } from "./Icons";
+import { NewsPiece } from "../dataModel/dataModel";
+import { SelectNewsIcon as selectNewsIcon } from "../Icons";
+import { colors } from "../styles/colors";
+import { fonts } from "../styles/fonts";
 
 const Table = styled.table`
   width: 75%;
   margin-top: 25px;
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-    Liberation Mono, monospace;
+  font-family: ${fonts.primary};
   border-collapse: collapse;
 
   tbody {
     tr {
       border-radius: 0.25rem;
-      box-shadow: 0 1px 6px -1px rgba(32, 33, 36, 0.28);
+      box-shadow: 0 1px 6px -1px ${colors.darkGrey};
       td {
         padding: 20px;
         div {

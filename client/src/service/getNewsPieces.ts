@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { NewsPiece, IsActiveNewsSources } from "./dataModel/dataModel";
+import { NewsPiece, IsActiveNewsSources } from "../dataModel/dataModel";
 
 export async function getNewsPieces(
   statement: string,

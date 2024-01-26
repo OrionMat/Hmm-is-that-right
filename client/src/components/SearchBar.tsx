@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { IsActiveNewsSources, NewsPiece } from "./dataModel/dataModel";
-import { getNewsPieces } from "./getNewsPieces";
-import { SearchIcon } from "./Icons";
+import { IsActiveNewsSources, NewsPiece } from "../dataModel/dataModel";
+import { getNewsPieces } from "../service/getNewsPieces";
+import { SearchIcon } from "../Icons";
+import { colors } from "../styles/colors";
+import { fonts } from "../styles/fonts";
 
 const SearchForm = styled.form`
   position: relative;
@@ -16,20 +18,19 @@ const SearchForm = styled.form`
 const SearchInput = styled.input`
   height: 50px;
   width: 100%;
-  border: 1px solid #dfe1e5;
+  border: 1px solid ${colors.lightGrey};
   border-radius: 25px;
   z-index: 3;
   padding-left: 60px;
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-    Liberation Mono, monospace;
+  font-family: ${fonts.primary};
   :hover {
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-    border-color: rgba(223, 225, 229, 0);
+    box-shadow: 0 1px 6px ${colors.darkGrey};
+    border-color: transparent;
   }
   :focus {
     outline: none;
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-    border-color: rgba(223, 225, 229, 0);
+    box-shadow: 0 1px 6px ${colors.darkGrey};
+    border-color: transparent;
   }
   ::-webkit-search-cancel-button {
     -webkit-appearance: none;

@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { SearchBar } from "../SearchBar";
+import { SearchBar } from "../components/SearchBar";
 import {
   NewsPiece,
   permanentSourceUrls,
   PermanentNewsSources,
 } from "../dataModel/dataModel";
-import { Tile } from "../Tile";
-import { ResultsTable } from "../ResultsTable";
+import { Tile } from "../components/Tile";
+import { ResultsTable } from "../components/ResultsTable";
+import { PageContainer } from "../components/PageContainer";
 
 const initialNewsSources = {
   bbc: true,
@@ -16,14 +17,6 @@ const initialNewsSources = {
   reuters: true,
   twitter: true,
 };
-
-const ContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: 3rem;
-`;
 
 const TileContainer = styled.div`
   width: 500px;
@@ -53,7 +46,7 @@ export const FactCheck = () => {
   );
 
   return (
-    <ContentContainer id="content">
+    <PageContainer id="content">
       <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} />
       <TileContainer>
         {newsSources.map(({ source, url, isActive }, index) => (
@@ -74,6 +67,6 @@ export const FactCheck = () => {
       {newsPieces.length > 0 ? (
         <ResultsTable newsPieces={newsPieces} />
       ) : undefined}
-    </ContentContainer>
+    </PageContainer>
   );
 };
