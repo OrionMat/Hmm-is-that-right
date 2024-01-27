@@ -63,18 +63,27 @@ const PasswordRequirementsText = styled.span`
 
 export const SignUp = () => {
   // email state
+  const [email, setEmail] = useState("");
   const [isValidEmail, setIsValidEmail] = useState(false);
 
   // password state
+  const [password, setPassword] = useState("");
   const [isValidPassword, setIsValidPassword] = useState(false);
   const [isPasswordLong, setIsValidLong] = useState(false);
   const [isPasswordSpecial, setIsPasswordSpecial] = useState(false);
+
+  // name state (optional fields)
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [userName, setUserName] = useState("");
 
   // show components state
   const [showPasswordComponents, setShowPasswordComponents] = useState(false);
   const [showPasswordRequirements, setShowPasswordRequirements] =
     useState(false);
   const [showOptionalComponents, setShowOptionalComponents] = useState(false);
+
+  // utility functions, i.e checking email and password is valid, submitting form etc.
 
   function checkValidEmail(inputText: string) {
     const matches = inputText.match(
@@ -122,158 +131,176 @@ export const SignUp = () => {
     }
   }
 
+  function handelFormSubmit() {
+    console.log("formData: ", email, password, firstName, lastName, userName);
+  }
+
   return (
     <PageContainer id="signup-content">
       <SignUpBox>
-        <form>
-          <div style={{ width: "fit-content" }}>
-            <SecondaryHeader>Lets begin the adventure!</SecondaryHeader>
-          </div>
-          <h3>Enter your email</h3>
-          <FlexContainer>
-            {isValidEmail ? <Tick /> : <Arrow />}
-            <label hidden>Email address</label>
-            <FormInput
-              id="email-address"
-              type="email"
-              name="email"
-              required
-              autoFocus
-              autoComplete="off"
-              onChange={(inputEvent: React.ChangeEvent<HTMLInputElement>) =>
-                checkValidEmail(inputEvent.target.value)
+        <div style={{ width: "fit-content" }}>
+          <SecondaryHeader>Lets begin the adventure!</SecondaryHeader>
+        </div>
+        <h3>Enter your email</h3>
+        <FlexContainer>
+          {isValidEmail ? <Tick /> : <Arrow />}
+          <label hidden>Email address</label>
+          <FormInput
+            id="email-address"
+            type="email"
+            name="email"
+            required
+            autoFocus
+            autoComplete="off"
+            value={email}
+            onChange={(inputEvent: React.ChangeEvent<HTMLInputElement>) => {
+              setEmail(inputEvent.target.value);
+              checkValidEmail(inputEvent.target.value);
+            }}
+            onBlur={(inputEvent: React.ChangeEvent<HTMLInputElement>) =>
+              checkValidEmail(inputEvent.target.value)
+            }
+            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+              if (isValidEmail && event.key === "Enter") {
+                setShowPasswordComponents(true);
               }
-              onBlur={(inputEvent: React.ChangeEvent<HTMLInputElement>) =>
-                checkValidEmail(inputEvent.target.value)
-              }
-              onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                if (isValidEmail && event.key === "Enter") {
-                  setShowPasswordComponents(true);
-                }
-              }}
-            />
-            {!showPasswordComponents && (
-              <button
-                type="button"
-                disabled={!isValidEmail}
-                onClick={() => setShowPasswordComponents(true)}
-              >
-                Continue
-              </button>
-            )}
-          </FlexContainer>
-          {showPasswordComponents && (
-            <>
-              <h3>Create a password</h3>
-              <FlexContainer>
-                {isValidPassword ? <Tick /> : <Arrow />}
-                <label hidden>Password</label>
-                <FormInput
-                  id="password"
-                  type="password"
-                  autoComplete="off"
-                  spellCheck="false"
-                  required
-                  autoFocus
-                  onChange={(inputText: React.ChangeEvent<HTMLInputElement>) =>
-                    checkValidPassword(inputText.target.value)
+            }}
+          />
+          {!showPasswordComponents && (
+            <button
+              type="button"
+              disabled={!isValidEmail}
+              onClick={() => setShowPasswordComponents(true)}
+            >
+              Continue
+            </button>
+          )}
+        </FlexContainer>
+        {showPasswordComponents && (
+          <>
+            <h3>Create a password</h3>
+            <FlexContainer>
+              {isValidPassword ? <Tick /> : <Arrow />}
+              <label hidden>Password</label>
+              <FormInput
+                id="password"
+                type="password"
+                autoComplete="off"
+                spellCheck="false"
+                required
+                autoFocus
+                value={password}
+                onChange={(inputText: React.ChangeEvent<HTMLInputElement>) => {
+                  setPassword(inputText.target.value);
+                  checkValidPassword(inputText.target.value);
+                }}
+                onBlur={(inputText: React.ChangeEvent<HTMLInputElement>) => {
+                  checkValidPassword(inputText.target.value);
+                  setShowPasswordRequirements(false);
+                }}
+                onFocus={() => setShowPasswordRequirements(true)}
+                onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (isValidEmail && event.key === "Enter") {
+                    setShowOptionalComponents(true);
                   }
-                  onBlur={(inputText: React.ChangeEvent<HTMLInputElement>) => {
-                    checkValidPassword(inputText.target.value);
-                    setShowPasswordRequirements(false);
-                  }}
-                  onFocus={() => setShowPasswordRequirements(true)}
-                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (isValidEmail && event.key === "Enter") {
-                      setShowOptionalComponents(true);
-                    }
-                  }}
-                />
-                {!showOptionalComponents && (
-                  <button
-                    type="button"
-                    disabled={!isValidPassword}
-                    onClick={() => setShowOptionalComponents(true)}
-                  >
-                    Next
-                  </button>
-                )}
-              </FlexContainer>
-              {showPasswordRequirements && (
-                <div style={{ marginTop: "2rem" }}>
-                  <FlexContainer>
-                    {isPasswordLong ? <Tick /> : <Cross />}
-                    <PasswordRequirementsText>
-                      8 characters, or more
-                    </PasswordRequirementsText>
-                  </FlexContainer>
-                  <FlexContainer>
-                    {isPasswordSpecial ? <Tick /> : <Cross />}
-                    <PasswordRequirementsText>
-                      Number, special character or capital
-                    </PasswordRequirementsText>
-                  </FlexContainer>
-                </div>
+                }}
+              />
+              {!showOptionalComponents && (
+                <button
+                  type="button"
+                  disabled={!isValidPassword}
+                  onClick={() => setShowOptionalComponents(true)}
+                >
+                  Next
+                </button>
               )}
-            </>
-          )}
-          {showOptionalComponents && (
-            <>
-              <h3>Optionals</h3>
-              <FlexContainer>
-                <Arrow />
-                <FormInput
-                  id="form-element-first-name"
-                  name="first-name"
-                  placeholder="fist name"
-                  autoComplete="off"
-                  autoFocus
-                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (event.key === "Enter") {
-                      selectNextFormElement();
-                    }
-                  }}
-                />
-              </FlexContainer>
-              <FlexContainer>
-                <Arrow />
-                <FormInput
-                  id="form-element-last-name"
-                  name="last-name"
-                  placeholder="last name"
-                  autoComplete="off"
-                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (event.key === "Enter") {
-                      selectNextFormElement();
-                    }
-                  }}
-                />
-              </FlexContainer>
-              <FlexContainer>
-                <Arrow />
-                <FormInput
-                  id="form-element-user-name"
-                  name="user-name"
-                  placeholder="user name"
-                  autoComplete="off"
-                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (event.key === "Enter") {
-                      selectNextFormElement();
-                    }
-                  }}
-                />
-              </FlexContainer>
-              <button
-                id="form-element-finish-button"
-                style={{ marginTop: "1rem" }}
-                type="button"
-                onClick={() => {}}
-              >
-                Finish
-              </button>
-            </>
-          )}
-        </form>
+            </FlexContainer>
+            {showPasswordRequirements && (
+              <div style={{ marginTop: "2rem" }}>
+                <FlexContainer>
+                  {isPasswordLong ? <Tick /> : <Cross />}
+                  <PasswordRequirementsText>
+                    8 characters, or more
+                  </PasswordRequirementsText>
+                </FlexContainer>
+                <FlexContainer>
+                  {isPasswordSpecial ? <Tick /> : <Cross />}
+                  <PasswordRequirementsText>
+                    Number, special character or capital
+                  </PasswordRequirementsText>
+                </FlexContainer>
+              </div>
+            )}
+          </>
+        )}
+        {showOptionalComponents && (
+          <>
+            <h3>Optionals</h3>
+            <FlexContainer>
+              <Arrow />
+              <FormInput
+                id="form-element-first-name"
+                name="first-name"
+                placeholder="fist name"
+                autoComplete="off"
+                autoFocus
+                value={firstName}
+                onChange={(inputText: React.ChangeEvent<HTMLInputElement>) => {
+                  setFirstName(inputText.target.value);
+                }}
+                onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Enter") {
+                    selectNextFormElement();
+                  }
+                }}
+              />
+            </FlexContainer>
+            <FlexContainer>
+              <Arrow />
+              <FormInput
+                id="form-element-last-name"
+                name="last-name"
+                placeholder="last name"
+                autoComplete="off"
+                value={lastName}
+                onChange={(inputText: React.ChangeEvent<HTMLInputElement>) => {
+                  setLastName(inputText.target.value);
+                }}
+                onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Enter") {
+                    selectNextFormElement();
+                  }
+                }}
+              />
+            </FlexContainer>
+            <FlexContainer>
+              <Arrow />
+              <FormInput
+                id="form-element-user-name"
+                name="user-name"
+                placeholder="user name"
+                autoComplete="off"
+                value={userName}
+                onChange={(inputText: React.ChangeEvent<HTMLInputElement>) => {
+                  setUserName(inputText.target.value);
+                }}
+                onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (event.key === "Enter") {
+                    selectNextFormElement();
+                  }
+                }}
+              />
+            </FlexContainer>
+            <button
+              id="form-element-finish-button"
+              style={{ marginTop: "1rem" }}
+              type="button"
+              onClick={handelFormSubmit}
+            >
+              Finish
+            </button>
+          </>
+        )}
       </SignUpBox>
     </PageContainer>
   );
