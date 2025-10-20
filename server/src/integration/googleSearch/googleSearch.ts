@@ -26,14 +26,18 @@ export async function googleSearch(
   // set up list of request parameters
   const paramsList = queries.map((query) => ({
     api_key: serverConfig.serpSearchApiKey,
-    q: query,
+    q: query, // The search query
+    engine: "google", // Specify the search engine
+    num: 10, // Request 5 results
+    gl: "us", // Google location parameter (country)
+    hl: "en", // Host language parameter
   }));
 
   let sourceUrls: SourceUrls = {};
   try {
     // make the http GET request to Scale SERP
     const rawResults = paramsList.map((params) =>
-      axios.get("https://api.scaleserp.com/search", {
+      axios.get("https://serpapi.com/search", {
         params,
       })
     );
