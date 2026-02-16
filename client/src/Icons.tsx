@@ -1,16 +1,16 @@
 import React from "react";
 import styled from "styled-components";
-import { ReactComponent as SearchIconSVG } from "./images/searchIcon.svg";
-import { ReactComponent as BBCSVG } from "./images/BBCcurved.svg";
-import { ReactComponent as BBCGreySVG } from "./images/BBCcurvedGrey.svg";
-import { ReactComponent as NYTSVG } from "./images/NYT.svg";
-import { ReactComponent as NYTGreySVG } from "./images/NYTGrey.svg";
-import { ReactComponent as APSVG } from "./images/AP.svg";
-import { ReactComponent as APGreySVG } from "./images/APGrey.svg";
-import { ReactComponent as ReutersSVG } from "./images/Reuters.svg";
-import { ReactComponent as ReutersGreySVG } from "./images/ReutersGrey.svg";
-import { ReactComponent as TwitterSVG } from "./images/Twitter.svg";
-import { ReactComponent as TwitterGreySVG } from "./images/TwitterGrey.svg";
+import SearchIconSVG from "./images/searchIcon.svg?react";
+import BBCSVG from "./images/BBCcurved.svg?react";
+import BBCGreySVG from "./images/BBCcurvedGrey.svg?react";
+import NYTSVG from "./images/NYT.svg?react";
+import NYTGreySVG from "./images/NYTGrey.svg?react";
+import APSVG from "./images/AP.svg?react";
+import APGreySVG from "./images/APGrey.svg?react";
+import ReutersSVG from "./images/Reuters.svg?react";
+import ReutersGreySVG from "./images/ReutersGrey.svg?react";
+import TwitterSVG from "./images/Twitter.svg?react";
+import TwitterGreySVG from "./images/TwitterGrey.svg?react";
 
 const iconStandardHeight = "45px";
 const iconStandardWidth = "45px";

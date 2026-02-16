@@ -22,28 +22,46 @@ The steps the app preforms are as follows:
 
 ## Technical
 
-The project is mainly written in TypeScript (a statically typed superset of Javascript). Babel is used to compile TypeScript down to JavaScript, then Webpack bundles the code for deployment.
+The project is built with TypeScript 5.9 and modern tooling:
 
-- The UI is built with React ⚛️ and leverages TypeScript via `jsx` .
-- The backend uses `express` and `axios` to handle the **http** requests sent between the front-end and the back-end.
-- [Scale SERP](https://scaleserp.com/) is used as an interface with Google to search for relevant news and get the article links.
-  > To run the web app you will need a google API key to get search results. This can be obtained for free [here](https://app.scaleserp.com/signup)
+- **Frontend**: React 19 with Vite build tool
+- **Styling**: styled-components 6.3
+- **Routing**: React Router v6
+- **Testing**: Vitest with Testing Library
+- **Backend**: Express with Axios
+- **Search API**: SerpAPI is used as an interface with Google to search for relevant news and get the article links.
+  > To run the web app you will need a google API key to get search results. This can be obtained for free from [SerpAPI](https://serpapi.com/)
 
-Creating a front-end react app:
-
-- easiest way is to use create-react-app by running `npx create-react-app <my-app-name>`, then run `npm start` to run the application. (vite may be the newer way of doing this)
-- core philosophy of React is composing applications from many specialized reusable components. The other key feature is that Javascript can be embedded and evaluated within components
+The core philosophy of React is composing applications from many specialized reusable components. The other key feature is that JavaScript can be embedded and evaluated within components.
 
 ## Run the Project
 
 1. Clone the project [here](https://github.com/OrionMat/Hmm-is-that-right)
-2. Install the dependencies:
-   - Open a terminal and change directory into the `client` folder (`cd client`). Then run the command `npm install` to install all the dependencies for the UI.
-   - Open a second terminal and change directory into the server (`cd server`) and run another `npm install`.
-3. Create a file in the server folder called `.env` and paste: `SERP_SEARCH_API_KEY=`
-   then paste your google API search key (can get a free one from [here](https://app.scaleserp.com/signup))
-4. Run an `npm run build` in the server directory and then `npm run start`
-5. In the Client directory run a `npm run start`. This should kick off the UI.
+2. Install dependencies:
+   ```bash
+   cd client && npm install
+   cd ../server && npm install
+   ```
+3. Create `server/.env` with: `SERP_SEARCH_API_KEY=<your-key>`
+   (Get a free key from [SerpAPI](https://serpapi.com/))
+4. Start development:
+   ```bash
+   # Terminal 1 - Server
+   cd server
+   npm run build && npm start
+
+   # Terminal 2 - Client
+   cd client
+   npm run dev
+   ```
+
+## Client Scripts
+
+- `npm run dev` - Start development server (Vite)
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm test` - Run tests with Vitest
+- `npm run type-check` - Check TypeScript types
 
 ## TODO list
 

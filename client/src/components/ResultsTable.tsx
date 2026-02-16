@@ -46,8 +46,8 @@ export const ResultsTable = (props: { newsPieces: NewsPiece[] }) => {
   return (
     <Table>
       <tbody>
-        {props.newsPieces.map((newsPiece, newsPieceIndex) => (
-          <tr key={newsPieceIndex}>
+        {props.newsPieces.map((newsPiece) => (
+          <tr key={newsPiece.url}>
             <td>
               <div className="news-icon">
                 {selectNewsIcon(newsPiece.source, true)}
