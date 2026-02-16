@@ -7,12 +7,11 @@ export default defineConfig({
     react(),
     svgr({
       svgrOptions: {
-        exportType: 'named',
         ref: true,
         svgo: false,
         titleProp: true,
       },
-      include: '**/*.svg',
+      include: '**/*.svg?react',
     }),
   ],
   server: {
