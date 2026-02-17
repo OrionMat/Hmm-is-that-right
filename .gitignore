@@ -27,3 +27,6 @@
 
 # deployment
 /server/samconfig.toml
+
+# playwright
+/test-results

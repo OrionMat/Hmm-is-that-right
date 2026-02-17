@@ -10,14 +10,6 @@ import { Tile } from "../components/Tile";
 import { ResultsTable } from "../components/ResultsTable";
 import { PageContainer } from "../components/PageContainer";
 
-const initialNewsSources = {
-  bbc: true,
-  nyt: true,
-  ap: true,
-  reuters: true,
-  twitter: true,
-};
-
 const TileContainer = styled.div`
   width: 500px;
   display: flex;
@@ -30,7 +22,13 @@ const TileContainer = styled.div`
 
 export const FactCheck = () => {
   /** active/disabled states for news agencies */
-  const [sourceStates, setSourceStates] = useState(initialNewsSources);
+  const [sourceStates, setSourceStates] = useState({
+    bbc: true,
+    nyt: true,
+    ap: true,
+    reuters: true,
+    twitter: true,
+  });
   const newSourceStates = Object.assign({}, sourceStates);
 
   /** state populated by retrieved news pieces */
@@ -42,7 +40,7 @@ export const FactCheck = () => {
       source,
       isActive,
       url: permanentSourceUrls[source as keyof PermanentNewsSources],
-    })
+    }),
   );
 
   return (
