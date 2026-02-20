@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Build client
+        working-directory: client
+        env:
+          CI: true
+        run: npm run build
+
+  client-unit-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install client deps
+        working-directory: client
+        run: npm ci
+
+      - name: Run client unit tests (vitest)
+        working-directory: client
+        env:
+          CI: true
+        run: npm run test:unit
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Run client lint (if configured)
+        working-directory: client
+        run: |
+          if node -e "try{const p=require('./package.json'); process.exit(p.scripts && p.scripts.lint ? 0 : 1);}catch(e){process.exit(1)}"; then
+            echo 'Running client lint...'
+            npm run lint
+          else
+            echo 'No client lint script found in client/package.json — skipping lint step.'
+          fi
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: [client-unit-tests]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Install Playwright and browsers (action)
+        uses: microsoft/playwright-github-action@v1
+        with:
+          check: true
+
+      - name: (Fallback) Ensure browsers installed
+        working-directory: client
+        run: npx playwright install --with-deps
+
+      - name: Run integration tests (Playwright)
+        working-directory: client
+        env:
+          CI: true
+        run: npm run test:integration
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [client-unit-tests]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Install Playwright and browsers (action)
+        uses: microsoft/playwright-github-action@v1
+        with:
+          check: true
+
+      - name: (Fallback) Ensure browsers installed
+        working-directory: client
+        run: npx playwright install --with-deps
+
+      - name: Run e2e tests (Playwright)
+        working-directory: client
+        env:
+          CI: true
+        run: npm run test:e2e

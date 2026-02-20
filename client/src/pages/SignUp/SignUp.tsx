@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { styled } from "styled-components";
 import { PageContainer } from "../../components/PageContainer";
 import { colors } from "../../styles/colors";
@@ -21,7 +21,9 @@ const SecondaryHeader = styled.h3`
   overflow: hidden; /* Ensures the content is not revealed until the animation */
   border-right: 0.15em solid transparent; /* The typewriter cursor */
   white-space: nowrap;
-  animation: typing 2s steps(50, end), blink-caret 3s step-end 1;
+  animation:
+    typing 2s steps(50, end),
+    blink-caret 3s step-end 1;
 
   /* The typing effect */
   @keyframes typing {
@@ -87,7 +89,7 @@ export const SignUp = () => {
 
   function checkValidEmail(inputText: string) {
     const matches = inputText.match(
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
     );
     const isValid = matches !== null ? true : false;
     setIsValidEmail(isValid);
@@ -120,7 +122,7 @@ export const SignUp = () => {
 
   function selectNextFormElement() {
     const inputs = Array.from(
-      document.querySelectorAll<HTMLInputElement>('[id^="form-element-"]')
+      document.querySelectorAll<HTMLInputElement>('[id^="form-element-"]'),
     );
     const currentInput = document.activeElement as HTMLInputElement;
     if (currentInput) {

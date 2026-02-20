@@ -1,4 +1,4 @@
-export const mockGetNewsPiecesData = [
+export const mockGetNewsPiecesData = JSON.stringify([
   {
     url: "https://www.bbc.com/news/topics/cp7r8bgl6lgt",
     title: "BBC News Title",
@@ -20,4 +20,4 @@ export const mockGetNewsPiecesData = [
     body: [],
     source: "ap",
   },
-];
+]);
