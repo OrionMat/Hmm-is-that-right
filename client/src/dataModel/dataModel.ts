@@ -1,6 +1,6 @@
 /**
  * News piece
- * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020"}, {body: ["list", "of", "paragraphs"]}
+ * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020", body: ["list", "of", "paragraphs"], source: "bbc"}
  */
 export interface NewsPiece {
   url: string;
