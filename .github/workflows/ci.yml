@@ -100,10 +100,9 @@ jobs:
         working-directory: client
         run: npm ci
 
-      - name: Install Playwright and browsers (action)
-        uses: microsoft/playwright-github-action@v1
-        with:
-          check: true
+      - name: Install Playwright Browsers and System Deps
+        working-directory: client
+        run: npx playwright install --with-deps
 
       - name: (Fallback) Ensure browsers installed
         working-directory: client
@@ -135,10 +134,9 @@ jobs:
         working-directory: client
         run: npm ci
 
-      - name: Install Playwright and browsers (action)
-        uses: microsoft/playwright-github-action@v1
-        with:
-          check: true
+      - name: Install Playwright Browsers and System Deps
+        working-directory: client
+        run: npx playwright install --with-deps
 
       - name: (Fallback) Ensure browsers installed
         working-directory: client
