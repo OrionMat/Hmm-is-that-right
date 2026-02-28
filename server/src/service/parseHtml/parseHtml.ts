@@ -5,6 +5,17 @@ import { SourcePages, NewsPiece } from "../../dataModel/dataModel";
 
 const log = getLogger("service/parseHtml");
 
+export interface ParseHtmlMetrics {
+  attemptedPages: number;
+  parsedPages: number;
+  failedPages: number;
+}
+
+export interface ParseHtmlResult {
+  newsPieces: NewsPiece[];
+  metrics: ParseHtmlMetrics;
+}
+
 /**
  * Get CSS selectors for title, date and content.
  * Multiple selectors are provided due to dom differences within the same source.
@@ -89,10 +100,9 @@ function extractNewsInfo(
     if (targetContent) return targetContent;
   }
   log.warn(
-    "target content not found for source:",
-    source,
-    ", with information selectors:",
-    selectors
+    `target content not found for source: ${source}, with information selectors: ${selectors.join(
+      ", "
+    )}`
   );
   return null;
 }
@@ -124,10 +134,9 @@ function extractNewsBody(
 
   if (!htmlParagraphs)
     log.warn(
-      "target content not found for source:",
-      source,
-      ", with content selectors:",
-      contentSelectors
+      `target content not found for source: ${source}, with content selectors: ${contentSelectors.join(
+        ", "
+      )}`
     );
   return paragraphs;
 }
@@ -138,9 +147,18 @@ function extractNewsBody(
  * @returns Array of news pieces. i.e [{source: "bbc", url: "www.bbc...", title: "fancy title", date: "silly date", body: ["list", "of", "paragraphs"]}, {source: "nyt", ...}, ...]
  */
 export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
+  return parseHtmlWithMetrics(sourcePages).newsPieces;
+}
+
+export function parseHtmlWithMetrics(sourcePages: SourcePages): ParseHtmlResult {
   log.info("Parsing HTML webpage results");
 
-  let newsPieces: NewsPiece[] = [];
+  const metrics: ParseHtmlMetrics = {
+    attemptedPages: 0,
+    parsedPages: 0,
+    failedPages: 0,
+  };
+  const newsPieces: NewsPiece[] = [];
   for (const source in sourcePages) {
     const urls = sourcePages[source].urls;
     const htmlPages = sourcePages[source].webpages;
@@ -153,6 +171,7 @@ export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
 
     // for each html page extract the relevant news article information and push it into the empty array for that source
     htmlPages.forEach((htmlPage, pageIndex) => {
+      metrics.attemptedPages += 1;
       try {
         const dom = new JSDOM(htmlPage).window.document;
 
@@ -162,12 +181,15 @@ export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
         const paragraphs = extractNewsBody(dom, contentSelectors, source);
 
         newsPieces.push({ url, title, date, body: paragraphs, source });
+        metrics.parsedPages += 1;
       } catch (error) {
-        log.warn("Error parsing webpage HTML: ", error);
+        metrics.failedPages += 1;
+        log.warn({ error }, "Error parsing webpage HTML");
       }
     });
   }
 
+  log.info({ metrics }, "Parse HTML metrics");
   log.info("Finished parsing HTML webpage results");
-  return newsPieces;
+  return { newsPieces, metrics };
 }

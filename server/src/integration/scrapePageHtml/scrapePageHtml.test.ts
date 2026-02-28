@@ -1,10 +1,11 @@
 import axios from "axios";
+import { vi } from "vitest";
 import { scrapePageHtml } from "./scrapePageHtml";
 
-jest.mock("../../logger.ts");
-jest.mock("axios");
+vi.mock("../../logger.ts");
+vi.mock("axios");
 
-const mockAxios = axios as jest.Mocked<typeof axios>;
+const mockAxios = vi.mocked(axios, true);
 
 const sourceUrls = {
   bbc: ["https://www.bbc.co.uk/news/in-pictures-54118899"],
@@ -92,7 +93,7 @@ describe("Scrape webpage HTML for each URL", () => {
     const sourcePages = await scrapePageHtml(sourceUrls);
 
     // asserts
-    expect(mockAxios.get).toBeCalledTimes(4);
+    expect(mockAxios.get).toHaveBeenCalledTimes(4);
     expect(sourcePages["bbc"].webpages).toEqual(bbcWebPages);
     expect(sourcePages["nyt"].webpages).toEqual(nytWebPages);
     expect(sourcePages["reuters"].webpages).toEqual(reutersWebpages);
@@ -109,7 +110,7 @@ describe("Scrape webpage HTML for each URL", () => {
     const sourcePages = await scrapePageHtml(sourceUrls);
 
     // asserts
-    expect(mockAxios.get).toBeCalledTimes(4);
+    expect(mockAxios.get).toHaveBeenCalledTimes(4);
     expect(sourcePages["bbc"].webpages).toEqual(bbcWebPages);
     expect(sourcePages["nyt"].webpages).toEqual([nytWebPages[0]]);
     expect(sourcePages?.["reuters"].webpages).toEqual([]);

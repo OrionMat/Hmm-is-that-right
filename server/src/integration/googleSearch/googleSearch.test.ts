@@ -1,14 +1,15 @@
 /** tests google searches for statement */
 import axios from "axios";
+import { vi } from "vitest";
 import { googleSearch } from "./googleSearch";
 
-jest.mock("axios");
-jest.mock("../../logger.ts");
-jest.mock("../../config/serverConfig", () => ({
+vi.mock("axios");
+vi.mock("../../logger.ts");
+vi.mock("../../config/serverConfig", () => ({
   serverConfig: { serpSearchApiKey: "NOT_TELLING" },
 }));
 
-const mockAxios = axios as jest.Mocked<typeof axios>;
+const mockAxios = vi.mocked(axios, true);
 
 const statement = "Kenya win 7s";
 const sources = ["fancy source", "shmancy source", "pure shmorce", "horse"];
@@ -58,31 +59,37 @@ describe("Get URLs to related articles via Google search", () => {
     const sourceUrls = await googleSearch(statement, sources);
 
     // asserts: axios called with correct parameters
-    expect(mockAxios.get.mock.calls[0][0]).toBe(
-      "https://api.scaleserp.com/search"
-    );
+    expect(mockAxios.get.mock.calls[0][0]).toBe("https://serpapi.com/search");
     expect(mockAxios.get.mock.calls[0][1]).toEqual({
       params: {
         api_key: "NOT_TELLING",
         q: "fancy source + Kenya win 7s",
+        engine: "google",
+        num: 10,
+        gl: "us",
+        hl: "en",
       },
     });
-    expect(mockAxios.get.mock.calls[1][0]).toBe(
-      "https://api.scaleserp.com/search"
-    );
+    expect(mockAxios.get.mock.calls[1][0]).toBe("https://serpapi.com/search");
     expect(mockAxios.get.mock.calls[1][1]).toEqual({
       params: {
         api_key: "NOT_TELLING",
         q: "shmancy source + Kenya win 7s",
+        engine: "google",
+        num: 10,
+        gl: "us",
+        hl: "en",
       },
     });
-    expect(mockAxios.get.mock.calls[2][0]).toBe(
-      "https://api.scaleserp.com/search"
-    );
+    expect(mockAxios.get.mock.calls[2][0]).toBe("https://serpapi.com/search");
     expect(mockAxios.get.mock.calls[2][1]).toEqual({
       params: {
         api_key: "NOT_TELLING",
         q: "pure shmorce + Kenya win 7s",
+        engine: "google",
+        num: 10,
+        gl: "us",
+        hl: "en",
       },
     });
     // asserts: correct urls are returned

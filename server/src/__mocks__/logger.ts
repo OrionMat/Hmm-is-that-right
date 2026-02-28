@@ -3,15 +3,24 @@
  * @param fileName Name of the file printing the log.
  * @returns Pino logger
  */
-// TODO: add return type to this function (it's type is logging level: function)
-export function getLogger(fileName: string) {
-  console.log("HERE!!");
+interface MockLogger {
+  trace: (..._args: unknown[]) => void;
+  debug: (..._args: unknown[]) => void;
+  info: (..._args: unknown[]) => void;
+  warn: (..._args: unknown[]) => void;
+  error: (..._args: unknown[]) => void;
+  fatal: (..._args: unknown[]) => void;
+}
+
+const noop = (..._args: unknown[]) => {};
+
+export function getLogger(_fileName: string): MockLogger {
   return {
-    trace: (message: string) => console.log(`${fileName}: ${message}`),
-    debug: (message: string) => console.log(`${fileName}: ${message}`),
-    info: (message: string) => console.log(`${fileName}: ${message}`),
-    warn: (message: string) => console.log(`${fileName}: ${message}`),
-    error: (message: string) => console.log(`${fileName}: ${message}`),
-    fatal: (message: string) => console.log(`${fileName}: ${message}`),
+    trace: noop,
+    debug: noop,
+    info: noop,
+    warn: noop,
+    error: noop,
+    fatal: noop,
   };
 }

@@ -2,6 +2,12 @@ import { getLogger } from "../../logger";
 import { SourceUrls } from "../../dataModel/dataModel";
 
 const log = getLogger("service/cleanUrls");
+const sourceDomainAllowlist: Record<string, string[]> = {
+  bbc: ["https://www.bbc."],
+  nyt: ["https://www.nytimes."],
+  ap: ["https://apnews."],
+  reuters: ["https://www.reuters."],
+};
 
 /**
  * Filters/Cleans URLs
@@ -11,36 +17,26 @@ const log = getLogger("service/cleanUrls");
 export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
   log.info(`Cleaning URLs: ${JSON.stringify(rawSourceUrls)}`);
 
-  let cleanSourceUrls: SourceUrls = {};
+  const cleanSourceUrls: SourceUrls = {};
+  const counts: Record<string, { input: number; kept: number }> = {};
+
   for (const source in rawSourceUrls) {
     const rawUrls = rawSourceUrls[source]; // ["www.", "www.", "www.", ...]
+    const allowlistPrefixes = sourceDomainAllowlist[source.toLowerCase()] ?? [];
 
-    let filterKey = "";
-    switch (source.toLowerCase()) {
-      case "bbc":
-        filterKey = "https://www.bbc.";
-        break;
-      case "nyt":
-        filterKey = "https://www.nytimes.";
-        break;
-      case "ap":
-        filterKey = "https://apnews.";
-        break;
-      case "reuters":
-        filterKey = "https://www.reuters.";
-        break;
-      default:
-        filterKey = "https://www.";
-        log.warn("No cleaning/filtering of URLs as no source match");
-        break;
+    if (allowlistPrefixes.length === 0) {
+      log.warn({ source }, "No allowlist configured for source, dropping URLs");
     }
 
-    let urls: string[] | null = null;
-    urls = rawUrls.filter((rawUrl) => rawUrl.includes(filterKey as string));
+    const urls = rawUrls.filter((rawUrl) =>
+      allowlistPrefixes.some((prefix) => rawUrl.includes(prefix))
+    );
 
     cleanSourceUrls[source] = urls;
+    counts[source] = { input: rawUrls.length, kept: urls.length };
   }
 
+  log.info({ counts }, "URL cleaning metrics");
   log.info(`Cleaned URLS: ${JSON.stringify(cleanSourceUrls)}`);
   return cleanSourceUrls;
 }

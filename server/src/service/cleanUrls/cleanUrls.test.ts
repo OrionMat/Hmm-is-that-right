@@ -1,9 +1,10 @@
 import { cleanUrls } from "./cleanUrls";
+import { vi } from "vitest";
 
-jest.mock("../../logger.ts");
+vi.mock("../../logger.ts");
 
 describe("Filtering for HTTP URLs", () => {
-  test("Ideal calse: Non HTTPs URLs are filtered out of the URLs list", () => {
+  test("Ideal case: Unknown sources are dropped if no allowlist exists", () => {
     // setup
     const rawSourceUrls = {
       "fancy source": [
@@ -23,11 +24,8 @@ describe("Filtering for HTTP URLs", () => {
 
     // asserts
     expect(urls).toEqual({
-      "fancy source": [
-        "https://www.fancy.com/article-1",
-        "https://www.fancy.com/article-2",
-      ],
-      "shmancy source": ["https://www.shmancy.com/article-1"],
+      "fancy source": [],
+      "shmancy source": [],
       "pure shmorce": [],
     });
   });

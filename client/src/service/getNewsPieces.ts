@@ -3,10 +3,10 @@ import { NewsPiece, IsActiveNewsSources } from "../dataModel/dataModel";
 
 export async function getNewsPieces(
   statement: string,
-  sourceStates: IsActiveNewsSources
+  sourceStates: IsActiveNewsSources,
 ): Promise<NewsPiece[]> {
   const sources = Object.keys(sourceStates).filter(
-    (sourceName) => sourceStates[sourceName as keyof IsActiveNewsSources]
+    (sourceName) => sourceStates[sourceName as keyof IsActiveNewsSources],
   );
   console.log(sources);
 
@@ -14,6 +14,7 @@ export async function getNewsPieces(
   try {
     response = await axios.get("http://localhost:3001/getNewsPieces", {
       params: { statement, sources },
+      paramsSerializer: { indexes: null },
     });
     console.log(response?.data);
   } catch (error) {

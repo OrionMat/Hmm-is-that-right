@@ -36,6 +36,7 @@ describe("getNewsPieces", () => {
     expect(callArgs[0]).toBe("http://localhost:3001/getNewsPieces");
     expect(callArgs[1]).toEqual({
       params: { statement: "Test statement", sources: ["bbc", "ap"] },
+      paramsSerializer: { indexes: null },
     });
     expect(result).toEqual(mockData);
   });
@@ -71,6 +72,7 @@ describe("getNewsPieces", () => {
     const callArgs = mockedAxios.get.mock.calls[0];
     expect(callArgs[1]).toEqual({
       params: { statement: "No sources", sources: [] },
+      paramsSerializer: { indexes: null },
     });
     expect(result).toEqual([]);
   });

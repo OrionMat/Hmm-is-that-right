@@ -1,8 +1,9 @@
 import { readFileSync } from "fs";
+import { vi } from "vitest";
 import { SourcePages } from "../../dataModel/dataModel";
 import { parseHtml } from "./parseHtml";
 
-jest.mock("../../logger.ts");
+vi.mock("../../logger.ts");
 
 let sourcePages: SourcePages = JSON.parse(
   readFileSync("src/service/parseHtml/sourcePages.json", "utf8")
