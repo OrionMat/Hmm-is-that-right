@@ -17,14 +17,15 @@ export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
 
   for (const source in rawSourceUrls) {
     const rawUrls = rawSourceUrls[source];
-    const { domainAllowlist } = getSourceConfig(source);
+    const { domainAllowlist, excludePatterns } = getSourceConfig(source);
 
     if (domainAllowlist.length === 0) {
       log.warn({ source }, "No allowlist configured for source, dropping URLs");
     }
 
     const urls = rawUrls.filter((rawUrl) =>
-      domainAllowlist.some((prefix) => rawUrl.includes(prefix))
+      domainAllowlist.some((prefix) => rawUrl.includes(prefix)) &&
+      !excludePatterns.some((pattern) => rawUrl.includes(pattern))
     );
 
     cleanSourceUrls[source] = urls;

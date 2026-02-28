@@ -1,5 +1,6 @@
 export interface SourceConfig {
   domainAllowlist: string[];
+  excludePatterns: string[];
   selectors: {
     title: string[];
     date: string[];
@@ -10,6 +11,7 @@ export interface SourceConfig {
 export const sourceConfigs: Record<string, SourceConfig> = {
   bbc: {
     domainAllowlist: ["https://www.bbc."],
+    excludePatterns: [],
     selectors: {
       title: ["#main-heading", "h1"],
       date: ["time"],
@@ -18,6 +20,7 @@ export const sourceConfigs: Record<string, SourceConfig> = {
   },
   nyt: {
     domainAllowlist: ["https://www.nytimes."],
+    excludePatterns: ["/interactive/"],
     selectors: {
       title: ["h1"],
       date: ["time > span:first-child", "time"],
@@ -26,23 +29,31 @@ export const sourceConfigs: Record<string, SourceConfig> = {
   },
   ap: {
     domainAllowlist: ["https://apnews."],
+    excludePatterns: ["/hub/", "/topic/"],
     selectors: {
-      title: ["[data-key='card-headline'] > h1", "h1"],
+      title: [
+        "h1.PagePromo-title",
+        ".Component-headline",
+        "[data-key='card-headline'] > h1",
+        "h1",
+      ],
       date: [
-        "[data-key='timestamp'][class*='Timestamp']",
+        "bsp-timestamp",
+        ".Timestamp-template",
         "[data-key='timestamp']",
-        "[class*='Timestamp']",
+        ".Timestamp",
       ],
       content: [
-        "[data-key='article'][class='Article'] p",
-        "[data-key='article'] p",
-        "[class='Article'] p",
-        "p",
+        ".RichTextStoryBody p",
+        ".ArticleBody p",
+        "article p",
+        "div:not(.Page-footer-disclaimer) > p",
       ],
     },
   },
   reuters: {
     domainAllowlist: ["https://www.reuters."],
+    excludePatterns: [],
     selectors: {
       title: ["h1"],
       date: [
@@ -61,6 +72,7 @@ export const sourceConfigs: Record<string, SourceConfig> = {
 
 export const defaultSourceConfig: SourceConfig = {
   domainAllowlist: [],
+  excludePatterns: [],
   selectors: {
     title: ["h1"],
     date: ["time", "[class*='Timestamp']"],

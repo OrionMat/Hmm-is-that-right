@@ -26,7 +26,7 @@ export interface ParseHtmlResult {
 function extractNewsInfo(
   dom: Document,
   selectors: string[],
-  source: string
+  source: string,
 ): string | null {
   log.debug(`Extracting news information for ${source}`);
 
@@ -36,8 +36,8 @@ function extractNewsInfo(
   }
   log.warn(
     `target content not found for source: ${source}, with information selectors: ${selectors.join(
-      ", "
-    )}`
+      ", ",
+    )}`,
   );
   return null;
 }
@@ -51,7 +51,7 @@ function extractNewsInfo(
 function extractNewsBody(
   dom: Document,
   contentSelectors: string[],
-  source: string
+  source: string,
 ): (string | null)[] {
   log.debug(`Extracting news piece body for ${source}`);
 
@@ -68,8 +68,8 @@ function extractNewsBody(
   if (!htmlParagraphs) {
     log.warn(
       `target content not found for source: ${source}, with content selectors: ${contentSelectors.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
     return [];
   }
@@ -92,7 +92,9 @@ export function parseHtml(sourcePages: SourcePages): NewsPiece[] {
   return parseHtmlWithMetrics(sourcePages).newsPieces;
 }
 
-export function parseHtmlWithMetrics(sourcePages: SourcePages): ParseHtmlResult {
+export function parseHtmlWithMetrics(
+  sourcePages: SourcePages,
+): ParseHtmlResult {
   log.info("Parsing HTML webpage results");
 
   const metrics: ParseHtmlMetrics = {
