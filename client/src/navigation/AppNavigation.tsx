@@ -41,6 +41,9 @@ export const AppNavigation = () => {
               <Link to={`/${PageNames.factCheck}`}>Fact Check</Link>
             </li>
             <li>
+              <Link to={`/${PageNames.mentalGym}`}>Mental Gym</Link>
+            </li>
+            <li>
               <Link to={`/${PageNames.messenger}`}>Messenger</Link>
             </li>
             <li>
