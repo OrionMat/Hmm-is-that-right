@@ -5,22 +5,27 @@ import { GetNewsPiecesQuery } from "../schemas/getNewsPieces.schema";
 
 const log = getLogger("controllers/getNewsPieces");
 
-type GetNewsPiecesRequest = Request<Record<string, never>, unknown, unknown, GetNewsPiecesQuery>;
+type GetNewsPiecesRequest = Request<
+  Record<string, never>,
+  unknown,
+  unknown,
+  GetNewsPiecesQuery
+>;
 
 export async function getNewsPiecesController(
   request: GetNewsPiecesRequest,
-  response: Response
+  response: Response,
 ) {
-  const { statement, sources } = response.locals.validated
-    .query as GetNewsPiecesQuery;
-  const requestId = String((request as { id?: string | number }).id ?? "unknown");
+  const { statement, sources } = request.validated?.query as GetNewsPiecesQuery;
+  const requestId = request.id ? String(request.id) : "unknown";
+
   log.info(
     {
       requestId,
       statement,
       sources,
     },
-    "received getNewsPieces request"
+    "received getNewsPieces request",
   );
 
   const newsPieces = await getNewsPieces(statement, sources, { requestId });

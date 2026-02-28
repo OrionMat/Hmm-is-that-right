@@ -46,9 +46,6 @@ export async function getNewsPieces(
   // parse html web pages
   const { newsPieces, metrics: parseMetrics } = parseHtmlWithMetrics(sourcePages);
 
-  // TODO: find most similar sentence/paragraph to display to the user
-  // i.e call addSimilarText, or computeSentenceSimilarities functions (still works in progress)
-
   const requestSummary = {
     requestId: context?.requestId ?? "unknown",
     statement,

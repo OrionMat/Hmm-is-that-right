@@ -84,10 +84,10 @@ const reutersWebpages = [
 describe("Scrape webpage HTML for each URL", () => {
   test("Ideal case: scrapes webpage HTML for all source links", async () => {
     // mocks
-    mockAxios.get.mockResolvedValueOnce({ data: bbcWebPages[0] });
-    mockAxios.get.mockResolvedValueOnce({ data: nytWebPages[0] });
-    mockAxios.get.mockResolvedValueOnce({ data: nytWebPages[1] });
-    mockAxios.get.mockResolvedValueOnce({ data: reutersWebpages[0] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: bbcWebPages[0] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: nytWebPages[0] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: nytWebPages[1] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: reutersWebpages[0] });
 
     // run test
     const sourcePages = await scrapePageHtml(sourceUrls);
@@ -101,10 +101,10 @@ describe("Scrape webpage HTML for each URL", () => {
 
   test("Non-ideal case: A promised webpage does not resolve", async () => {
     // mocks
-    mockAxios.get.mockResolvedValueOnce({ data: bbcWebPages[0] });
-    mockAxios.get.mockResolvedValueOnce({ data: nytWebPages[0] });
-    mockAxios.get.mockRejectedValueOnce({ data: nytWebPages[1] }); // rejection case
-    mockAxios.get.mockRejectedValueOnce({ data: reutersWebpages[0] }); // rejection case
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: bbcWebPages[0] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: nytWebPages[0] });
+    mockAxios.get.mockRejectedValueOnce(new Error("Network Error")); // rejection case
+    mockAxios.get.mockResolvedValueOnce({ status: 500, data: "Internal Server Error" }); // non-200 case
 
     // run test
     const sourcePages = await scrapePageHtml(sourceUrls);

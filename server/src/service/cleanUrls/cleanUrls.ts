@@ -1,13 +1,8 @@
 import { getLogger } from "../../logger";
 import { SourceUrls } from "../../dataModel/dataModel";
+import { getSourceConfig } from "../../config/sources";
 
 const log = getLogger("service/cleanUrls");
-const sourceDomainAllowlist: Record<string, string[]> = {
-  bbc: ["https://www.bbc."],
-  nyt: ["https://www.nytimes."],
-  ap: ["https://apnews."],
-  reuters: ["https://www.reuters."],
-};
 
 /**
  * Filters/Cleans URLs
@@ -21,15 +16,15 @@ export function cleanUrls(rawSourceUrls: SourceUrls): SourceUrls {
   const counts: Record<string, { input: number; kept: number }> = {};
 
   for (const source in rawSourceUrls) {
-    const rawUrls = rawSourceUrls[source]; // ["www.", "www.", "www.", ...]
-    const allowlistPrefixes = sourceDomainAllowlist[source.toLowerCase()] ?? [];
+    const rawUrls = rawSourceUrls[source];
+    const { domainAllowlist } = getSourceConfig(source);
 
-    if (allowlistPrefixes.length === 0) {
+    if (domainAllowlist.length === 0) {
       log.warn({ source }, "No allowlist configured for source, dropping URLs");
     }
 
     const urls = rawUrls.filter((rawUrl) =>
-      allowlistPrefixes.some((prefix) => rawUrl.includes(prefix))
+      domainAllowlist.some((prefix) => rawUrl.includes(prefix))
     );
 
     cleanSourceUrls[source] = urls;

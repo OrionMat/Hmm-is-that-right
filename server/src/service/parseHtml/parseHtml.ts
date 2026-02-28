@@ -2,6 +2,7 @@
 import { JSDOM } from "jsdom";
 import { getLogger } from "../../logger";
 import { SourcePages, NewsPiece } from "../../dataModel/dataModel";
+import { getSourceConfig } from "../../config/sources";
 
 const log = getLogger("service/parseHtml");
 
@@ -14,72 +15,6 @@ export interface ParseHtmlMetrics {
 export interface ParseHtmlResult {
   newsPieces: NewsPiece[];
   metrics: ParseHtmlMetrics;
-}
-
-/**
- * Get CSS selectors for title, date and content.
- * Multiple selectors are provided due to dom differences within the same source.
- * Most specific selectors should be fist in the arrays and more generic last.
- * @param source News source
- * @returns CSS selectors for title, date and content
- */
-function getSelectors(source: string): {
-  titleSelectors: string[];
-  dateSelectors: string[];
-  contentSelectors: string[];
-} {
-  log.debug(`Getting CSS selector for ${source}`);
-
-  switch (source.toLowerCase()) {
-    case "bbc":
-      return {
-        titleSelectors: ["#main-heading", "h1"],
-        dateSelectors: ["time"],
-        contentSelectors: ["article p", "p"],
-      };
-    case "nyt":
-      return {
-        titleSelectors: ["h1"],
-        dateSelectors: ["time > span:first-child", "time"],
-        contentSelectors: ["section[name*='articleBody'] p", "p"],
-      };
-    case "ap":
-      return {
-        titleSelectors: ["[data-key='card-headline'] > h1", "h1"],
-        dateSelectors: [
-          "[data-key='timestamp'][class*='Timestamp']",
-          "[data-key='timestamp']",
-          "[class*='Timestamp']",
-        ],
-        contentSelectors: [
-          "[data-key='article'][class='Article'] p",
-          "[data-key='article'] p",
-          "[class='Article'] p",
-          "p",
-        ],
-      };
-    case "reuters":
-      return {
-        titleSelectors: ["h1"],
-        // NOTE: could look at getting publishedDate with "meta[name*='REVISION_DATE']"
-        dateSelectors: [
-          "[class*='ArticleHeader-date'] > time:first-child",
-          "time:first-child",
-          "time",
-        ],
-        contentSelectors: [
-          "article[class*='ArticlePage'] p",
-          "[class='ArticleBodyWrapper'] p",
-          "p",
-        ],
-      };
-    default:
-      return {
-        titleSelectors: ["h1"],
-        dateSelectors: ["time", "class*='Timestamp'"],
-        contentSelectors: ["p"],
-      };
-  }
 }
 
 /**
@@ -97,7 +32,7 @@ function extractNewsInfo(
 
   for (const selector of selectors) {
     const targetContent = dom.querySelector(selector)?.textContent;
-    if (targetContent) return targetContent;
+    if (targetContent) return targetContent.trim();
   }
   log.warn(
     `target content not found for source: ${source}, with information selectors: ${selectors.join(
@@ -124,20 +59,27 @@ function extractNewsBody(
   let htmlParagraphs: NodeListOf<Element> | null = null;
   for (const selector of contentSelectors) {
     const targetContent = dom.querySelectorAll(selector);
-    if (targetContent) {
+    if (targetContent && targetContent.length > 0) {
       htmlParagraphs = targetContent;
       break;
     }
   }
-  const paragraphs: Array<string | null> = [];
-  htmlParagraphs?.forEach((element) => paragraphs.push(element.textContent));
 
-  if (!htmlParagraphs)
+  if (!htmlParagraphs) {
     log.warn(
       `target content not found for source: ${source}, with content selectors: ${contentSelectors.join(
         ", "
       )}`
     );
+    return [];
+  }
+
+  const paragraphs: Array<string | null> = [];
+  htmlParagraphs.forEach((element) => {
+    const text = element.textContent?.trim();
+    if (text) paragraphs.push(text);
+  });
+
   return paragraphs;
 }
 
@@ -163,9 +105,8 @@ export function parseHtmlWithMetrics(sourcePages: SourcePages): ParseHtmlResult 
     const urls = sourcePages[source].urls;
     const htmlPages = sourcePages[source].webpages;
 
-    // get CSS selectors to find the news piece title, date and content
-    const { titleSelectors, dateSelectors, contentSelectors } =
-      getSelectors(source);
+    // get CSS selectors from centralized config
+    const { selectors } = getSourceConfig(source);
 
     log.trace(`Retrieved selectors for ${source}`);
 
@@ -176,9 +117,9 @@ export function parseHtmlWithMetrics(sourcePages: SourcePages): ParseHtmlResult 
         const dom = new JSDOM(htmlPage).window.document;
 
         const url = urls[pageIndex];
-        const title = extractNewsInfo(dom, titleSelectors, source);
-        const date = extractNewsInfo(dom, dateSelectors, source);
-        const paragraphs = extractNewsBody(dom, contentSelectors, source);
+        const title = extractNewsInfo(dom, selectors.title, source);
+        const date = extractNewsInfo(dom, selectors.date, source);
+        const paragraphs = extractNewsBody(dom, selectors.content, source);
 
         newsPieces.push({ url, title, date, body: paragraphs, source });
         metrics.parsedPages += 1;

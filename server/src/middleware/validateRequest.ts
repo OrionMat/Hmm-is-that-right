@@ -13,12 +13,6 @@ type ValidationError = {
   message: string;
 };
 
-type ValidatedData = {
-  query?: unknown;
-  body?: unknown;
-  params?: unknown;
-};
-
 function mapIssues(scope: ValidationError["scope"], issues: z.ZodIssue[]) {
   return issues.map<ValidationError>(({ path, message }) => ({
     scope,
@@ -27,6 +21,10 @@ function mapIssues(scope: ValidationError["scope"], issues: z.ZodIssue[]) {
   }));
 }
 
+/**
+ * Validates the incoming request against the provided Zod schemas.
+ * Attaches validated data to request.validated
+ */
 export function validateRequest({
   query,
   body,
@@ -34,12 +32,14 @@ export function validateRequest({
 }: ValidationSchemas): RequestHandler {
   return (request: Request, response: Response, next: NextFunction) => {
     const errors: ValidationError[] = [];
-    const validated: ValidatedData = {};
+    
+    // Initialize validated property if not present
+    request.validated = request.validated || {};
 
     if (query) {
       const queryResult = query.safeParse(request.query);
       if (queryResult.success) {
-        validated.query = queryResult.data;
+        request.validated.query = queryResult.data;
       } else {
         errors.push(...mapIssues("query", queryResult.error.issues));
       }
@@ -48,7 +48,7 @@ export function validateRequest({
     if (body) {
       const bodyResult = body.safeParse(request.body);
       if (bodyResult.success) {
-        validated.body = bodyResult.data;
+        request.validated.body = bodyResult.data;
       } else {
         errors.push(...mapIssues("body", bodyResult.error.issues));
       }
@@ -57,7 +57,7 @@ export function validateRequest({
     if (params) {
       const paramsResult = params.safeParse(request.params);
       if (paramsResult.success) {
-        validated.params = paramsResult.data;
+        request.validated.params = paramsResult.data;
       } else {
         errors.push(...mapIssues("params", paramsResult.error.issues));
       }
@@ -70,7 +70,6 @@ export function validateRequest({
       });
     }
 
-    response.locals.validated = validated;
     next();
   };
 }
