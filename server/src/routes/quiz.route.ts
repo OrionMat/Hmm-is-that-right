@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { 
   generateQuizController, 
-  testQuizConnectionController 
+  submitQuizController
 } from "../controllers/quiz.controller";
 import { validateRequest } from "../middleware/validateRequest";
-import { quizRequestSchema } from "../schemas/quiz.schema";
+import { quizRequestSchema, quizSubmissionSchema } from "../schemas/quiz.schema";
 
 export const quizRoute = Router();
 
@@ -14,4 +14,8 @@ quizRoute.post(
   generateQuizController
 );
 
-quizRoute.get("/test", testQuizConnectionController);
+quizRoute.post(
+  "/results",
+  validateRequest({ body: quizSubmissionSchema }),
+  submitQuizController
+);

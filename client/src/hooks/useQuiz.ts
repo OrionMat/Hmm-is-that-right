@@ -2,140 +2,155 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { QuizQuestion, QuizState, QuizResults } from "../dataModel/quizModel";
 import {
   getQuizQuestions,
-  calculateQuizResults,
+  submitQuizAnswers,
   QuizServiceError,
 } from "../services/quizService";
 
-export const useQuiz = () => {
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [quizState, setQuizState] = useState<QuizState>({
-    currentQuestionIndex: 0,
-    answers: {},
-    isCompleted: false,
-    startTime: new Date(),
-  });
-  const [quizResults, setQuizResults] = useState<QuizResults | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const isInitializing = useRef(false); // Prevent duplicate initialization
+interface InternalQuizState {
+  questions: QuizQuestion[];
+  quizState: QuizState;
+  quizResults: QuizResults | null;
+  isLoading: boolean;
+  error: string | null;
+}
 
-  const currentQuestion = questions[quizState.currentQuestionIndex];
-  const selectedAnswer = quizState.answers[currentQuestion?.id];
-
-  const initializeQuiz = useCallback(async () => {
-    // Prevent multiple simultaneous requests
-    if (isInitializing.current) {
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    isInitializing.current = true;
-
-    try {
-      const quizQuestions = await getQuizQuestions();
-      setQuestions(quizQuestions);
-      setQuizState({
-        currentQuestionIndex: 0,
-        answers: {},
-        isCompleted: false,
-        startTime: new Date(),
-      });
-      setQuizResults(null);
-    } catch (err) {
-      if (err instanceof QuizServiceError) {
-        setError(err.message);
-      } else {
-        setError("Failed to load quiz questions");
-      }
-    } finally {
-      setIsLoading(false);
-      isInitializing.current = false;
-    }
-  }, []);
-
-  const handleNext = useCallback(() => {
-    setQuizState((currentState) => {
-      if (currentState.currentQuestionIndex < questions.length - 1) {
-        // Go to next question
-        return {
-          ...currentState,
-          currentQuestionIndex: currentState.currentQuestionIndex + 1,
-        };
-      } else {
-        // Complete quiz - use current state to get latest answers
-        const endTime = new Date();
-        const results = calculateQuizResults(
-          questions,
-          currentState.answers, // Use current state answers
-          currentState.startTime,
-          endTime,
-        );
-        setQuizResults(results);
-        return {
-          ...currentState,
-          isCompleted: true,
-          endTime,
-        };
-      }
-    });
-  }, [questions]);
-
-  const handleOptionSelect = useCallback(
-    (optionId: string) => {
-      setQuizState((prev) => ({
-        ...prev,
-        answers: {
-          ...prev.answers,
-          [currentQuestion.id]: optionId,
-        },
-      }));
-
-      // Auto-advance to next question after selection
-      setTimeout(() => {
-        handleNext();
-      }, 800); // Brief delay to show feedback before advancing
-    },
-    [currentQuestion?.id, handleNext],
-  );
-
-  const handleRestart = useCallback(() => {
-    setQuizState({
+export const useQuiz = (topic?: string) => {
+  const [state, setState] = useState<InternalQuizState>({
+    questions: [],
+    quizState: {
       currentQuestionIndex: 0,
       answers: {},
       isCompleted: false,
       startTime: new Date(),
+    },
+    quizResults: null,
+    isLoading: true,
+    error: null,
+  });
+
+  const isInitializing = useRef(false);
+
+  const currentQuestion = state.questions[state.quizState.currentQuestionIndex];
+  const selectedAnswer = state.quizState.answers[currentQuestion?.id];
+
+  const initializeQuiz = useCallback(async () => {
+    if (isInitializing.current) return;
+
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    isInitializing.current = true;
+
+    try {
+      const quizQuestions = await getQuizQuestions({ topic });
+      setState(prev => ({
+        ...prev,
+        questions: quizQuestions,
+        quizState: {
+          currentQuestionIndex: 0,
+          answers: {},
+          isCompleted: false,
+          startTime: new Date(),
+        },
+        quizResults: null,
+        isLoading: false,
+      }));
+    } catch (err) {
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: err instanceof QuizServiceError ? err.message : "Failed to load quiz questions"
+      }));
+    } finally {
+      isInitializing.current = false;
+    }
+  }, [topic]);
+
+  const handleNext = useCallback(async (latestAnswers?: Record<string, string>) => {
+    setState(prev => {
+      const isLastQuestion = prev.quizState.currentQuestionIndex === prev.questions.length - 1;
+      const currentAnswers = latestAnswers || prev.quizState.answers;
+
+      if (!isLastQuestion) {
+        return {
+          ...prev,
+          quizState: {
+            ...prev.quizState,
+            currentQuestionIndex: prev.quizState.currentQuestionIndex + 1,
+            answers: currentAnswers
+          }
+        };
+      } else {
+        // We handle the completion logic outside of this setState to avoid side effects in the reducer-like pattern
+        return prev;
+      }
     });
-    setQuizResults(null);
-  }, []);
 
-  const canGoNext = !!selectedAnswer;
-  const progress =
-    questions.length > 0
-      ? ((quizState.currentQuestionIndex + 1) / questions.length) * 100
-      : 0;
+    // Check if it was the last question to trigger the API call
+    const isLast = state.quizState.currentQuestionIndex === state.questions.length - 1;
+    if (isLast) {
+      setState(prev => ({ ...prev, isLoading: true }));
+      const endTime = new Date();
+      try {
+        const results = await submitQuizAnswers(
+          state.questions,
+          latestAnswers || state.quizState.answers,
+          state.quizState.startTime,
+          endTime
+        );
+        setState(prev => ({
+          ...prev,
+          quizResults: results,
+          quizState: { ...prev.quizState, isCompleted: true, endTime, answers: latestAnswers || prev.quizState.answers },
+          isLoading: false,
+        }));
+      } catch (err) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: "Failed to calculate results. Please try again."
+        }));
+      }
+    }
+  }, [state.questions, state.quizState.currentQuestionIndex, state.quizState.answers, state.quizState.startTime]);
 
-  // Initialize quiz on mount
+  const handleOptionSelect = useCallback(
+    (optionId: string) => {
+      const newAnswers = {
+        ...state.quizState.answers,
+        [currentQuestion.id]: optionId,
+      };
+
+      setState(prev => ({
+        ...prev,
+        quizState: {
+          ...prev.quizState,
+          answers: newAnswers,
+        }
+      }));
+
+      // Auto-advance with the NEW answers
+      setTimeout(() => {
+        handleNext(newAnswers);
+      }, 800);
+    },
+    [currentQuestion?.id, handleNext, state.quizState.answers],
+  );
+
+  const handleRestart = useCallback(() => {
+    initializeQuiz();
+  }, [initializeQuiz]);
+
   useEffect(() => {
     initializeQuiz();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
-    // State
-    questions,
-    quizState,
-    quizResults,
-    isLoading,
-    error,
+    ...state,
     currentQuestion,
     selectedAnswer,
-
-    // Computed values
-    canGoNext,
-    progress,
-
-    // Actions
+    canGoNext: !!selectedAnswer,
+    progress: state.questions.length > 0
+      ? ((state.quizState.currentQuestionIndex + 1) / state.questions.length) * 100
+      : 0,
     initializeQuiz,
     handleOptionSelect,
     handleNext,

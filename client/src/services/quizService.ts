@@ -1,5 +1,5 @@
-import { QuizQuestion } from "../dataModel/quizModel";
-import { ThirdPartyQuestion, GenerateQuizRequest } from "./thirdPartyApi";
+import { QuizQuestion, QuizResults } from "../dataModel/quizModel";
+import { GenerateQuizRequest } from "./thirdPartyApi";
 import axios from "axios";
 
 export class QuizServiceError extends Error {
@@ -12,107 +12,59 @@ export class QuizServiceError extends Error {
   }
 }
 
-// Convert third-party API response to our internal QuizQuestion format
-const convertToQuizQuestion = (
-  thirdPartyQuestion: ThirdPartyQuestion,
-): QuizQuestion => {
-  return {
-    id: thirdPartyQuestion.id,
-    question: thirdPartyQuestion.question,
-    options: thirdPartyQuestion.options.map((opt) => ({
-      id: opt.id,
-      text: opt.text,
-      label: opt.label,
-    })),
-    correctAnswer: thirdPartyQuestion.correctAnswer,
-    explanation: thirdPartyQuestion.explanation,
-  };
-};
+// Base URL for the API
+const API_BASE_URL = "http://localhost:3001/api/quiz";
 
-export const getQuizQuestions = async (): Promise<QuizQuestion[]> => {
+export const getQuizQuestions = async (options?: Partial<GenerateQuizRequest>): Promise<QuizQuestion[]> => {
   try {
-    // Generate quiz questions using server's OpenAI integration
     const request: GenerateQuizRequest = {
-      topic: "Media Literacy and Critical Thinking",
-      questionCount: 5,
-      difficulty: "medium",
-      category: "Media Literacy",
+      topic: options?.topic || "Media Literacy and Critical Thinking",
+      questionCount: options?.questionCount || 5,
+      difficulty: options?.difficulty || "medium",
+      category: options?.category || "Media Literacy",
     };
 
-    // Call our server endpoint which integrates with OpenAI
-    const response = await axios.post(
-      "http://localhost:3001/api/quiz/questions",
-      request,
-    );
-
-    // Convert to our internal format
-    return response.data.questions.map(convertToQuizQuestion);
+    const response = await axios.post(`${API_BASE_URL}/questions`, request);
+    return response.data.questions;
   } catch (error) {
-    if (error instanceof QuizServiceError) {
-      throw error;
-    }
-
-    // Handle specific error cases
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 500) {
-        const errorMessage = error.response.data?.error || "Server error";
-        if (errorMessage.includes("API key not configured")) {
-          throw new QuizServiceError(
-            "OpenAI API key not configured on server",
-            "API_KEY_ERROR",
-          );
-        }
-        throw new QuizServiceError("Server error occurred", "SERVER_ERROR");
-      }
-      if (error.code === "ECONNREFUSED") {
-        throw new QuizServiceError("Server is not running", "CONNECTION_ERROR");
-      }
-    }
-
-    throw new QuizServiceError(
-      "Unexpected error loading quiz questions",
-      "UNKNOWN_ERROR",
-    );
+    return handleAxiosError(error, "Unexpected error loading quiz questions");
   }
 };
 
-export const calculateQuizResults = (
+export const submitQuizAnswers = async (
   questions: QuizQuestion[],
   answers: Record<string, string>,
   startTime: Date,
-  endTime: Date,
-) => {
-  const timeSpent = Math.floor(
-    (endTime.getTime() - startTime.getTime()) / 1000,
-  );
+  endTime: Date
+): Promise<QuizResults> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/results`, {
+      questions,
+      answers,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+    });
+    return response.data;
+  } catch (error) {
+    return handleAxiosError(error, "Unexpected error calculating quiz results");
+  }
+};
 
-  const results = questions.map((question) => {
-    const userAnswerId = answers[question.id];
-    const userAnswer = question.options.find((opt) => opt.id === userAnswerId);
-    const correctAnswer = question.options.find(
-      (opt) => opt.id === question.correctAnswer,
-    );
-
-    const isCorrect = userAnswerId === question.correctAnswer;
-
-    return {
-      questionId: question.id,
-      question: question.question,
-      userAnswer: userAnswer?.text || "Not answered",
-      correctAnswer: correctAnswer?.text || "",
-      isCorrect,
-      explanation: question.explanation,
-    };
-  });
-
-  const correctAnswers = results.filter((result) => result.isCorrect).length;
-  const score = Math.round((correctAnswers / questions.length) * 100);
-
-  return {
-    totalQuestions: questions.length,
-    correctAnswers,
-    score,
-    timeSpent,
-    answers: results,
-  };
+const handleAxiosError = (error: any, defaultMessage: string): never => {
+  if (axios.isAxiosError(error)) {
+    if (error.response?.status === 500) {
+      const errorMessage = error.response.data?.error || "Server error";
+      if (errorMessage.includes("API key not configured")) {
+        throw new QuizServiceError(
+          "OpenAI API key not configured on server",
+          "API_KEY_ERROR",
+        );
+      }
+      throw new QuizServiceError("Server error occurred", "SERVER_ERROR");
+    }
+    if (error.code === "ECONNREFUSED") {
+      throw new QuizServiceError("Server is not running", "CONNECTION_ERROR");
+    }
+  }
+  throw new QuizServiceError(defaultMessage, "UNKNOWN_ERROR");
 };
