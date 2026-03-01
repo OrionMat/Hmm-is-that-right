@@ -1,0 +1,181 @@
+import OpenAI from "openai";
+import { getLogger } from "../logger";
+
+const log = getLogger("integration/openAIService");
+
+export interface OpenAIQuizRequest {
+  topic: string;
+  questionCount: number;
+  difficulty?: "easy" | "medium" | "hard";
+  category?: string;
+}
+
+export interface OpenAIQuizResponse {
+  questions: Array<{
+    id: string;
+    question: string;
+    options: Array<{
+      id: string;
+      text: string;
+      label: string;
+    }>;
+    correctAnswer: string;
+    explanation: string;
+    category: string;
+    difficulty: "easy" | "medium" | "hard";
+  }>;
+}
+
+export class OpenAIService {
+  private openai: OpenAI;
+  private cache = new Map<string, { data: OpenAIQuizResponse; expiry: number }>();
+  private CACHE_TTL = 1000 * 60 * 60; // 1 hour
+
+  constructor() {
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+
+  /**
+   * Generate quiz questions using OpenAI's GPT model
+   */
+  async generateQuizQuestions(
+    request: OpenAIQuizRequest,
+  ): Promise<OpenAIQuizResponse> {
+    const cacheKey = JSON.stringify(request);
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached && cached.expiry > Date.now()) {
+      log.info({ topic: request.topic }, "Serving quiz questions from cache");
+      return cached.data;
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      log.warn("OpenAI API key not configured, using mock fallback");
+      return this.getMockQuizQuestions(request);
+    }
+
+    const prompt = this.buildQuizPrompt(request);
+
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-3.5-turbo-0125", // Use specific model version for JSON consistency
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful assistant that generates educational quiz questions in JSON format. You must strictly follow the provided schema.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        response_format: { type: "json_object" },
+      });
+
+      const content = response.choices[0].message.content;
+      if (!content) throw new Error("No content received from OpenAI");
+
+      const parsed = JSON.parse(content);
+      const formatted = this.formatQuizResponse(parsed, request);
+      
+      this.cache.set(cacheKey, { data: formatted, expiry: Date.now() + this.CACHE_TTL });
+      
+      return formatted;
+    } catch (error) {
+      log.error({ error }, "OpenAI API error");
+      
+      if (error instanceof OpenAI.APIError && (error.status === 429 || error.code === "insufficient_quota")) {
+        log.warn("Quota exceeded, falling back to mock data");
+        return this.getMockQuizQuestions(request);
+      }
+
+      throw new Error("Failed to generate quiz questions from OpenAI");
+    }
+  }
+
+  private buildQuizPrompt(request: OpenAIQuizRequest): string {
+    const { topic, questionCount, difficulty = "medium", category } = request;
+
+    return `Generate ${questionCount} multiple-choice quiz questions about "${topic}".
+    
+The response MUST be a JSON object with a "questions" array.
+Each question object MUST have:
+- id: a unique string (e.g. "q1")
+- question: the text of the question
+- options: an array of 4 objects, each with "id" (e.g. "opt-1"), "text", and "label" (A, B, C, or D)
+- correctAnswer: the "id" of the correct option
+- explanation: why that answer is correct
+- category: "${category || "General"}"
+- difficulty: "${difficulty}"
+
+Example format:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Sample?",
+      "options": [{"id": "o1", "text": "Yes", "label": "A"}, ...],
+      "correctAnswer": "o1",
+      "explanation": "Because.",
+      "category": "General",
+      "difficulty": "medium"
+    }
+  ]
+}`;
+  }
+
+  private formatQuizResponse(
+    response: any,
+    request: OpenAIQuizRequest,
+  ): OpenAIQuizResponse {
+    if (!response.questions || !Array.isArray(response.questions)) {
+      throw new Error("Invalid response format from OpenAI");
+    }
+
+    return {
+      questions: response.questions.map((q: any, i: number) => ({
+        id: q.id || `q-${Date.now()}-${i}`,
+        question: q.question || "Missing question text",
+        options: (q.options || []).map((opt: any, oi: number) => ({
+          id: opt.id || `opt-${i}-${oi}`,
+          text: opt.text || "Missing option text",
+          label: opt.label || String.fromCharCode(65 + oi),
+        })),
+        correctAnswer: q.correctAnswer || "",
+        explanation: q.explanation || "No explanation provided",
+        category: q.category || request.category || "General",
+        difficulty: q.difficulty || request.difficulty || "medium",
+      })),
+    };
+  }
+
+  /**
+   * Fallback mock quiz questions when OpenAI API is unavailable
+   */
+  private getMockQuizQuestions(request: OpenAIQuizRequest): OpenAIQuizResponse {
+    const { topic, difficulty = "medium", category } = request;
+    return {
+      questions: [
+        {
+          id: "mock-1",
+          question: `Which of the following is a key component of critical thinking when analyzing ${topic}?`,
+          options: [
+            { id: "m1-a", text: "Accepting information at face value", label: "A" },
+            { id: "m1-b", text: "Identifying underlying assumptions", label: "B" },
+            { id: "m1-c", text: "Sharing without verifying", label: "C" },
+            { id: "m1-d", text: "Ignoring conflicting evidence", label: "D" },
+          ],
+          correctAnswer: "m1-b",
+          explanation: "Critical thinking involves digging deeper into why a claim is being made.",
+          category: category || "Media Literacy",
+          difficulty: difficulty,
+        }
+      ]
+    };
+  }
+}
+
+export const openAIService = new OpenAIService();

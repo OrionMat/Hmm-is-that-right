@@ -7,8 +7,4 @@ const router = createBrowserRouter(AppRoutes);
 const rootDomElement = document.getElementById("root")!;
 const root = createRoot(rootDomElement);
 
-root.render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
-);
+root.render(<RouterProvider router={router} />);
