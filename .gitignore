@@ -1,39 +1,38 @@
 # Dependencies
 node_modules/
-/client/node_modules/
-/server/node_modules/
-/single-spa/node_modules/
-/client/.pnp
-/client/.pnp.js
+/apps/client/node_modules/
+/apps/server/node_modules/
+/apps/client/.pnp
+/apps/client/.pnp.js
 
 # Environment Variables
 .env
-/server/.env
-/client/.env
-/client/.env.local
-/client/.env.development.local
-/client/.env.test.local
-/client/.env.production.local
+/apps/server/.env
+/apps/client/.env
+/apps/client/.env.local
+/apps/client/.env.development.local
+/apps/client/.env.test.local
+/apps/client/.env.production.local
 
 # Build Artifacts
-/client/build/
-/client/dist/
-/server/build/
-/server/dist/
+/apps/client/build/
+/apps/client/dist/
+/apps/server/build/
+/apps/server/dist/
 build/
 dist/
 
 # Testing & Reports
-/client/coverage/
-/client/test-results/
-/client/playwright-report/
-/client/blob-report/
-/client/playwright/.cache/
-/client/playwright/.auth/
-/server/coverage/
-/test-results/
-/playwright-report/
-/blob-report/
+/apps/client/coverage/
+/apps/client/test-results/
+/apps/client/playwright-report/
+/apps/client/blob-report/
+/apps/client/playwright/.cache/
+/apps/client/playwright/.auth/
+/apps/server/coverage/
+/apps/test-results/
+/apps/playwright-report/
+/apps/blob-report/
 
 # Logs
 npm-debug.log*
