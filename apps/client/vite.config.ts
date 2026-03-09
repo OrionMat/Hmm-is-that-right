@@ -1,6 +1,9 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
+import { patchCssModules } from "vite-css-modules";
+import checker from "vite-plugin-checker";
 
 export default defineConfig({
   plugins: [
@@ -13,7 +16,18 @@ export default defineConfig({
       },
       include: "**/*.svg?react",
     }),
+    patchCssModules({
+      generateSourceTypes: true,
+    }),
+    checker({
+      typescript: true,
+    }),
   ],
+  css: {
+    modules: {
+      localsConvention: "camelCaseOnly",
+    },
+  },
   server: {
     port: 3000,
     open: true,
@@ -25,7 +39,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           "react-vendor": ["react", "react-dom", "react-router-dom"],
-          styled: ["styled-components"],
         },
       },
     },
