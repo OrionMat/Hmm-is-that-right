@@ -1,9 +1,16 @@
-import styled from "styled-components";
+import React from "react";
+import styles from "./PageContainer.module.css";
 
-export const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: 3rem;
-`;
+export const PageContainer = ({ 
+  children, 
+  id 
+}: { 
+  children: React.ReactNode; 
+  id?: string 
+}) => {
+  return (
+    <div id={id} className={styles.pageContainer}>
+      {children}
+    </div>
+  );
+};

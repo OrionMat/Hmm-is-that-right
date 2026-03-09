@@ -1,0 +1,38 @@
+@layer components {
+  .table {
+    width: 75%;
+    margin-top: 25px;
+    font-family: var(--font-primary);
+    border-collapse: collapse;
+
+    tbody tr {
+      border-radius: 0.25rem;
+      box-shadow: 0 1px 6px -1px var(--color-dark-grey);
+      
+      td {
+        padding: 20px;
+
+        div {
+          min-width: 250px;
+          text-align: justify;
+          display: -webkit-box;
+          -webkit-line-clamp: 6;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+
+          &.newsIcon {
+            min-width: initial;
+          }
+
+          &.newsTitle {
+            min-width: 300px;
+          }
+
+          &.newsBody {
+            max-width: max-content;
+          }
+        }
+      }
+    }
+  }
+}

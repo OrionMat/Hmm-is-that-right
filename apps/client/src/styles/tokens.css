@@ -1,0 +1,27 @@
+@layer theme {
+  :root {
+    /* Colors from colors.tsx */
+    --color-light-grey: rgba(223, 225, 229, 1);
+    --color-dark-grey: rgba(32, 33, 36, 0.28);
+    --color-very-dark-grey: rgba(117, 117, 117, 1);
+    --color-light-blue: rgba(240, 244, 249, 1);
+    --color-green: rgba(32, 187, 61, 1);
+    --color-danger-red: rgba(209, 36, 47, 1);
+
+    /* Fonts from fonts.tsx */
+    --font-primary: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    --font-size-smaller: smaller;
+
+    /* Global resets/base styles */
+    --spacing-md: 1rem;
+    --spacing-lg: 3rem;
+  }
+
+  body {
+    font-family: var(--font-primary);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

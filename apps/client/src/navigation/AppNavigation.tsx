@@ -2,36 +2,17 @@ import React from "react";
 import { Link, Outlet, useNavigation } from "react-router-dom";
 import { PageNames } from "../pages/PageNames";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import styled from "styled-components";
-import { colors } from "../styles/colors";
 import { UnorderedList } from "../components/UnorderedList";
-import { fonts } from "../styles/fonts";
-
-const AppNavigationContainer = styled.div`
-  display: flex;
-  font-family: ${fonts.primary};
-`;
-
-const SideBarNav = styled.div`
-  height: 100vh;
-  width: fit-content;
-  background-color: ${colors.lightBlue};
-  padding: 3rem;
-  border-radius: 8px;
-`;
-
-const HmmmHeader = styled.h2`
-  white-space: nowrap;
-`;
+import styles from "./AppNavigation.module.css";
 
 export const AppNavigation = () => {
   const navigation = useNavigation();
 
   return (
-    <AppNavigationContainer>
+    <div className={styles.appNavigationContainer}>
       {navigation.state === "loading" && <LoadingSpinner />}
-      <SideBarNav id="sidebar">
-        <HmmmHeader>Hmmm is that right...</HmmmHeader>
+      <div id="sidebar" className={styles.sideBarNav}>
+        <h2 className={styles.hmmmHeader}>Hmmm is that right...</h2>
         <nav>
           <UnorderedList>
             <li>
@@ -58,9 +39,8 @@ export const AppNavigation = () => {
             </li>
           </UnorderedList>
         </nav>
-      </SideBarNav>
-      {/* The Outlet tells this component where to render it's child routes */}
+      </div>
       <Outlet />
-    </AppNavigationContainer>
+    </div>
   );
 };

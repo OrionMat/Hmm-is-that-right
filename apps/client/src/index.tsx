@@ -1,4 +1,5 @@
 import React from "react";
+import "./styles/tokens.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { AppRoutes } from "./navigation/AppRoutes";

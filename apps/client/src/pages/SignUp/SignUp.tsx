@@ -1,67 +1,9 @@
 import React, { useState } from "react";
-import { styled } from "styled-components";
 import { PageContainer } from "../../components/PageContainer";
-import { colors } from "../../styles/colors";
 import { Arrow } from "../../components/Arrow";
 import { Tick } from "../../components/Tick";
 import { Cross } from "../../components/Cross";
-import { fontSize, fonts } from "../../styles/fonts";
-
-const SignUpBox = styled.div`
-  width: 100%;
-  max-width: 654px;
-  padding: 1.5rem;
-  border: 1px solid ${colors.lightGrey};
-  border-radius: 1rem;
-`;
-
-const SecondaryHeader = styled.h3`
-  color: ${colors.darkGrey};
-  margin-bottom: 1.5rem;
-  overflow: hidden; /* Ensures the content is not revealed until the animation */
-  border-right: 0.15em solid transparent; /* The typewriter cursor */
-  white-space: nowrap;
-  animation:
-    typing 2s steps(50, end),
-    blink-caret 3s step-end 1;
-
-  /* The typing effect */
-  @keyframes typing {
-    from {
-      width: 0;
-    }
-    to {
-      width: 100%;
-    }
-  }
-
-  /* The typewriter blinking cursor effect */
-  @keyframes blink-caret {
-    from,
-    100% {
-      border-color: transparent;
-    }
-    0% {
-      border-color: ${colors.darkGrey};
-    }
-  }
-`;
-
-const FormInput = styled.input`
-  outline: none;
-  border: none;
-  font-family: ${fonts.primary};
-`;
-
-const FlexContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const PasswordRequirementsText = styled.span`
-  font-size: ${fontSize.smaller};
-  margin: 0.5rem 0;
-`;
+import styles from "./SignUp.module.css";
 
 export const SignUp = () => {
   // email state
@@ -85,20 +27,17 @@ export const SignUp = () => {
     useState(false);
   const [showOptionalComponents, setShowOptionalComponents] = useState(false);
 
-  // utility functions, i.e checking email and password is valid, submitting form etc.
-
   function checkValidEmail(inputText: string) {
     const matches = inputText.match(
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
     );
-    const isValid = matches !== null ? true : false;
+    const isValid = matches !== null;
     setIsValidEmail(isValid);
   }
 
   function checkValidPassword(inputText: string) {
     let isPasswordValid = true;
 
-    // check password is 8 or more characters
     if (inputText.length >= 8) {
       setIsValidLong(true);
     } else {
@@ -106,7 +45,6 @@ export const SignUp = () => {
       setIsValidLong(false);
     }
 
-    // check password has a number, uppercase or special character
     if (
       inputText.match(/(?=.*\d|\D)(?=.*[A-Z]|[^A-Za-z])(?=.*\W|\w).{1,}/) !==
       null
@@ -139,15 +77,16 @@ export const SignUp = () => {
 
   return (
     <PageContainer id="signup-content">
-      <SignUpBox>
+      <div className={styles.signUpBox}>
         <div style={{ width: "fit-content" }}>
-          <SecondaryHeader>Lets begin the adventure!</SecondaryHeader>
+          <h3 className={styles.secondaryHeader}>Lets begin the adventure!</h3>
         </div>
         <h3>Enter your email</h3>
-        <FlexContainer>
+        <div className={styles.flexContainer}>
           {isValidEmail ? <Tick /> : <Arrow />}
           <label hidden>Email address</label>
-          <FormInput
+          <input
+            className={styles.formInput}
             id="email-address"
             type="email"
             name="email"
@@ -177,14 +116,15 @@ export const SignUp = () => {
               Continue
             </button>
           )}
-        </FlexContainer>
+        </div>
         {showPasswordComponents && (
           <>
             <h3>Create a password</h3>
-            <FlexContainer>
+            <div className={styles.flexContainer}>
               {isValidPassword ? <Tick /> : <Arrow />}
               <label hidden>Password</label>
-              <FormInput
+              <input
+                className={styles.formInput}
                 id="password"
                 type="password"
                 autoComplete="off"
@@ -216,21 +156,21 @@ export const SignUp = () => {
                   Next
                 </button>
               )}
-            </FlexContainer>
+            </div>
             {showPasswordRequirements && (
               <div style={{ marginTop: "2rem" }}>
-                <FlexContainer>
+                <div className={styles.flexContainer}>
                   {isPasswordLong ? <Tick /> : <Cross />}
-                  <PasswordRequirementsText>
+                  <span className={styles.passwordRequirementsText}>
                     8 characters, or more
-                  </PasswordRequirementsText>
-                </FlexContainer>
-                <FlexContainer>
+                  </span>
+                </div>
+                <div className={styles.flexContainer}>
                   {isPasswordSpecial ? <Tick /> : <Cross />}
-                  <PasswordRequirementsText>
+                  <span className={styles.passwordRequirementsText}>
                     Number, special character or capital
-                  </PasswordRequirementsText>
-                </FlexContainer>
+                  </span>
+                </div>
               </div>
             )}
           </>
@@ -238,9 +178,10 @@ export const SignUp = () => {
         {showOptionalComponents && (
           <>
             <h3>Optionals</h3>
-            <FlexContainer>
+            <div className={styles.flexContainer}>
               <Arrow />
-              <FormInput
+              <input
+                className={styles.formInput}
                 id="form-element-first-name"
                 name="first-name"
                 placeholder="fist name"
@@ -256,10 +197,11 @@ export const SignUp = () => {
                   }
                 }}
               />
-            </FlexContainer>
-            <FlexContainer>
+            </div>
+            <div className={styles.flexContainer}>
               <Arrow />
-              <FormInput
+              <input
+                className={styles.formInput}
                 id="form-element-last-name"
                 name="last-name"
                 placeholder="last name"
@@ -274,10 +216,11 @@ export const SignUp = () => {
                   }
                 }}
               />
-            </FlexContainer>
-            <FlexContainer>
+            </div>
+            <div className={styles.flexContainer}>
               <Arrow />
-              <FormInput
+              <input
+                className={styles.formInput}
                 id="form-element-user-name"
                 name="user-name"
                 placeholder="user name"
@@ -292,7 +235,7 @@ export const SignUp = () => {
                   }
                 }}
               />
-            </FlexContainer>
+            </div>
             <button
               id="form-element-finish-button"
               style={{ marginTop: "1rem" }}
@@ -303,7 +246,7 @@ export const SignUp = () => {
             </button>
           </>
         )}
-      </SignUpBox>
+      </div>
     </PageContainer>
   );
 };

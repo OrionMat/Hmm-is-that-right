@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import SearchIconSVG from "./images/searchIcon.svg?react";
 import BBCSVG from "./images/BBCcurved.svg?react";
 import BBCGreySVG from "./images/BBCcurvedGrey.svg?react";
@@ -11,66 +10,19 @@ import ReutersSVG from "./images/Reuters.svg?react";
 import ReutersGreySVG from "./images/ReutersGrey.svg?react";
 import TwitterSVG from "./images/Twitter.svg?react";
 import TwitterGreySVG from "./images/TwitterGrey.svg?react";
+import styles from "./Icons.module.css";
 
-const iconStandardHeight = "45px";
-const iconStandardWidth = "45px";
-
-export const SearchIcon = styled(SearchIconSVG)`
-  position: absolute;
-  margin-left: 10px;
-  width: 40px;
-  height: 100%;
-`;
-
-export const BBCIcon = styled(BBCSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const BBCGreyIcon = styled(BBCGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const NYTIcon = styled(NYTSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const NYTGreyIcon = styled(NYTGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const APIcon = styled(APSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const APGreyIcon = styled(APGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const ReutersIcon = styled(ReutersSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const ReutersGreyIcon = styled(ReutersGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const TwitterIcon = styled(TwitterSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const TwitterGreyIcon = styled(TwitterGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
+export const SearchIcon = () => <SearchIconSVG className={styles.searchIcon} />;
+export const BBCIcon = () => <BBCSVG className={styles.standardIcon} />;
+export const BBCGreyIcon = () => <BBCGreySVG className={styles.standardIcon} />;
+export const NYTIcon = () => <NYTSVG className={styles.standardIcon} />;
+export const NYTGreyIcon = () => <NYTGreySVG className={styles.standardIcon} />;
+export const APIcon = () => <APSVG className={styles.standardIcon} />;
+export const APGreyIcon = () => <APGreySVG className={styles.standardIcon} />;
+export const ReutersIcon = () => <ReutersSVG className={styles.standardIcon} />;
+export const ReutersGreyIcon = () => <ReutersGreySVG className={styles.standardIcon} />;
+export const TwitterIcon = () => <TwitterSVG className={styles.standardIcon} />;
+export const TwitterGreyIcon = () => <TwitterGreySVG className={styles.standardIcon} />;
 
 export const SelectNewsIcon = (source: string, isActive: boolean) => {
   if (isActive) {

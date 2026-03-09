@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { SearchBar } from "../components/SearchBar";
 import {
   NewsPiece,
@@ -9,16 +8,7 @@ import {
 import { Tile } from "../components/Tile";
 import { ResultsTable } from "../components/ResultsTable";
 import { PageContainer } from "../components/PageContainer";
-
-const TileContainer = styled.div`
-  width: 500px;
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-evenly;
-  align-content: space-between;
-  margin-top: 25px;
-  margin-bottom: 50px;
-`;
+import styles from "./FactCheck.module.css";
 
 export const FactCheck = () => {
   /** active/disabled states for news agencies */
@@ -29,7 +19,6 @@ export const FactCheck = () => {
     reuters: true,
     twitter: true,
   });
-  const newSourceStates = Object.assign({}, sourceStates);
 
   /** state populated by retrieved news pieces */
   const [newsPieces, setNewsPieces] = useState<NewsPiece[]>([]);
@@ -43,28 +32,30 @@ export const FactCheck = () => {
     }),
   );
 
+  const toggleSource = (source: keyof typeof sourceStates, isActive: boolean) => {
+    setSourceStates(prev => ({
+      ...prev,
+      [source]: isActive
+    }));
+  };
+
   return (
     <PageContainer id="content">
       <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} />
-      <TileContainer>
+      <div className={styles.tileContainer}>
         {newsSources.map(({ source, url, isActive }, index) => (
-          // map array of news sources to tiles
           <Tile
             key={index}
             source={source}
             isActive={isActive}
             url={url}
-            handelClick={(newsIsActive) => {
-              newSourceStates[source as keyof PermanentNewsSources] =
-                newsIsActive;
-              setSourceStates(newSourceStates);
-            }}
+            handelClick={(newsIsActive) => toggleSource(source as keyof typeof sourceStates, newsIsActive)}
           />
         ))}
-      </TileContainer>
-      {newsPieces.length > 0 ? (
+      </div>
+      {newsPieces.length > 0 && (
         <ResultsTable newsPieces={newsPieces} />
-      ) : undefined}
+      )}
     </PageContainer>
   );
 };

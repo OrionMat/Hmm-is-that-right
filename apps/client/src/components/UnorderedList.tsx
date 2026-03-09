@@ -1,6 +1,6 @@
-import styled from "styled-components";
+import React from "react";
+import styles from "./Common.module.css";
 
-export const UnorderedList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-`;
+export const UnorderedList = ({ children }: { children: React.ReactNode }) => (
+  <ul className={styles.unorderedList}>{children}</ul>
+);
