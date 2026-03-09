@@ -15,7 +15,6 @@ node_modules/
 /apps/client/.env.production.local
 
 # Build Artifacts
-*.module.css.d.ts
 /apps/client/build/
 /apps/client/dist/
 /apps/server/build/

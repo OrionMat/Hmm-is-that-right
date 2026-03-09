@@ -10,19 +10,18 @@ import ReutersSVG from "./images/Reuters.svg?react";
 import ReutersGreySVG from "./images/ReutersGrey.svg?react";
 import TwitterSVG from "./images/Twitter.svg?react";
 import TwitterGreySVG from "./images/TwitterGrey.svg?react";
-import styles from "./Icons.module.css";
 
-export const SearchIcon = () => <SearchIconSVG className={styles.searchIcon} />;
-export const BBCIcon = () => <BBCSVG className={styles.standardIcon} />;
-export const BBCGreyIcon = () => <BBCGreySVG className={styles.standardIcon} />;
-export const NYTIcon = () => <NYTSVG className={styles.standardIcon} />;
-export const NYTGreyIcon = () => <NYTGreySVG className={styles.standardIcon} />;
-export const APIcon = () => <APSVG className={styles.standardIcon} />;
-export const APGreyIcon = () => <APGreySVG className={styles.standardIcon} />;
-export const ReutersIcon = () => <ReutersSVG className={styles.standardIcon} />;
-export const ReutersGreyIcon = () => <ReutersGreySVG className={styles.standardIcon} />;
-export const TwitterIcon = () => <TwitterSVG className={styles.standardIcon} />;
-export const TwitterGreyIcon = () => <TwitterGreySVG className={styles.standardIcon} />;
+export const SearchIcon = () => <SearchIconSVG className="absolute left-[10px] top-1/2 -translate-y-1/2 w-10 h-10 z-10 pointer-events-none" />;
+export const BBCIcon = () => <BBCSVG className="h-[45px] w-[45px]" />;
+export const BBCGreyIcon = () => <BBCGreySVG className="h-[45px] w-[45px]" />;
+export const NYTIcon = () => <NYTSVG className="h-[45px] w-[45px]" />;
+export const NYTGreyIcon = () => <NYTGreySVG className="h-[45px] w-[45px]" />;
+export const APIcon = () => <APSVG className="h-[45px] w-[45px]" />;
+export const APGreyIcon = () => <APGreySVG className="h-[45px] w-[45px]" />;
+export const ReutersIcon = () => <ReutersSVG className="h-[45px] w-[45px]" />;
+export const ReutersGreyIcon = () => <ReutersGreySVG className="h-[45px] w-[45px]" />;
+export const TwitterIcon = () => <TwitterSVG className="h-[45px] w-[45px]" />;
+export const TwitterGreyIcon = () => <TwitterGreySVG className="h-[45px] w-[45px]" />;
 
 export const SelectNewsIcon = (source: string, isActive: boolean) => {
   if (isActive) {

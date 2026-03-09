@@ -8,7 +8,6 @@ import {
 import { Tile } from "../components/Tile";
 import { ResultsTable } from "../components/ResultsTable";
 import { PageContainer } from "../components/PageContainer";
-import styles from "./FactCheck.module.css";
 
 export const FactCheck = () => {
   /** active/disabled states for news agencies */
@@ -42,7 +41,7 @@ export const FactCheck = () => {
   return (
     <PageContainer id="content">
       <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} />
-      <div className={styles.tileContainer}>
+      <div className="w-[500px] flex flex-row flex-wrap justify-evenly content-between mt-6 mb-12">
         {newsSources.map(({ source, url, isActive }, index) => (
           <Tile
             key={index}

@@ -1,5 +1,4 @@
 import React from "react";
-import styles from "./PageContainer.module.css";
 
 export const PageContainer = ({ 
   children, 
@@ -9,7 +8,7 @@ export const PageContainer = ({
   id?: string 
 }) => {
   return (
-    <div id={id} className={styles.pageContainer}>
+    <div id={id} className="flex flex-col items-center w-full p-12">
       {children}
     </div>
   );

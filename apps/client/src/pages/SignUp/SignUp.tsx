@@ -3,7 +3,6 @@ import { PageContainer } from "../../components/PageContainer";
 import { Arrow } from "../../components/Arrow";
 import { Tick } from "../../components/Tick";
 import { Cross } from "../../components/Cross";
-import styles from "./SignUp.module.css";
 
 export const SignUp = () => {
   // email state
@@ -77,16 +76,18 @@ export const SignUp = () => {
 
   return (
     <PageContainer id="signup-content">
-      <div className={styles.signUpBox}>
-        <div style={{ width: "fit-content" }}>
-          <h3 className={styles.secondaryHeader}>Lets begin the adventure!</h3>
+      <div className="w-full max-w-[654px] p-6 border border-light-grey rounded-2xl">
+        <div className="w-fit">
+          <h3 className="text-dark-grey text-xl font-bold mb-6 overflow-hidden border-r-[0.15em] whitespace-nowrap inline-block w-0 animate-typing animate-blink">
+            Lets begin the adventure!
+          </h3>
         </div>
-        <h3>Enter your email</h3>
-        <div className={styles.flexContainer}>
+        <h3 className="text-xl font-bold mb-4">Enter your email</h3>
+        <div className="flex items-center gap-2 mb-6">
           {isValidEmail ? <Tick /> : <Arrow />}
           <label hidden>Email address</label>
           <input
-            className={styles.formInput}
+            className="outline-none border-none font-mono bg-transparent flex-1"
             id="email-address"
             type="email"
             name="email"
@@ -109,6 +110,7 @@ export const SignUp = () => {
           />
           {!showPasswordComponents && (
             <button
+              className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50 cursor-pointer"
               type="button"
               disabled={!isValidEmail}
               onClick={() => setShowPasswordComponents(true)}
@@ -119,12 +121,12 @@ export const SignUp = () => {
         </div>
         {showPasswordComponents && (
           <>
-            <h3>Create a password</h3>
-            <div className={styles.flexContainer}>
+            <h3 className="text-xl font-bold mb-4">Create a password</h3>
+            <div className="flex items-center gap-2 mb-6">
               {isValidPassword ? <Tick /> : <Arrow />}
               <label hidden>Password</label>
               <input
-                className={styles.formInput}
+                className="outline-none border-none font-mono bg-transparent flex-1"
                 id="password"
                 type="password"
                 autoComplete="off"
@@ -149,6 +151,7 @@ export const SignUp = () => {
               />
               {!showOptionalComponents && (
                 <button
+                  className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50 cursor-pointer"
                   type="button"
                   disabled={!isValidPassword}
                   onClick={() => setShowOptionalComponents(true)}
@@ -158,30 +161,26 @@ export const SignUp = () => {
               )}
             </div>
             {showPasswordRequirements && (
-              <div style={{ marginTop: "2rem" }}>
-                <div className={styles.flexContainer}>
+              <div className="mt-8">
+                <div className="flex items-center gap-2">
                   {isPasswordLong ? <Tick /> : <Cross />}
-                  <span className={styles.passwordRequirementsText}>
-                    8 characters, or more
-                  </span>
+                  <span className="text-sm my-2">8 characters, or more</span>
                 </div>
-                <div className={styles.flexContainer}>
+                <div className="flex items-center gap-2">
                   {isPasswordSpecial ? <Tick /> : <Cross />}
-                  <span className={styles.passwordRequirementsText}>
-                    Number, special character or capital
-                  </span>
+                  <span className="text-sm my-2">Number, special character or capital</span>
                 </div>
               </div>
             )}
           </>
         )}
         {showOptionalComponents && (
-          <>
-            <h3>Optionals</h3>
-            <div className={styles.flexContainer}>
+          <div className="mt-6 flex flex-col gap-4">
+            <h3 className="text-xl font-bold mb-2">Optionals</h3>
+            <div className="flex items-center gap-2">
               <Arrow />
               <input
-                className={styles.formInput}
+                className="outline-none border-none font-mono bg-transparent flex-1"
                 id="form-element-first-name"
                 name="first-name"
                 placeholder="fist name"
@@ -198,10 +197,10 @@ export const SignUp = () => {
                 }}
               />
             </div>
-            <div className={styles.flexContainer}>
+            <div className="flex items-center gap-2">
               <Arrow />
               <input
-                className={styles.formInput}
+                className="outline-none border-none font-mono bg-transparent flex-1"
                 id="form-element-last-name"
                 name="last-name"
                 placeholder="last name"
@@ -217,10 +216,10 @@ export const SignUp = () => {
                 }}
               />
             </div>
-            <div className={styles.flexContainer}>
+            <div className="flex items-center gap-2">
               <Arrow />
               <input
-                className={styles.formInput}
+                className="outline-none border-none font-mono bg-transparent flex-1"
                 id="form-element-user-name"
                 name="user-name"
                 placeholder="user name"
@@ -238,13 +237,13 @@ export const SignUp = () => {
             </div>
             <button
               id="form-element-finish-button"
-              style={{ marginTop: "1rem" }}
+              className="mt-4 bg-blue-600 text-white px-6 py-2 rounded self-start cursor-pointer"
               type="button"
               onClick={handelFormSubmit}
             >
               Finish
             </button>
-          </>
+          </div>
         )}
       </div>
     </PageContainer>

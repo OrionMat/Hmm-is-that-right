@@ -1,6 +1,5 @@
 import React from "react";
-import styles from "./Common.module.css";
 
 export const UnorderedList = ({ children }: { children: React.ReactNode }) => (
-  <ul className={styles.unorderedList}>{children}</ul>
+  <ul className="list-none p-0">{children}</ul>
 );

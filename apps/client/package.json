@@ -2,14 +2,17 @@
   "name": "hmmm-client",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
+    "@tailwindcss/vite": "^4.2.1",
     "axios": "^1.7.9",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^6.30.3",
-    "sort-by": "^1.2.0"
+    "sort-by": "^1.2.0",
+    "tailwindcss": "^4.2.1"
   },
   "scripts": {
     "dev": "vite",
@@ -55,11 +58,8 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "jsdom": "^26.0.0",
-    "postcss": "^8.5.8",
     "typescript": "^5.9.3",
     "vite": "^6.2.5",
-    "vite-css-modules": "^1.13.0",
-    "vite-plugin-checker": "^0.12.0",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "^3.2.1"
   }

@@ -1,8 +1,7 @@
 import React from "react";
-import styles from "./Common.module.css";
 
 export const Tick = () => (
-  <div className={`${styles.iconWrapper} ${styles.tick}`} aria-hidden="true">
+  <div className="w-[0.75rem] pr-2 inline-block text-brand-green" aria-hidden="true">
     ✓
   </div>
 );

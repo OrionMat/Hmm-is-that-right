@@ -1,7 +1,6 @@
 import React from "react";
 import { NewsPiece } from "../dataModel/dataModel";
 import { SelectNewsIcon } from "../Icons";
-import styles from "./ResultsTable.module.css";
 
 interface ResultsTableProps {
   newsPieces: NewsPiece[];
@@ -9,25 +8,29 @@ interface ResultsTableProps {
 
 export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
   return (
-    <table className={styles.table}>
+    <table className="w-3/4 mt-6 font-mono border-collapse">
       <tbody>
         {newsPieces.map((newsPiece) => (
-          <tr key={newsPiece.url}>
-            <td>
-              <div className={styles.newsIcon}>
+          <tr key={newsPiece.url} className="rounded-sm shadow-[0_1px_6px_-1px_var(--color-dark-grey)]">
+            <td className="p-5">
+              <div className="min-w-0">
                 {SelectNewsIcon(newsPiece.source, true)}
               </div>
             </td>
-            <td>
-              <div className={styles.newsTitle}>
-                <a href={newsPiece.url}>{newsPiece.title}</a>
+            <td className="p-5">
+              <div className="min-w-[300px] text-justify line-clamp-6 vertical-box overflow-hidden">
+                <a href={newsPiece.url} className="text-blue-600 hover:underline">{newsPiece.title}</a>
               </div>
             </td>
-            <td>
-              <div className={styles.newsBody}>{newsPiece.body.join("\n")}</div>
+            <td className="p-5">
+              <div className="min-w-[250px] text-justify line-clamp-6 vertical-box overflow-hidden max-w-max whitespace-pre-wrap">
+                {newsPiece.body.join("\n")}
+              </div>
             </td>
-            <td>
-              <div>{newsPiece.date}</div>
+            <td className="p-5">
+              <div className="min-w-[250px] text-justify line-clamp-6 vertical-box overflow-hidden">
+                {newsPiece.date}
+              </div>
             </td>
           </tr>
         ))}

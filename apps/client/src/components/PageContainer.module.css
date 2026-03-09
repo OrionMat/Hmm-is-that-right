@@ -1,9 +1,0 @@
-@layer components {
-  .pageContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    padding: var(--spacing-lg);
-  }
-}

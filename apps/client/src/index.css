@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-light-grey: rgb(223, 225, 229);
+  --color-dark-grey: rgba(32, 33, 36, 0.28);
+  --color-very-dark-grey: rgb(117, 117, 117);
+  --color-light-blue: rgb(240, 244, 249);
+  --color-brand-green: rgb(32, 187, 61);
+  --color-danger-red: rgb(209, 36, 47);
+
+  /* Fonts */
+  --font-mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+
+  /* Spacing */
+  --spacing-12: 3rem;
+
+  /* Tailwind v4 standard way to define animations in the theme */
+  --animate-typing: typing 2s steps(40, end) forwards;
+  --animate-blink: blink-caret 0.75s step-end infinite;
+  --animate-spinner: spinner-border 0.75s linear infinite;
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  @keyframes blink-caret {
+    from, 100% { border-right-color: transparent; }
+    50% { border-right-color: #202124; } /* Using a solid color for visibility */
+  }
+  @keyframes spinner-border {
+    to { transform: rotate(360deg); }
+  }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Search Cancel Button - keep in utilities as it uses non-standard pseudo-elements */
+  .search-cancel-btn::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    margin-right: 15px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E") no-repeat center;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .search-cancel-btn::-webkit-search-cancel-button:hover {
+    opacity: 1;
+  }
+}

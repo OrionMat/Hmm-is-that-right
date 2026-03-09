@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { IsActiveNewsSources, NewsPiece } from "../dataModel/dataModel";
 import { getNewsPieces } from "../service/getNewsPieces";
 import { SearchIcon } from "../Icons";
-import styles from "./SearchBar.module.css";
 
 interface SearchBarProps {
   sourceStates: IsActiveNewsSources;
@@ -19,10 +18,10 @@ export const SearchBar = ({ sourceStates, setNewsPieces }: SearchBarProps) => {
   };
 
   return (
-    <form className={styles.searchForm} onSubmit={handleSubmit}>
+    <form className="relative w-[500px] mx-auto mt-[300px] mb-6 flex items-center" onSubmit={handleSubmit}>
       <SearchIcon />
       <input
-        className={styles.searchInput}
+        className="h-[50px] w-full border border-light-grey rounded-[25px] z-[3] pl-[60px] font-mono transition-[box-shadow,border-color] duration-200 hover:shadow-[0_1px_6px_var(--color-dark-grey)] hover:border-transparent focus:outline-none focus:shadow-[0_1px_6px_var(--color-dark-grey)] focus:border-transparent search-cancel-btn"
         id="input"
         type="search"
         autoComplete="off"
