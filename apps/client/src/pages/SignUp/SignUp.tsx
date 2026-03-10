@@ -78,7 +78,7 @@ export const SignUp = () => {
     <PageContainer id="signup-content">
       <div className="w-full max-w-[654px] p-6 border border-light-grey rounded-2xl">
         <div className="w-fit">
-          <h3 className="text-dark-grey text-xl font-bold mb-6 overflow-hidden border-r-[0.15em] whitespace-nowrap inline-block w-0 animate-typing animate-blink">
+          <h3 className="text-dark-grey text-xl font-bold mb-6 overflow-hidden border-r-[0.15em] whitespace-nowrap inline-block w-0 animate-typewriter">
             Lets begin the adventure!
           </h3>
         </div>
@@ -110,7 +110,7 @@ export const SignUp = () => {
           />
           {!showPasswordComponents && (
             <button
-              className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50 cursor-pointer"
+              className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               disabled={!isValidEmail}
               onClick={() => setShowPasswordComponents(true)}
@@ -151,7 +151,7 @@ export const SignUp = () => {
               />
               {!showOptionalComponents && (
                 <button
-                  className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50 cursor-pointer"
+                  className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                   type="button"
                   disabled={!isValidPassword}
                   onClick={() => setShowOptionalComponents(true)}

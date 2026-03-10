@@ -1,4 +1,8 @@
-@import "tailwindcss";
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@tailwind utilities source(none);
+@source "../index.html";
+@source "./**/*.{ts,tsx}";
 
 @theme {
   /* Colors */
@@ -16,8 +20,7 @@
   --spacing-12: 3rem;
 
   /* Tailwind v4 standard way to define animations in the theme */
-  --animate-typing: typing 2s steps(40, end) forwards;
-  --animate-blink: blink-caret 0.75s step-end infinite;
+  --animate-typewriter: typing 2s steps(40, end) forwards, blink-caret 0.75s step-end infinite;
   --animate-spinner: spinner-border 0.75s linear infinite;
 
   @keyframes typing {
