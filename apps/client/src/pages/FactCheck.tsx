@@ -31,10 +31,13 @@ export const FactCheck = () => {
     }),
   );
 
-  const toggleSource = (source: keyof typeof sourceStates, isActive: boolean) => {
-    setSourceStates(prev => ({
+  const toggleSource = (
+    source: keyof typeof sourceStates,
+    isActive: boolean,
+  ) => {
+    setSourceStates((prev) => ({
       ...prev,
-      [source]: isActive
+      [source]: isActive,
     }));
   };
 
@@ -48,13 +51,13 @@ export const FactCheck = () => {
             source={source}
             isActive={isActive}
             url={url}
-            handelClick={(newsIsActive) => toggleSource(source as keyof typeof sourceStates, newsIsActive)}
+            handelClick={(newsIsActive) =>
+              toggleSource(source as keyof typeof sourceStates, newsIsActive)
+            }
           />
         ))}
       </div>
-      {newsPieces.length > 0 && (
-        <ResultsTable newsPieces={newsPieces} />
-      )}
+      {newsPieces.length > 0 && <ResultsTable newsPieces={newsPieces} />}
     </PageContainer>
   );
 };

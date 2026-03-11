@@ -11,7 +11,10 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
     <table className="w-3/4 mt-6 font-mono border-collapse">
       <tbody>
         {newsPieces.map((newsPiece) => (
-          <tr key={newsPiece.url} className="rounded-sm shadow-[0_1px_6px_-1px_var(--color-dark-grey)]">
+          <tr
+            key={newsPiece.url}
+            className="rounded-sm shadow-[0_1px_6px_-1px_var(--color-dark-grey)]"
+          >
             <td className="p-5">
               <div className="min-w-0">
                 {SelectNewsIcon(newsPiece.source, true)}
@@ -19,7 +22,12 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
             </td>
             <td className="p-5">
               <div className="min-w-[300px] text-justify line-clamp-6 vertical-box overflow-hidden">
-                <a href={newsPiece.url} className="text-blue-600 hover:underline">{newsPiece.title}</a>
+                <a
+                  href={newsPiece.url}
+                  className="text-blue-600 hover:underline"
+                >
+                  {newsPiece.title}
+                </a>
               </div>
             </td>
             <td className="p-5">

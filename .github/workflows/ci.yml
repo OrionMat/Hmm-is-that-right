@@ -32,6 +32,14 @@ jobs:
           CI: true
         run: npm run build
 
+      - name: Install server dependencies
+        working-directory: apps/server
+        run: npm ci
+
+      - name: Build server
+        working-directory: apps/server
+        run: npm run build
+
   client-unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -56,6 +64,33 @@ jobs:
         env:
           CI: true
         run: npm run test:unit
+
+  server-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: |
+            apps/client/package-lock.json
+            apps/server/package-lock.json
+
+      - name: Install server deps
+        working-directory: apps/server
+        run: npm ci
+
+      - name: Run server unit tests (vitest)
+        working-directory: apps/server
+        run: npm run test
+
+      - name: Run server type-check
+        working-directory: apps/server
+        run: npm run typecheck
 
   lint:
     runs-on: ubuntu-latest

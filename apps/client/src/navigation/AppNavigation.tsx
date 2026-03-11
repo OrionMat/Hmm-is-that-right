@@ -19,7 +19,7 @@ export const AppNavigation = () => {
         </h2>
         <nav>
           <UnorderedList>
-            <li className="mb-2">
+            <li>
               <Link
                 to={`/${PageNames.home}`}
                 className="text-blue-600 hover:underline"
@@ -27,7 +27,7 @@ export const AppNavigation = () => {
                 Home
               </Link>
             </li>
-            <li className="mb-2">
+            <li>
               <Link
                 to={`/${PageNames.factCheck}`}
                 className="text-blue-600 hover:underline"
@@ -35,7 +35,7 @@ export const AppNavigation = () => {
                 Fact Check
               </Link>
             </li>
-            <li className="mb-2">
+            <li>
               <Link
                 to={`/${PageNames.messenger}`}
                 className="text-blue-600 hover:underline"
@@ -43,7 +43,7 @@ export const AppNavigation = () => {
                 Messenger
               </Link>
             </li>
-            <li className="mb-2">
+            <li>
               <Link
                 to={`/${PageNames.market}`}
                 className="text-blue-600 hover:underline"
@@ -51,7 +51,7 @@ export const AppNavigation = () => {
                 Market
               </Link>
             </li>
-            <li className="mb-2">
+            <li>
               <Link
                 to={`/${PageNames.account}`}
                 className="text-blue-600 hover:underline"
@@ -79,6 +79,7 @@ export const AppNavigation = () => {
           </UnorderedList>
         </nav>
       </div>
+      {/* The Outlet tells this component where to render it's child routes */}
       <Outlet />
     </div>
   );

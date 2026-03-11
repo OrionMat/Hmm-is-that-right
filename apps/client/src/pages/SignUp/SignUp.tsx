@@ -26,6 +26,7 @@ export const SignUp = () => {
     useState(false);
   const [showOptionalComponents, setShowOptionalComponents] = useState(false);
 
+  // utility functions, i.e checking email and password is valid, submitting form etc.
   function checkValidEmail(inputText: string) {
     const matches = inputText.match(
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
@@ -37,6 +38,7 @@ export const SignUp = () => {
   function checkValidPassword(inputText: string) {
     let isPasswordValid = true;
 
+    // check password is 8 or more characters
     if (inputText.length >= 8) {
       setIsValidLong(true);
     } else {
@@ -44,6 +46,7 @@ export const SignUp = () => {
       setIsValidLong(false);
     }
 
+    // check password has a number, uppercase or special character
     if (
       inputText.match(/(?=.*\d|\D)(?=.*[A-Z]|[^A-Za-z])(?=.*\W|\w).{1,}/) !==
       null
@@ -168,7 +171,9 @@ export const SignUp = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {isPasswordSpecial ? <Tick /> : <Cross />}
-                  <span className="text-sm my-2">Number, special character or capital</span>
+                  <span className="text-sm my-2">
+                    Number, special character or capital
+                  </span>
                 </div>
               </div>
             )}

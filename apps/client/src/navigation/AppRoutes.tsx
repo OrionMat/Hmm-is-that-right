@@ -14,6 +14,8 @@ export const AppRoutes = [
     element: <AppNavigation />,
     errorElement: <ErrorPage />,
     children: [
+      // Index true here means the home page is the default route for the parent
+      // i.e www.example.com goes to www.example.com/home
       { index: true, element: <Navigate to={PageNames.home} replace /> },
       { path: PageNames.home, element: <Home /> },
       { path: PageNames.factCheck, element: <FactCheck /> },
