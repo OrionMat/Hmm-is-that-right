@@ -7,7 +7,7 @@ interface ResultsTableProps {
 
 export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
   return (
-    <table className="w-3/4 mt-6 border-collapse">
+    <table className="w-3/4 mt-6">
       <thead className="sr-only">
         <tr>
           <th scope="col">Source</th>
@@ -31,7 +31,6 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
               <div className="min-w-[300px] text-justify line-clamp-6">
                 <a
                   href={newsPiece.url}
-                  className="text-link hover:underline"
                 >
                   {newsPiece.title}
                 </a>
