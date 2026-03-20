@@ -1,5 +1,3 @@
-import React from "react";
-
 export const TwitterIcon = () => (
   <svg
     viewBox="0 0 24 24"

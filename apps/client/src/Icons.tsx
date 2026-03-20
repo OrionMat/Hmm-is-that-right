@@ -1,4 +1,3 @@
-import React from "react";
 import SearchIconSVG from "./images/searchIcon.svg?react";
 import BBCSVG from "./images/BBCcurved.svg?react";
 import BBCGreySVG from "./images/BBCcurvedGrey.svg?react";
@@ -29,7 +28,13 @@ export const TwitterGreyIcon = () => (
   <TwitterGreySVG className="h-[45px] w-[45px]" />
 );
 
-export const SelectNewsIcon = (source: string, isActive: boolean) => {
+export const SelectNewsIcon = ({
+  source,
+  isActive,
+}: {
+  source: string;
+  isActive: boolean;
+}) => {
   if (isActive) {
     switch (source.toUpperCase()) {
       case "BBC":
@@ -44,7 +49,7 @@ export const SelectNewsIcon = (source: string, isActive: boolean) => {
         return <TwitterIcon />;
       default:
         console.log("Source is not recognised as a case");
-        break;
+        return null;
     }
   } else {
     switch (source.toUpperCase()) {
@@ -60,7 +65,7 @@ export const SelectNewsIcon = (source: string, isActive: boolean) => {
         return <TwitterGreyIcon />;
       default:
         console.log("Agency is not recognised as a case");
-        break;
+        return null;
     }
   }
 };

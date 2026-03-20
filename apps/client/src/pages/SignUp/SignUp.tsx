@@ -47,10 +47,7 @@ export const SignUp = () => {
     }
 
     // check password has a number, uppercase or special character
-    if (
-      inputText.match(/(?=.*\d|\D)(?=.*[A-Z]|[^A-Za-z])(?=.*\W|\w).{1,}/) !==
-      null
-    ) {
+    if (inputText.match(/[\dA-Z\W]/) !== null) {
       setIsPasswordSpecial(true);
     } else {
       isPasswordValid = false;
@@ -73,7 +70,7 @@ export const SignUp = () => {
     }
   }
 
-  function handelFormSubmit() {
+  function handleFormSubmit() {
     console.log("formData: ", email, password, firstName, lastName, userName);
   }
 
@@ -81,14 +78,14 @@ export const SignUp = () => {
     <PageContainer id="signup-content">
       <div className="w-full max-w-[654px] p-6 border border-light-grey rounded-2xl">
         <div className="w-fit">
-          <h3 className="text-dark-grey text-xl font-bold mb-6 overflow-hidden border-r-[0.15em] whitespace-nowrap inline-block w-0 animate-typewriter">
+          <h3 className="text-very-dark-grey text-xl font-bold mb-6 overflow-hidden border-r-[0.15em] whitespace-nowrap inline-block w-0 animate-typewriter">
             Lets begin the adventure!
           </h3>
         </div>
         <h3 className="text-xl font-bold mb-4">Enter your email</h3>
         <div className="flex items-center gap-2 mb-6">
           {isValidEmail ? <Tick /> : <Arrow />}
-          <label hidden>Email address</label>
+          <label htmlFor="email-address" hidden>Email address</label>
           <input
             className="outline-none border-none font-mono bg-transparent flex-1"
             id="email-address"
@@ -127,7 +124,7 @@ export const SignUp = () => {
             <h3 className="text-xl font-bold mb-4">Create a password</h3>
             <div className="flex items-center gap-2 mb-6">
               {isValidPassword ? <Tick /> : <Arrow />}
-              <label hidden>Password</label>
+              <label htmlFor="password" hidden>Password</label>
               <input
                 className="outline-none border-none font-mono bg-transparent flex-1"
                 id="password"
@@ -188,7 +185,7 @@ export const SignUp = () => {
                 className="outline-none border-none font-mono bg-transparent flex-1"
                 id="form-element-first-name"
                 name="first-name"
-                placeholder="fist name"
+                placeholder="first name"
                 autoComplete="off"
                 autoFocus
                 value={firstName}
@@ -244,7 +241,7 @@ export const SignUp = () => {
               id="form-element-finish-button"
               className="mt-4 bg-blue-600 text-white px-6 py-2 rounded self-start cursor-pointer"
               type="button"
-              onClick={handelFormSubmit}
+              onClick={handleFormSubmit}
             >
               Finish
             </button>

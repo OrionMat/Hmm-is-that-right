@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserIcon } from "../../icons/BrowserIcon";
 import { ClaudeIcon } from "../../icons/ClaudeIcon";
 import { DiscordIcon } from "../../icons/DiscordIcon";
@@ -14,8 +13,7 @@ import { SpotifyIcon } from "../../icons/SpotifyIcon";
 import { TelegramIcon } from "../../icons/TelegramIcon";
 import { TwitterIcon } from "../../icons/TwitterIcon";
 import { WhatsAppIcon } from "../../icons/WhatsAppIcon";
-import { CardData } from "../../components/Card";
-import { PillData } from "../../components/Pill";
+import { CardData, PillData } from "../../dataModel/dataModel";
 
 export const extensionCards: CardData[] = [
   {
@@ -111,19 +109,19 @@ export const extensionCards: CardData[] = [
 ];
 
 export const integrations: PillData[] = [
-  { label: "WhatsApp", icon: <WhatsAppIcon /> },
-  { label: "Telegram", icon: <TelegramIcon /> },
-  { label: "Discord", icon: <DiscordIcon /> },
-  { label: "Slack", icon: <SlackIcon /> },
-  { label: "Signal", icon: <SignalIcon /> },
-  { label: "iMessage", icon: <IMessageIcon /> },
-  { label: "Claude", icon: <ClaudeIcon /> },
-  { label: "GPT", icon: <GptIcon /> },
-  { label: "Spotify", icon: <SpotifyIcon /> },
-  { label: "Hue", icon: <HueIcon /> },
-  { label: "Obsidian", icon: <ObsidianIcon /> },
-  { label: "Twitter", icon: <TwitterIcon /> },
-  { label: "Browser", icon: <BrowserIcon /> },
-  { label: "Gmail", icon: <GmailIcon /> },
-  { label: "GitHub", icon: <GitHubIcon /> },
+  { label: "WhatsApp", icon: WhatsAppIcon },
+  { label: "Telegram", icon: TelegramIcon },
+  { label: "Discord", icon: DiscordIcon },
+  { label: "Slack", icon: SlackIcon },
+  { label: "Signal", icon: SignalIcon },
+  { label: "iMessage", icon: IMessageIcon },
+  { label: "Claude", icon: ClaudeIcon },
+  { label: "GPT", icon: GptIcon },
+  { label: "Spotify", icon: SpotifyIcon },
+  { label: "Hue", icon: HueIcon },
+  { label: "Obsidian", icon: ObsidianIcon },
+  { label: "Twitter", icon: TwitterIcon },
+  { label: "Browser", icon: BrowserIcon },
+  { label: "Gmail", icon: GmailIcon },
+  { label: "GitHub", icon: GitHubIcon },
 ];

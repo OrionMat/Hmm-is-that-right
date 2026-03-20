@@ -1,4 +1,3 @@
-import React from "react";
 import { NewsPiece } from "../dataModel/dataModel";
 import { SelectNewsIcon } from "../Icons";
 
@@ -9,6 +8,14 @@ interface ResultsTableProps {
 export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
   return (
     <table className="w-3/4 mt-6 font-mono border-collapse">
+      <thead className="sr-only">
+        <tr>
+          <th scope="col">Source</th>
+          <th scope="col">Title</th>
+          <th scope="col">Body</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
       <tbody>
         {newsPieces.map((newsPiece) => (
           <tr
@@ -17,11 +24,11 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
           >
             <td className="p-5">
               <div className="min-w-0">
-                {SelectNewsIcon(newsPiece.source, true)}
+                <SelectNewsIcon source={newsPiece.source} isActive={true} />
               </div>
             </td>
             <td className="p-5">
-              <div className="min-w-[300px] text-justify line-clamp-6 vertical-box overflow-hidden">
+              <div className="min-w-[300px] text-justify line-clamp-6">
                 <a
                   href={newsPiece.url}
                   className="text-blue-600 hover:underline"
@@ -31,12 +38,12 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
               </div>
             </td>
             <td className="p-5">
-              <div className="min-w-[250px] text-justify line-clamp-6 vertical-box overflow-hidden max-w-max whitespace-pre-wrap">
-                {newsPiece.body.join("\n")}
+              <div className="min-w-[250px] text-justify line-clamp-6 max-w-max whitespace-pre-wrap">
+                {newsPiece.body.filter(Boolean).join("\n")}
               </div>
             </td>
             <td className="p-5">
-              <div className="min-w-[250px] text-justify line-clamp-6 vertical-box overflow-hidden">
+              <div className="min-w-[250px] text-justify line-clamp-6">
                 {newsPiece.date}
               </div>
             </td>

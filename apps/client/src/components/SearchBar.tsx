@@ -19,7 +19,7 @@ export const SearchBar = ({ sourceStates, setNewsPieces }: SearchBarProps) => {
 
   return (
     <form
-      className="relative w-[500px] mx-auto mt-[300px] mb-6 flex items-center"
+      className="relative w-[500px] mx-auto mt-0 mb-6 flex items-center"
       onSubmit={handleSubmit}
     >
       <SearchIcon />

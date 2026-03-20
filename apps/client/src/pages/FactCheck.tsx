@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { SearchBar } from "../components/SearchBar";
 import {
   NewsPiece,
@@ -43,19 +43,21 @@ export const FactCheck = () => {
 
   return (
     <PageContainer id="content">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
       <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} />
       <div className="w-[500px] flex flex-row flex-wrap justify-evenly content-between mt-6 mb-12">
-        {newsSources.map(({ source, url, isActive }, index) => (
+        {newsSources.map(({ source, url, isActive }) => (
           <Tile
-            key={index}
+            key={source}
             source={source}
             isActive={isActive}
             url={url}
-            handelClick={(newsIsActive) =>
+            handleClick={(newsIsActive) =>
               toggleSource(source as keyof typeof sourceStates, newsIsActive)
             }
           />
         ))}
+      </div>
       </div>
       {newsPieces.length > 0 && <ResultsTable newsPieces={newsPieces} />}
     </PageContainer>
