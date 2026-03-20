@@ -21,6 +21,7 @@ export const FactCheck = () => {
 
   /** state populated by retrieved news pieces */
   const [newsPieces, setNewsPieces] = useState<NewsPiece[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   /** builds array of news agencies to populate the select tiles */
   const newsSources = Object.entries(sourceStates).map(
@@ -44,7 +45,7 @@ export const FactCheck = () => {
   return (
     <PageContainer id="content">
       <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
-      <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} />
+      <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} setIsLoading={setIsLoading} isLoading={isLoading} />
       <div className="tile-row">
         {newsSources.map(({ source, url, isActive }) => (
           <Tile
@@ -59,7 +60,7 @@ export const FactCheck = () => {
         ))}
       </div>
       </div>
-      {newsPieces.length > 0 && <ResultsTable newsPieces={newsPieces} />}
+      {!isLoading && newsPieces.length > 0 && <ResultsTable newsPieces={newsPieces} />}
     </PageContainer>
   );
 };

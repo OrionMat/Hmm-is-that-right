@@ -8,7 +8,11 @@ export const AppNavigation = () => {
 
   return (
     <div className="flex font-mono">
-      {navigation.state === "loading" && <LoadingSpinner />}
+      {navigation.state === "loading" && (
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+          <LoadingSpinner />
+        </div>
+      )}
       <div
         id="sidebar"
         className="h-screen w-fit bg-light-blue p-12 rounded-lg"
@@ -79,7 +83,9 @@ export const AppNavigation = () => {
         </nav>
       </div>
       {/* The Outlet tells this component where to render it's child routes */}
-      <Outlet />
+      <div className="flex-1 min-w-0 overflow-auto">
+        <Outlet />
+      </div>
     </div>
   );
 };

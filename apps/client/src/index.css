@@ -208,4 +208,7 @@
   .search-cancel-btn::-webkit-search-cancel-button:hover {
     opacity: 1;
   }
+  .search-loading::-webkit-search-cancel-button {
+    display: none;
+  }
 }
