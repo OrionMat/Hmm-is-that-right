@@ -16,14 +16,14 @@ export const Home = () => {
           >
             <div className="flex items-center gap-4">
               <span
-                className="font-mono text-3xl font-bold text-rose-400"
+                className="font-mono text-3xl font-bold text-surface-accent"
                 aria-hidden="true"
               >
                 &gt;
               </span>
               <h2
                 id="integrations-title"
-                className="font-sans text-3xl font-semibold tracking-[-0.05em] text-white lg:text-4xl"
+                className="font-sans text-3xl font-semibold tracking-[-0.05em] text-surface-heading lg:text-4xl"
               >
                 Works With Everything
               </h2>

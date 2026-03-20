@@ -31,7 +31,7 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
               <div className="min-w-[300px] text-justify line-clamp-6">
                 <a
                   href={newsPiece.url}
-                  className="text-blue-600 hover:underline"
+                  className="text-link hover:underline"
                 >
                   {newsPiece.title}
                 </a>

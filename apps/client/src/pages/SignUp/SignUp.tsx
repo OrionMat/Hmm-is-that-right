@@ -110,7 +110,7 @@ export const SignUp = () => {
           />
           {!showPasswordComponents && (
             <button
-              className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-link text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               disabled={!isValidEmail}
               onClick={() => setShowPasswordComponents(true)}
@@ -151,7 +151,7 @@ export const SignUp = () => {
               />
               {!showOptionalComponents && (
                 <button
-                  className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                  className="bg-link text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                   type="button"
                   disabled={!isValidPassword}
                   onClick={() => setShowOptionalComponents(true)}
@@ -239,7 +239,7 @@ export const SignUp = () => {
             </div>
             <button
               id="form-element-finish-button"
-              className="mt-4 bg-blue-600 text-white px-6 py-2 rounded self-start cursor-pointer"
+              className="mt-4 bg-link text-white px-6 py-2 rounded self-start cursor-pointer"
               type="button"
               onClick={handleFormSubmit}
             >

@@ -7,6 +7,6 @@ export const Pill = ({ label, icon: Icon }: PillData) => (
         <Icon />
       </span>
     )}
-    <span className="font-sans text-[1.05rem] text-slate-300">{label}</span>
+    <span className="font-sans text-[1.05rem] text-surface-muted">{label}</span>
   </div>
 );
