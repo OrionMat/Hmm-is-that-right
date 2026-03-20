@@ -11,12 +11,15 @@ export const Home = () => {
 
         <div className="relative z-10 flex flex-col gap-8">
           {/* Header Section: Integrations & Title */}
-          <section className="rounded-[30px] border border-white/7 bg-[linear-gradient(180deg,rgba(9,8,18,0.92),rgba(5,5,12,0.94))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] lg:px-8">
+          <section 
+            aria-labelledby="integrations-title"
+            className="rounded-[30px] border border-white/7 bg-[linear-gradient(180deg,rgba(9,8,18,0.92),rgba(5,5,12,0.94))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] lg:px-8"
+          >
             <div className="flex items-center gap-4">
-              <span className="font-mono text-3xl font-bold text-rose-400">
+              <span className="font-mono text-3xl font-bold text-rose-400" aria-hidden="true">
                 &gt;
               </span>
-              <h2 className="font-sans text-3xl font-semibold tracking-[-0.05em] text-white lg:text-4xl">
+              <h2 id="integrations-title" className="font-sans text-3xl font-semibold tracking-[-0.05em] text-white lg:text-4xl">
                 Works With Everything
               </h2>
             </div>
@@ -33,7 +36,7 @@ export const Home = () => {
           </section>
 
           {/* Extensions/Cards Section */}
-          <section>
+          <section aria-label="Available Extensions and Tools">
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {extensionCards.map((card) => (
                 <Card key={`${card.name}-${card.handle}`} card={card} />

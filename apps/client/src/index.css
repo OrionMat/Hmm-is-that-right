@@ -19,6 +19,51 @@
   --color-kind-commands: var(--color-amber-200);
   --color-kind-context: var(--color-sky-200);
 
+  /* Card Accent Gradients (Colors with Opacity) */
+  --color-accent-mcp-from: color-mix(
+    in srgb,
+    var(--color-violet-500) 24%,
+    transparent
+  );
+  --color-accent-mcp-via: color-mix(
+    in srgb,
+    var(--color-sky-500) 10%,
+    transparent
+  );
+
+  --color-accent-skills-from: color-mix(
+    in srgb,
+    var(--color-rose-500) 20%,
+    transparent
+  );
+  --color-accent-skills-via: color-mix(
+    in srgb,
+    var(--color-violet-500) 15%,
+    transparent
+  );
+
+  --color-accent-commands-from: color-mix(
+    in srgb,
+    var(--color-emerald-500) 18%,
+    transparent
+  );
+  --color-accent-commands-via: color-mix(
+    in srgb,
+    var(--color-violet-500) 16%,
+    transparent
+  );
+
+  --color-accent-context-from: color-mix(
+    in srgb,
+    var(--color-fuchsia-500) 30%,
+    transparent
+  );
+  --color-accent-context-via: color-mix(
+    in srgb,
+    var(--color-violet-500) 18%,
+    transparent
+  );
+
   /* Fonts */
   --font-mono:
     ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono,

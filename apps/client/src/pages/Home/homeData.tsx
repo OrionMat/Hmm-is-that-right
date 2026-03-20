@@ -14,12 +14,8 @@ import { SpotifyIcon } from "../../icons/SpotifyIcon";
 import { TelegramIcon } from "../../icons/TelegramIcon";
 import { TwitterIcon } from "../../icons/TwitterIcon";
 import { WhatsAppIcon } from "../../icons/WhatsAppIcon";
-import { CardData } from "../../dataModel/dataModel";
-
-export interface PillData {
-  label: string;
-  icon: React.ReactNode;
-}
+import { CardData } from "../../components/Card";
+import { PillData } from "../../components/Pill";
 
 export const extensionCards: CardData[] = [
   {
