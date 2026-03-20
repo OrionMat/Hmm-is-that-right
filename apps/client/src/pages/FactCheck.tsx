@@ -45,7 +45,7 @@ export const FactCheck = () => {
     <PageContainer id="content">
       <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
       <SearchBar sourceStates={sourceStates} setNewsPieces={setNewsPieces} />
-      <div className="w-[500px] flex flex-row flex-wrap justify-evenly content-between mt-6 mb-12">
+      <div className="tile-row">
         {newsSources.map(({ source, url, isActive }) => (
           <Tile
             key={source}
