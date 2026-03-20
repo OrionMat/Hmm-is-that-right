@@ -87,7 +87,7 @@ export const SignUp = () => {
           {isValidEmail ? <Tick /> : <Arrow />}
           <label htmlFor="email-address" hidden>Email address</label>
           <input
-            className="outline-none border-none font-mono bg-transparent flex-1"
+            className="outline-none border-none bg-transparent flex-1"
             id="email-address"
             type="email"
             name="email"
@@ -126,7 +126,7 @@ export const SignUp = () => {
               {isValidPassword ? <Tick /> : <Arrow />}
               <label htmlFor="password" hidden>Password</label>
               <input
-                className="outline-none border-none font-mono bg-transparent flex-1"
+                className="outline-none border-none bg-transparent flex-1"
                 id="password"
                 type="password"
                 autoComplete="off"
@@ -182,7 +182,7 @@ export const SignUp = () => {
             <div className="flex items-center gap-2">
               <Arrow />
               <input
-                className="outline-none border-none font-mono bg-transparent flex-1"
+                className="outline-none border-none bg-transparent flex-1"
                 id="form-element-first-name"
                 name="first-name"
                 placeholder="first name"
@@ -202,7 +202,7 @@ export const SignUp = () => {
             <div className="flex items-center gap-2">
               <Arrow />
               <input
-                className="outline-none border-none font-mono bg-transparent flex-1"
+                className="outline-none border-none bg-transparent flex-1"
                 id="form-element-last-name"
                 name="last-name"
                 placeholder="last name"
@@ -221,7 +221,7 @@ export const SignUp = () => {
             <div className="flex items-center gap-2">
               <Arrow />
               <input
-                className="outline-none border-none font-mono bg-transparent flex-1"
+                className="outline-none border-none bg-transparent flex-1"
                 id="form-element-user-name"
                 name="user-name"
                 placeholder="user name"

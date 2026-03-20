@@ -18,7 +18,7 @@ export const Card = ({ card }: { card: CardData }) => (
           {card.handle}
         </p>
       </div>
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-violet-300/25 bg-[linear-gradient(180deg,rgba(28,20,58,0.96),rgba(13,10,24,0.96))] font-mono text-xs font-semibold text-violet-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:h-14 lg:w-14 lg:text-sm">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-violet-300/25 bg-[linear-gradient(180deg,rgba(28,20,58,0.96),rgba(13,10,24,0.96))] text-xs font-semibold text-violet-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:h-14 lg:w-14 lg:text-sm">
         {card.badge}
       </div>
     </div>
@@ -34,7 +34,7 @@ export const Card = ({ card }: { card: CardData }) => (
         {card.kinds.map((kind) => (
           <span
             key={`${card.name}-${kind}`}
-            className={`inline-flex items-center gap-2 font-mono text-sm ${kindClasses[kind]}`}
+            className={`inline-flex items-center gap-2 text-sm ${kindClasses[kind]}`}
           >
             <span className="text-xs">{kindSymbols[kind]}</span>
             {kind}
@@ -42,7 +42,7 @@ export const Card = ({ card }: { card: CardData }) => (
         ))}
       </div>
 
-      <div className="inline-flex items-center gap-2 rounded-xl border border-stone-300/45 bg-stone-400/12 px-4 py-2 font-mono text-sm text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <div className="inline-flex items-center gap-2 rounded-xl border border-stone-300/45 bg-stone-400/12 px-4 py-2 text-sm text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <span>★</span>
         {card.score.toLocaleString()}
       </div>

@@ -7,7 +7,7 @@ interface ResultsTableProps {
 
 export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
   return (
-    <table className="w-3/4 mt-6 font-mono border-collapse">
+    <table className="w-3/4 mt-6 border-collapse">
       <thead className="sr-only">
         <tr>
           <th scope="col">Source</th>
