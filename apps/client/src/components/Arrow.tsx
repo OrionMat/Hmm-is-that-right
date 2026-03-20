@@ -1,9 +1,5 @@
-import React from "react";
-import styled from "styled-components";
-
-const StyledArrow = styled.div`
-  width: 0.75rem;
-  padding-right: 0.5rem;
-`;
-
-export const Arrow = () => <StyledArrow aria-hidden="true">→</StyledArrow>;
+export const Arrow = () => (
+  <div className="w-[0.75rem] pr-2 inline-block" aria-hidden="true">
+    →
+  </div>
+);

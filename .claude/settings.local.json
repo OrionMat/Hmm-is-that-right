@@ -11,7 +11,8 @@
       "Bash(npm install:*)",
       "Bash(timeout 10 npm run dev:*)",
       "Bash(npm run test:run:*)",
-      "Bash(timeout 5 npm run preview:*)"
+      "Bash(timeout 5 npm run preview:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

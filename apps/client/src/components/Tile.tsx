@@ -1,38 +1,20 @@
-import React from "react";
-import styled from "styled-components";
 import { SelectNewsIcon } from "../Icons";
-import { colors } from "../styles/colors";
 
-const Button = styled.button`
-  border: 1px solid ${colors.lightGrey};
-  background-color: transparent;
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  :hover {
-    box-shadow: 0 1px 6px ${colors.darkGrey};
-    border-color: transparent;
-  }
-  :focus {
-    outline: none;
-    box-shadow: 0 0px 16px ${colors.darkGrey};
-  }
-`;
-
-export const Tile = (props: {
+interface TileProps {
   source: string;
   isActive: boolean;
   url: string;
-  handelClick(toggledState: boolean): void;
-}) => {
+  handleClick(toggledState: boolean): void;
+}
+
+export const Tile = ({ source, isActive, handleClick }: TileProps) => {
   return (
-    <Button onClick={() => props.handelClick(!props.isActive)}>
-      {SelectNewsIcon(props.source, props.isActive)}
-    </Button>
+    <button
+      className="border border-light-grey bg-transparent rounded-full w-[70px] h-[70px] flex flex-col items-center justify-center cursor-pointer transition-[box-shadow,border-color] duration-200 hover:shadow-[0_1px_6px_var(--color-dark-grey)] hover:border-transparent focus:outline-none focus:shadow-[0_0_16px_var(--color-dark-grey)]"
+      onClick={() => handleClick(!isActive)}
+      aria-pressed={isActive}
+    >
+      <SelectNewsIcon source={source} isActive={isActive} />
+    </button>
   );
 };

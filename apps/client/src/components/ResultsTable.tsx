@@ -1,72 +1,54 @@
-import React from "react";
-import styled from "styled-components";
 import { NewsPiece } from "../dataModel/dataModel";
-import { SelectNewsIcon as selectNewsIcon } from "../Icons";
-import { colors } from "../styles/colors";
-import { fonts } from "../styles/fonts";
+import { SelectNewsIcon } from "../Icons";
 
-const Table = styled.table`
-  width: 75%;
-  margin-top: 25px;
-  font-family: ${fonts.primary};
-  border-collapse: collapse;
+interface ResultsTableProps {
+  newsPieces: NewsPiece[];
+}
 
-  tbody {
-    tr {
-      border-radius: 0.25rem;
-      box-shadow: 0 1px 6px -1px ${colors.darkGrey};
-      td {
-        padding: 20px;
-        div {
-          min-width: 250px;
-          text-align: justify;
-          display: -webkit-box;
-          -webkit-line-clamp: 6;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-
-          &.news-icon {
-            min-width: initial;
-          }
-
-          &.news-title {
-            min-width: 300px;
-          }
-
-          &.news-body {
-            max-width: max-content;
-          }
-        }
-      }
-    }
-  }
-`;
-
-export const ResultsTable = (props: { newsPieces: NewsPiece[] }) => {
+export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
   return (
-    <Table>
+    <table className="w-3/4 mt-6">
+      <thead className="sr-only">
+        <tr>
+          <th scope="col">Source</th>
+          <th scope="col">Title</th>
+          <th scope="col">Body</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
       <tbody>
-        {props.newsPieces.map((newsPiece) => (
-          <tr key={newsPiece.url}>
-            <td>
-              <div className="news-icon">
-                {selectNewsIcon(newsPiece.source, true)}
+        {newsPieces.map((newsPiece) => (
+          <tr
+            key={newsPiece.url}
+            className="rounded-sm shadow-[0_1px_6px_-1px_var(--color-dark-grey)]"
+          >
+            <td className="p-5">
+              <div className="min-w-0">
+                <SelectNewsIcon source={newsPiece.source} isActive={true} />
               </div>
             </td>
-            <td>
-              <div className="news-title">
-                <a href={newsPiece.url}>{newsPiece.title}</a>
+            <td className="p-5">
+              <div className="min-w-[300px] text-justify line-clamp-6">
+                <a
+                  href={newsPiece.url}
+                >
+                  {newsPiece.title}
+                </a>
               </div>
             </td>
-            <td>
-              <div className="news-body">{newsPiece.body.join("\n")}</div>
+            <td className="p-5">
+              <div className="min-w-[250px] text-justify line-clamp-6 max-w-max whitespace-pre-wrap">
+                {newsPiece.body.filter(Boolean).join("\n")}
+              </div>
             </td>
-            <td>
-              <div>{newsPiece.date}</div>
+            <td className="p-5">
+              <div className="min-w-[250px] text-justify line-clamp-6">
+                {newsPiece.date}
+              </div>
             </td>
           </tr>
         ))}
       </tbody>
-    </Table>
+    </table>
   );
 };

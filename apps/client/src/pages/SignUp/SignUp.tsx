@@ -1,67 +1,8 @@
 import React, { useState } from "react";
-import { styled } from "styled-components";
 import { PageContainer } from "../../components/PageContainer";
-import { colors } from "../../styles/colors";
 import { Arrow } from "../../components/Arrow";
 import { Tick } from "../../components/Tick";
 import { Cross } from "../../components/Cross";
-import { fontSize, fonts } from "../../styles/fonts";
-
-const SignUpBox = styled.div`
-  width: 100%;
-  max-width: 654px;
-  padding: 1.5rem;
-  border: 1px solid ${colors.lightGrey};
-  border-radius: 1rem;
-`;
-
-const SecondaryHeader = styled.h3`
-  color: ${colors.darkGrey};
-  margin-bottom: 1.5rem;
-  overflow: hidden; /* Ensures the content is not revealed until the animation */
-  border-right: 0.15em solid transparent; /* The typewriter cursor */
-  white-space: nowrap;
-  animation:
-    typing 2s steps(50, end),
-    blink-caret 3s step-end 1;
-
-  /* The typing effect */
-  @keyframes typing {
-    from {
-      width: 0;
-    }
-    to {
-      width: 100%;
-    }
-  }
-
-  /* The typewriter blinking cursor effect */
-  @keyframes blink-caret {
-    from,
-    100% {
-      border-color: transparent;
-    }
-    0% {
-      border-color: ${colors.darkGrey};
-    }
-  }
-`;
-
-const FormInput = styled.input`
-  outline: none;
-  border: none;
-  font-family: ${fonts.primary};
-`;
-
-const FlexContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const PasswordRequirementsText = styled.span`
-  font-size: ${fontSize.smaller};
-  margin: 0.5rem 0;
-`;
 
 export const SignUp = () => {
   // email state
@@ -86,12 +27,11 @@ export const SignUp = () => {
   const [showOptionalComponents, setShowOptionalComponents] = useState(false);
 
   // utility functions, i.e checking email and password is valid, submitting form etc.
-
   function checkValidEmail(inputText: string) {
     const matches = inputText.match(
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
     );
-    const isValid = matches !== null ? true : false;
+    const isValid = matches !== null;
     setIsValidEmail(isValid);
   }
 
@@ -107,10 +47,7 @@ export const SignUp = () => {
     }
 
     // check password has a number, uppercase or special character
-    if (
-      inputText.match(/(?=.*\d|\D)(?=.*[A-Z]|[^A-Za-z])(?=.*\W|\w).{1,}/) !==
-      null
-    ) {
+    if (inputText.match(/[\dA-Z\W]/) !== null) {
       setIsPasswordSpecial(true);
     } else {
       isPasswordValid = false;
@@ -133,21 +70,24 @@ export const SignUp = () => {
     }
   }
 
-  function handelFormSubmit() {
+  function handleFormSubmit() {
     console.log("formData: ", email, password, firstName, lastName, userName);
   }
 
   return (
     <PageContainer id="signup-content">
-      <SignUpBox>
-        <div style={{ width: "fit-content" }}>
-          <SecondaryHeader>Lets begin the adventure!</SecondaryHeader>
+      <div className="w-full max-w-[654px] p-6 border border-light-grey rounded-2xl">
+        <div className="w-fit">
+          <h3 className="text-very-dark-grey text-xl font-bold mb-6 overflow-hidden border-r-[0.15em] whitespace-nowrap inline-block w-0 animate-typewriter">
+            Lets begin the adventure!
+          </h3>
         </div>
-        <h3>Enter your email</h3>
-        <FlexContainer>
+        <h3 className="text-xl font-bold mb-4">Enter your email</h3>
+        <div className="flex items-center gap-2 mb-6">
           {isValidEmail ? <Tick /> : <Arrow />}
-          <label hidden>Email address</label>
-          <FormInput
+          <label htmlFor="email-address" hidden>Email address</label>
+          <input
+            className="outline-none border-none bg-transparent flex-1"
             id="email-address"
             type="email"
             name="email"
@@ -170,6 +110,7 @@ export const SignUp = () => {
           />
           {!showPasswordComponents && (
             <button
+              className="bg-link text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               disabled={!isValidEmail}
               onClick={() => setShowPasswordComponents(true)}
@@ -177,14 +118,15 @@ export const SignUp = () => {
               Continue
             </button>
           )}
-        </FlexContainer>
+        </div>
         {showPasswordComponents && (
           <>
-            <h3>Create a password</h3>
-            <FlexContainer>
+            <h3 className="text-xl font-bold mb-4">Create a password</h3>
+            <div className="flex items-center gap-2 mb-6">
               {isValidPassword ? <Tick /> : <Arrow />}
-              <label hidden>Password</label>
-              <FormInput
+              <label htmlFor="password" hidden>Password</label>
+              <input
+                className="outline-none border-none bg-transparent flex-1"
                 id="password"
                 type="password"
                 autoComplete="off"
@@ -209,6 +151,7 @@ export const SignUp = () => {
               />
               {!showOptionalComponents && (
                 <button
+                  className="bg-link text-white px-4 py-1 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                   type="button"
                   disabled={!isValidPassword}
                   onClick={() => setShowOptionalComponents(true)}
@@ -216,34 +159,33 @@ export const SignUp = () => {
                   Next
                 </button>
               )}
-            </FlexContainer>
+            </div>
             {showPasswordRequirements && (
-              <div style={{ marginTop: "2rem" }}>
-                <FlexContainer>
+              <div className="mt-8">
+                <div className="flex items-center gap-2">
                   {isPasswordLong ? <Tick /> : <Cross />}
-                  <PasswordRequirementsText>
-                    8 characters, or more
-                  </PasswordRequirementsText>
-                </FlexContainer>
-                <FlexContainer>
+                  <span className="text-sm my-2">8 characters, or more</span>
+                </div>
+                <div className="flex items-center gap-2">
                   {isPasswordSpecial ? <Tick /> : <Cross />}
-                  <PasswordRequirementsText>
+                  <span className="text-sm my-2">
                     Number, special character or capital
-                  </PasswordRequirementsText>
-                </FlexContainer>
+                  </span>
+                </div>
               </div>
             )}
           </>
         )}
         {showOptionalComponents && (
-          <>
-            <h3>Optionals</h3>
-            <FlexContainer>
+          <div className="mt-6 flex flex-col gap-4">
+            <h3 className="text-xl font-bold mb-2">Optionals</h3>
+            <div className="flex items-center gap-2">
               <Arrow />
-              <FormInput
+              <input
+                className="outline-none border-none bg-transparent flex-1"
                 id="form-element-first-name"
                 name="first-name"
-                placeholder="fist name"
+                placeholder="first name"
                 autoComplete="off"
                 autoFocus
                 value={firstName}
@@ -256,10 +198,11 @@ export const SignUp = () => {
                   }
                 }}
               />
-            </FlexContainer>
-            <FlexContainer>
+            </div>
+            <div className="flex items-center gap-2">
               <Arrow />
-              <FormInput
+              <input
+                className="outline-none border-none bg-transparent flex-1"
                 id="form-element-last-name"
                 name="last-name"
                 placeholder="last name"
@@ -274,10 +217,11 @@ export const SignUp = () => {
                   }
                 }}
               />
-            </FlexContainer>
-            <FlexContainer>
+            </div>
+            <div className="flex items-center gap-2">
               <Arrow />
-              <FormInput
+              <input
+                className="outline-none border-none bg-transparent flex-1"
                 id="form-element-user-name"
                 name="user-name"
                 placeholder="user name"
@@ -292,18 +236,18 @@ export const SignUp = () => {
                   }
                 }}
               />
-            </FlexContainer>
+            </div>
             <button
               id="form-element-finish-button"
-              style={{ marginTop: "1rem" }}
+              className="mt-4 bg-link text-white px-6 py-2 rounded self-start cursor-pointer"
               type="button"
-              onClick={handelFormSubmit}
+              onClick={handleFormSubmit}
             >
               Finish
             </button>
-          </>
+          </div>
         )}
-      </SignUpBox>
+      </div>
     </PageContainer>
   );
 };

@@ -1,5 +1,3 @@
-import React from "react";
-import styled from "styled-components";
 import SearchIconSVG from "./images/searchIcon.svg?react";
 import BBCSVG from "./images/BBCcurved.svg?react";
 import BBCGreySVG from "./images/BBCcurvedGrey.svg?react";
@@ -12,67 +10,31 @@ import ReutersGreySVG from "./images/ReutersGrey.svg?react";
 import TwitterSVG from "./images/Twitter.svg?react";
 import TwitterGreySVG from "./images/TwitterGrey.svg?react";
 
-const iconStandardHeight = "45px";
-const iconStandardWidth = "45px";
+export const SearchIcon = () => (
+  <SearchIconSVG className="absolute left-[10px] top-1/2 -translate-y-1/2 w-10 h-10 z-10 pointer-events-none" />
+);
+export const BBCIcon = () => <BBCSVG className="h-[45px] w-[45px]" />;
+export const BBCGreyIcon = () => <BBCGreySVG className="h-[45px] w-[45px]" />;
+export const NYTIcon = () => <NYTSVG className="h-[45px] w-[45px]" />;
+export const NYTGreyIcon = () => <NYTGreySVG className="h-[45px] w-[45px]" />;
+export const APIcon = () => <APSVG className="h-[45px] w-[45px]" />;
+export const APGreyIcon = () => <APGreySVG className="h-[45px] w-[45px]" />;
+export const ReutersIcon = () => <ReutersSVG className="h-[45px] w-[45px]" />;
+export const ReutersGreyIcon = () => (
+  <ReutersGreySVG className="h-[45px] w-[45px]" />
+);
+export const TwitterIcon = () => <TwitterSVG className="h-[45px] w-[45px]" />;
+export const TwitterGreyIcon = () => (
+  <TwitterGreySVG className="h-[45px] w-[45px]" />
+);
 
-export const SearchIcon = styled(SearchIconSVG)`
-  position: absolute;
-  margin-left: 10px;
-  width: 40px;
-  height: 100%;
-`;
-
-export const BBCIcon = styled(BBCSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const BBCGreyIcon = styled(BBCGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const NYTIcon = styled(NYTSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const NYTGreyIcon = styled(NYTGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const APIcon = styled(APSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const APGreyIcon = styled(APGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const ReutersIcon = styled(ReutersSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const ReutersGreyIcon = styled(ReutersGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const TwitterIcon = styled(TwitterSVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const TwitterGreyIcon = styled(TwitterGreySVG)`
-  height: ${iconStandardHeight};
-  width: ${iconStandardWidth};
-`;
-
-export const SelectNewsIcon = (source: string, isActive: boolean) => {
+export const SelectNewsIcon = ({
+  source,
+  isActive,
+}: {
+  source: string;
+  isActive: boolean;
+}) => {
   if (isActive) {
     switch (source.toUpperCase()) {
       case "BBC":
@@ -87,7 +49,7 @@ export const SelectNewsIcon = (source: string, isActive: boolean) => {
         return <TwitterIcon />;
       default:
         console.log("Source is not recognised as a case");
-        break;
+        return null;
     }
   } else {
     switch (source.toUpperCase()) {
@@ -103,7 +65,7 @@ export const SelectNewsIcon = (source: string, isActive: boolean) => {
         return <TwitterGreyIcon />;
       default:
         console.log("Agency is not recognised as a case");
-        break;
+        return null;
     }
   }
 };

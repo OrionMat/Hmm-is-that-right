@@ -1,70 +1,48 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { IsActiveNewsSources, NewsPiece } from "../dataModel/dataModel";
 import { getNewsPieces } from "../service/getNewsPieces";
 import { SearchIcon } from "../Icons";
-import { colors } from "../styles/colors";
-import { fonts } from "../styles/fonts";
+import { LoadingSpinner } from "./LoadingSpinner";
 
-const SearchForm = styled.form`
-  position: relative;
-  width: 500px;
-  margin: auto;
-  margin-top: 300px;
-  margin-bottom: 25px;
-  align-items: center;
-`;
-
-const SearchInput = styled.input`
-  height: 50px;
-  width: 100%;
-  border: 1px solid ${colors.lightGrey};
-  border-radius: 25px;
-  z-index: 3;
-  padding-left: 60px;
-  font-family: ${fonts.primary};
-  :hover {
-    box-shadow: 0 1px 6px ${colors.darkGrey};
-    border-color: transparent;
-  }
-  :focus {
-    outline: none;
-    box-shadow: 0 1px 6px ${colors.darkGrey};
-    border-color: transparent;
-  }
-  ::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-  }
-`;
-
-export const SearchBar = (props: {
+interface SearchBarProps {
   sourceStates: IsActiveNewsSources;
   setNewsPieces(newsPieces: NewsPiece[]): void;
-}) => {
+  setIsLoading(isLoading: boolean): void;
+  isLoading: boolean;
+}
+
+export const SearchBar = ({ sourceStates, setNewsPieces, setIsLoading, isLoading }: SearchBarProps) => {
   const [statement, setStatement] = useState("");
 
-  return (
-    <SearchForm
-      onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        console.log("submitted statement: ", statement);
-        console.log("active sources: ", props.sourceStates);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    const news = await getNewsPieces(statement, sourceStates);
+    setNewsPieces(news);
+    setIsLoading(false);
+  };
 
-        const news = await getNewsPieces(statement, props.sourceStates);
-        props.setNewsPieces(news);
-      }}
+  return (
+    <form
+      className="relative w-[500px] mx-auto mt-0 mb-6 flex items-center"
+      onSubmit={handleSubmit}
     >
       <SearchIcon />
-      <SearchInput
+      <input
+        className={`h-[50px] w-full border border-light-grey rounded-[25px] z-3 pl-[60px] font-mono transition-[box-shadow,border-color] duration-200 hover:shadow-[0_1px_6px_var(--color-dark-grey)] hover:border-transparent focus:outline-none focus:shadow-[0_1px_6px_var(--color-dark-grey)] focus:border-transparent search-cancel-btn${isLoading ? " search-loading" : ""}`}
         id="input"
         type="search"
         autoComplete="off"
         spellCheck="false"
         placeholder="Check a fact or statement"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          setStatement(event.target.value)
-        }
+        value={statement}
+        onChange={(event) => setStatement(event.target.value)}
       />
-    </SearchForm>
+      {isLoading && (
+        <div className="absolute right-[15px] top-1/2 -translate-y-1/2 z-10 text-very-dark-grey/60">
+          <LoadingSpinner className="w-[18px] h-[18px] border-[1.5px]" />
+        </div>
+      )}
+    </form>
   );
 };
