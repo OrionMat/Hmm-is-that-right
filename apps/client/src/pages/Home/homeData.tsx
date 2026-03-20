@@ -14,26 +14,14 @@ import { SpotifyIcon } from "../../icons/SpotifyIcon";
 import { TelegramIcon } from "../../icons/TelegramIcon";
 import { TwitterIcon } from "../../icons/TwitterIcon";
 import { WhatsAppIcon } from "../../icons/WhatsAppIcon";
+import { CardData } from "../../dataModel/dataModel";
 
-export type CardKind = "MCP" | "Skills" | "Commands" | "Context";
-
-export interface ExtensionCard {
-  name: string;
-  handle: string;
-  description: string;
-  kinds: CardKind[];
-  score: number;
-  badge: string;
-  accent: string;
-  spotlight?: boolean;
-}
-
-export interface IntegrationPillData {
+export interface PillData {
   label: string;
   icon: React.ReactNode;
 }
 
-export const extensionCards: ExtensionCard[] = [
+export const extensionCards: CardData[] = [
   {
     name: "signal-check",
     handle: "@hmmm/signal-check",
@@ -43,7 +31,6 @@ export const extensionCards: ExtensionCard[] = [
     score: 3908,
     badge: "SC",
     accent: "from-fuchsia-500/30 via-violet-500/18 to-transparent",
-    spotlight: true,
   },
   {
     name: "critical-lens",
@@ -54,7 +41,6 @@ export const extensionCards: ExtensionCard[] = [
     score: 105,
     badge: "CL",
     accent: "from-indigo-500/30 via-violet-500/18 to-transparent",
-    spotlight: true,
   },
   {
     name: "context7",
@@ -65,7 +51,6 @@ export const extensionCards: ExtensionCard[] = [
     score: 48285,
     badge: "C7",
     accent: "from-violet-500/24 via-sky-500/10 to-transparent",
-    spotlight: true,
   },
   {
     name: "headline-diff",
@@ -129,7 +114,7 @@ export const extensionCards: ExtensionCard[] = [
   },
 ];
 
-export const integrations: IntegrationPillData[] = [
+export const integrations: PillData[] = [
   { label: "WhatsApp", icon: <WhatsAppIcon /> },
   { label: "Telegram", icon: <TelegramIcon /> },
   { label: "Discord", icon: <DiscordIcon /> },

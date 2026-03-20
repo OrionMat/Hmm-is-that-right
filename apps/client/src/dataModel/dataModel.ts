@@ -1,3 +1,18 @@
+export type CardKind = "MCP" | "Skills" | "Commands" | "Context";
+
+/**
+ * Generic Card Data structure
+ */
+export interface CardData {
+  name: string;
+  handle: string;
+  description: string;
+  kinds: CardKind[];
+  score: number;
+  badge: string;
+  accent?: string; // Optional: specific styling like background gradients
+}
+
 /**
  * News piece
  * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020", body: ["list", "of", "paragraphs"], source: "bbc"}
