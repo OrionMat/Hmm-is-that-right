@@ -1,19 +1,5 @@
 import React from "react";
-import type { CardData } from "../dataModel/dataModel";
-
-const kindClasses = {
-  MCP: "text-violet-300",
-  Skills: "text-lime-200",
-  Commands: "text-amber-200",
-  Context: "text-sky-200",
-} as const;
-
-const kindSymbols = {
-  MCP: "[]",
-  Skills: "*",
-  Commands: ">_",
-  Context: "()",
-} as const;
+import { CardData, kindClasses, kindSymbols } from "../dataModel/dataModel";
 
 export const Card = ({ card }: { card: CardData }) => (
   <article className="group relative overflow-hidden rounded-[30px] border border-violet-300/28 bg-[linear-gradient(180deg,rgba(8,7,18,0.98),rgba(19,16,33,0.94))] p-6 shadow-[0_0_0_1px_rgba(124,103,214,0.04),0_18px_48px_rgba(6,4,15,0.58)] transition duration-300 hover:-translate-y-1 hover:border-violet-300/40 hover:shadow-[0_0_0_1px_rgba(136,116,220,0.07),0_24px_70px_rgba(13,9,28,0.72)] lg:p-8">

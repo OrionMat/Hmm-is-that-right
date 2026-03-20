@@ -13,6 +13,12 @@
   --color-brand-green: rgb(32, 187, 61);
   --color-danger-red: rgb(209, 36, 47);
 
+  /* Card Kind Colors */
+  --color-kind-mcp: var(--color-violet-300);
+  --color-kind-skills: var(--color-lime-200);
+  --color-kind-commands: var(--color-amber-200);
+  --color-kind-context: var(--color-sky-200);
+
   /* Fonts */
   --font-mono:
     ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono,

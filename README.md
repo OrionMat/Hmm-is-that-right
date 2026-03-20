@@ -178,3 +178,7 @@ The CI job fails if any of these steps fail, ensuring code quality before mergin
 - [ ] Update HTML parsing selectors periodically as news site structures change.
 - [ ] Improve state management as the application grows.
 - [ ] Integrate TurboRepo for better monorepo management.
+- [ ] More re-usable and maintainable styles
+  - [ ] Get all app colours defined at the root theme level and re-used througout. Never have custom colours or styles defined in components if I can avoid it.
+  - [ ] @Card.tsx#L5 huge list of class names and very specific. I imagine cross app standards would be good to set and follow throughout. Is there a pay to extract common classes, colours, rounded edges etc. into more generic named classed that we can just use throughout?
+  - [ ]

@@ -1,5 +1,19 @@
 export type CardKind = "MCP" | "Skills" | "Commands" | "Context";
 
+export const kindClasses: Record<CardKind, string> = {
+  MCP: "text-kind-mcp",
+  Skills: "text-kind-skills",
+  Commands: "text-kind-commands",
+  Context: "text-kind-context",
+} as const;
+
+export const kindSymbols: Record<CardKind, string> = {
+  MCP: "[]",
+  Skills: "*",
+  Commands: ">_",
+  Context: "()",
+} as const;
+
 /**
  * Generic Card Data structure
  */
