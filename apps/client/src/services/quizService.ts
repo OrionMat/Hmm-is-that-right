@@ -18,7 +18,7 @@ interface GenerateQuizRequest {
   category?: string;
 }
 
-const API_BASE_URL = "http://localhost:3001/api/quiz";
+const API_BASE_URL = "/api/quiz";
 
 export const getQuizQuestions = async (
   options?: GenerateQuizRequest,

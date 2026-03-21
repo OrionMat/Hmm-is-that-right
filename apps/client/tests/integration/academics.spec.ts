@@ -17,6 +17,7 @@ async function navigateToAcademics(page: Page) {
 }
 
 async function answerAllQuestions(page: Page) {
+  await expect(page.getByText("What is 2+2?")).toBeVisible();
   await page.locator("label").filter({ hasText: "Three" }).click(); // Q1 wrong
   await page.clock.fastForward(800);
   await page.locator("label").filter({ hasText: "Blue" }).click(); // Q2 correct

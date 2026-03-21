@@ -120,6 +120,7 @@ export const useQuiz = (topic?: string) => {
 
   const handleOptionSelect = useCallback(
     (optionId: string) => {
+      if (!currentQuestion) return;
       dispatch({ type: "SELECT_ANSWER", questionId: currentQuestion.id, optionId });
       setTimeout(() => dispatch({ type: "ADVANCE" }), 800);
     },
@@ -128,7 +129,7 @@ export const useQuiz = (topic?: string) => {
 
   useEffect(() => {
     loadQuestions();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadQuestions]);
 
   return {
     status: state.status,
@@ -138,10 +139,6 @@ export const useQuiz = (topic?: string) => {
     results: state.results,
     error: state.error,
     currentQuestionNumber: state.currentIndex + 1,
-    progress:
-      state.questions.length > 0
-        ? ((state.currentIndex + 1) / state.questions.length) * 100
-        : 0,
     handleOptionSelect,
     onRestart: loadQuestions,
   };

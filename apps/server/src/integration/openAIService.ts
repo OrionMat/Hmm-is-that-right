@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { z } from "zod";
 import { getLogger } from "../logger";
 
 const log = getLogger("integration/openAIService");
@@ -26,8 +27,29 @@ export interface OpenAIQuizResponse {
   }>;
 }
 
+const openAIOptionSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  label: z.string(),
+});
+
+const openAIQuestionSchema = z.object({
+  id: z.string(),
+  question: z.string(),
+  options: z.array(openAIOptionSchema).length(4),
+  correctAnswer: z.string(),
+  explanation: z.string(),
+  category: z.string().optional(),
+  difficulty: z.enum(["easy", "medium", "hard"]).optional(),
+});
+
+const openAIResponseSchema = z.object({
+  questions: z.array(openAIQuestionSchema).min(1),
+});
+
 export class OpenAIService {
   private openai: OpenAI;
+  // NOTE: This cache is process-local — it won't be shared across multiple server instances.
   private cache = new Map<string, { data: OpenAIQuizResponse; expiry: number }>();
   private CACHE_TTL = 1000 * 60 * 60; // 1 hour
 
@@ -76,8 +98,19 @@ export class OpenAIService {
       const content = response.choices[0].message.content;
       if (!content) throw new Error("No content received from OpenAI");
 
-      const parsed = JSON.parse(content);
-      const formatted = this.formatQuizResponse(parsed, request);
+      const parseResult = openAIResponseSchema.safeParse(JSON.parse(content));
+      if (!parseResult.success) {
+        log.error({ error: parseResult.error }, "OpenAI response failed schema validation");
+        throw new Error("Invalid response structure from OpenAI");
+      }
+
+      const formatted: OpenAIQuizResponse = {
+        questions: parseResult.data.questions.map((q) => ({
+          ...q,
+          category: q.category ?? request.category ?? "General",
+          difficulty: q.difficulty ?? request.difficulty ?? "medium",
+        })),
+      };
 
       this.cache.set(cacheKey, {
         data: formatted,
@@ -129,41 +162,6 @@ Example format:
     }
   ]
 }`;
-  }
-
-  private formatQuizResponse(
-    response: Record<string, unknown>,
-    request: OpenAIQuizRequest,
-  ): OpenAIQuizResponse {
-    if (!response.questions || !Array.isArray(response.questions)) {
-      throw new Error("Invalid response format from OpenAI");
-    }
-
-    return {
-      questions: (response.questions as Record<string, unknown>[]).map(
-        (q, i) => ({
-          id: (q.id as string) || `q-${Date.now()}-${i}`,
-          question: (q.question as string) || "Missing question text",
-          options: ((q.options as Record<string, unknown>[]) || []).map(
-            (opt, oi) => ({
-              id: (opt.id as string) || `opt-${i}-${oi}`,
-              text: (opt.text as string) || "Missing option text",
-              label:
-                (opt.label as string) || String.fromCharCode(65 + oi),
-            }),
-          ),
-          correctAnswer: (q.correctAnswer as string) || "",
-          explanation:
-            (q.explanation as string) || "No explanation provided",
-          category:
-            (q.category as string) || request.category || "General",
-          difficulty:
-            ((q.difficulty as string) ||
-              request.difficulty ||
-              "medium") as "easy" | "medium" | "hard",
-        }),
-      ),
-    };
   }
 
   private getMockQuizQuestions(
