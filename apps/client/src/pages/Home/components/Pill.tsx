@@ -1,4 +1,4 @@
-import { PillData } from "../dataModel/dataModel";
+import { PillData } from "../../../dataModel/dataModel";
 
 export const Pill = ({ label, icon: Icon }: PillData) => (
   <div className="pill">

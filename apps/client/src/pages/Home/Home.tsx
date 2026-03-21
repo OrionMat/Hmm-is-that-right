@@ -1,5 +1,5 @@
-import { Card } from "../../components/Card";
-import { Pill } from "../../components/Pill";
+import { Card } from "./components/Card";
+import { Pill } from "./components/Pill";
 import { extensionCards, integrations } from "./homeData";
 
 export const Home = () => {

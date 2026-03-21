@@ -2,7 +2,8 @@ import { Navigate } from "react-router-dom";
 import { AppNavigation } from "./AppNavigation";
 import { PageNames } from "../pages/PageNames";
 import ErrorPage from "../pages/ErrorPage";
-import { FactCheck } from "../pages/FactCheck";
+import { FactCheck } from "../pages/FactCheck/FactCheck";
+import { Academics } from "../pages/Academics/Academics";
 import { SignUp } from "../pages/SignUp/SignUp";
 import { Home } from "../pages/Home/Home";
 
@@ -18,6 +19,7 @@ export const AppRoutes = [
       { index: true, element: <Navigate to={PageNames.home} replace /> },
       { path: PageNames.home, element: <Home /> },
       { path: PageNames.factCheck, element: <FactCheck /> },
+      { path: PageNames.academics, element: <Academics /> },
       { path: PageNames.messenger, element: <div>Messenger</div> },
       { path: PageNames.market, element: <div>Market</div> },
       { path: PageNames.account, element: <div>Account</div> },

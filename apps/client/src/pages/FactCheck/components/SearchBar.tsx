@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { IsActiveNewsSources, NewsPiece } from "../dataModel/dataModel";
-import { getNewsPieces } from "../service/getNewsPieces";
-import { SearchIcon } from "../icons/NewsIcons";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { IsActiveNewsSources, NewsPiece } from "../../../dataModel/dataModel";
+import { getNewsPieces } from "../../../service/getNewsPieces";
+import { SearchIcon } from "../../../icons/NewsIcons";
+import { LoadingSpinner } from "../../../components/LoadingSpinner";
 
 interface SearchBarProps {
   sourceStates: IsActiveNewsSources;
