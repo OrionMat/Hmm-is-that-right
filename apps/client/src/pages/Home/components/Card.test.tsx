@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { Card } from "./Card";
-import { CardData } from "../dataModel/dataModel";
+import { CardData } from "../../../dataModel/dataModel";
 
 const baseCard: CardData = {
   name: "test-card",
