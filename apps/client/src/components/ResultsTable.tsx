@@ -1,5 +1,5 @@
 import { NewsPiece } from "../dataModel/dataModel";
-import { SelectNewsIcon } from "../Icons";
+import { SelectNewsIcon } from "../icons/NewsIcons";
 
 interface ResultsTableProps {
   newsPieces: NewsPiece[];
@@ -29,11 +29,7 @@ export const ResultsTable = ({ newsPieces }: ResultsTableProps) => {
             </td>
             <td className="p-5">
               <div className="min-w-[300px] text-justify line-clamp-6">
-                <a
-                  href={newsPiece.url}
-                >
-                  {newsPiece.title}
-                </a>
+                <a href={newsPiece.url}>{newsPiece.title}</a>
               </div>
             </td>
             <td className="p-5">

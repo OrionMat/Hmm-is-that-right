@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IsActiveNewsSources, NewsPiece } from "../dataModel/dataModel";
 import { getNewsPieces } from "../service/getNewsPieces";
-import { SearchIcon } from "../Icons";
+import { SearchIcon } from "../icons/NewsIcons";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 interface SearchBarProps {
@@ -11,7 +11,12 @@ interface SearchBarProps {
   isLoading: boolean;
 }
 
-export const SearchBar = ({ sourceStates, setNewsPieces, setIsLoading, isLoading }: SearchBarProps) => {
+export const SearchBar = ({
+  sourceStates,
+  setNewsPieces,
+  setIsLoading,
+  isLoading,
+}: SearchBarProps) => {
   const [statement, setStatement] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

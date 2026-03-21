@@ -1,4 +1,4 @@
-import { SelectNewsIcon } from "../Icons";
+import { SelectNewsIcon } from "../icons/NewsIcons";
 
 interface TileProps {
   source: string;

@@ -1,14 +1,14 @@
-import SearchIconSVG from "./images/searchIcon.svg?react";
-import BBCSVG from "./images/BBCcurved.svg?react";
-import BBCGreySVG from "./images/BBCcurvedGrey.svg?react";
-import NYTSVG from "./images/NYT.svg?react";
-import NYTGreySVG from "./images/NYTGrey.svg?react";
-import APSVG from "./images/AP.svg?react";
-import APGreySVG from "./images/APGrey.svg?react";
-import ReutersSVG from "./images/Reuters.svg?react";
-import ReutersGreySVG from "./images/ReutersGrey.svg?react";
-import TwitterSVG from "./images/Twitter.svg?react";
-import TwitterGreySVG from "./images/TwitterGrey.svg?react";
+import SearchIconSVG from "../images/searchIcon.svg?react";
+import BBCSVG from "../images/BBCcurved.svg?react";
+import BBCGreySVG from "../images/BBCcurvedGrey.svg?react";
+import NYTSVG from "../images/NYT.svg?react";
+import NYTGreySVG from "../images/NYTGrey.svg?react";
+import APSVG from "../images/AP.svg?react";
+import APGreySVG from "../images/APGrey.svg?react";
+import ReutersSVG from "../images/Reuters.svg?react";
+import ReutersGreySVG from "../images/ReutersGrey.svg?react";
+import TwitterSVG from "../images/Twitter.svg?react";
+import TwitterGreySVG from "../images/TwitterGrey.svg?react";
 
 export const SearchIcon = () => (
   <SearchIconSVG className="absolute left-[10px] top-1/2 -translate-y-1/2 w-10 h-10 z-10 pointer-events-none" />
