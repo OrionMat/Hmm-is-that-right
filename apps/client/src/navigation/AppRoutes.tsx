@@ -3,6 +3,9 @@ import { AppNavigation } from "./AppNavigation";
 import { PageNames } from "../pages/PageNames";
 import ErrorPage from "../pages/ErrorPage";
 import { FactCheck } from "../pages/FactCheck";
+import { AcademicsHub } from "../pages/Academics/AcademicsHub";
+import { Quiz } from "../pages/Academics/Quiz";
+import { Chess } from "../pages/Academics/chess/Chess";
 import { SignUp } from "../pages/SignUp/SignUp";
 import { Home } from "../pages/Home/Home";
 
@@ -18,6 +21,14 @@ export const AppRoutes = [
       { index: true, element: <Navigate to={PageNames.home} replace /> },
       { path: PageNames.home, element: <Home /> },
       { path: PageNames.factCheck, element: <FactCheck /> },
+      {
+        path: PageNames.academics,
+        element: <AcademicsHub />,
+        children: [
+          { path: PageNames.academicsQuiz, element: <Quiz /> },
+          { path: PageNames.academicsChess, element: <Chess /> },
+        ],
+      },
       { path: PageNames.messenger, element: <div>Messenger</div> },
       { path: PageNames.market, element: <div>Market</div> },
       { path: PageNames.account, element: <div>Account</div> },
