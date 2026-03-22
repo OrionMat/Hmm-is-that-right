@@ -1,5 +1,5 @@
-import { NewsPiece } from "../dataModel/dataModel";
-import { SelectNewsIcon } from "../icons/NewsIcons";
+import { NewsPiece } from "../../../dataModel/dataModel";
+import { SelectNewsIcon } from "../../../icons/NewsIcons";
 
 interface ResultsTableProps {
   newsPieces: NewsPiece[];

@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { AppNavigation } from "./AppNavigation";
 import { PageNames } from "../pages/PageNames";
 import ErrorPage from "../pages/ErrorPage";
-import { FactCheck } from "../pages/FactCheck";
+import { FactCheck } from "../pages/FactCheck/FactCheck";
 import { AcademicsHub } from "../pages/Academics/AcademicsHub";
 import { Quiz } from "../pages/Academics/Quiz";
 import { Chess } from "../pages/Academics/chess/Chess";

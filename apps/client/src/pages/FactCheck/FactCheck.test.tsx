@@ -1,9 +1,9 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { FactCheck } from "./FactCheck";
-import { getNewsPieces } from "../service/getNewsPieces";
+import { getNewsPieces } from "../../service/getNewsPieces";
 
-vi.mock("../service/getNewsPieces");
+vi.mock("../../service/getNewsPieces");
 
 describe("FactCheck", () => {
   it("shows a loading spinner while fetching and removes it when done", async () => {

@@ -7,7 +7,7 @@ import { PageContainer } from "../../components/PageContainer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { useQuiz } from "../../hooks/useQuiz";
 
-export const Quiz = () => {
+export const Academics = () => {
   const {
     status,
     questions,

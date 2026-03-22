@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { mockGetNewsPiecesData } from "./mocks/apiResponses/getNewsPeieces";
 
-test("test", async ({ page }) => {
+test("Fact checking", async ({ page }) => {
   // Mocks
   await page.route("**/getNewsPieces?*", async (route) => {
     await route.fulfill({

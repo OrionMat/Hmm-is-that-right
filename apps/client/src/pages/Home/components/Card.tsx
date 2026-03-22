@@ -1,4 +1,4 @@
-import { CardData, kindClasses, kindSymbols } from "../dataModel/dataModel";
+import { CardData, kindClasses, kindSymbols } from "../../../dataModel/dataModel";
 
 export const Card = ({ card }: { card: CardData }) => (
   <article className="card group lg:p-8">

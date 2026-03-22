@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { SearchBar } from "../components/SearchBar";
+import { SearchBar } from "./components/SearchBar";
 import {
   NewsPiece,
   permanentSourceUrls,
   PermanentNewsSources,
-} from "../dataModel/dataModel";
-import { Tile } from "../components/Tile";
-import { ResultsTable } from "../components/ResultsTable";
-import { PageContainer } from "../components/PageContainer";
+} from "../../dataModel/dataModel";
+import { Tile } from "./components/Tile";
+import { ResultsTable } from "./components/ResultsTable";
+import { PageContainer } from "../../components/PageContainer";
 
 export const FactCheck = () => {
   /** active/disabled states for news agencies */
