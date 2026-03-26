@@ -1,3 +1,8 @@
+// TODO: RelevantNewsPiece-based stance detection is not yet wired into any route.
+// This service currently only powers the /api/quiz endpoint via quiz.controller.ts.
+// The planned use-case is a future endpoint that scores how well each scraped article
+// supports or contradicts a user's statement. See shared/dataModel.ts for the
+// RelevantNewsPiece interface that will carry those results.
 import OpenAI from "openai";
 import { z } from "zod";
 import { getLogger } from "../logger";

@@ -6,6 +6,7 @@ import { FactCheck } from "../pages/FactCheck/FactCheck";
 import { Academics } from "../pages/Academics/Academics";
 import { SignUp } from "../pages/SignUp/SignUp";
 import { Home } from "../pages/Home/Home";
+import { PlaceholderPage } from "../components/PlaceholderPage";
 
 /** The UI app routes  */
 export const AppRoutes = [
@@ -20,9 +21,9 @@ export const AppRoutes = [
       { path: PageNames.home, element: <Home /> },
       { path: PageNames.factCheck, element: <FactCheck /> },
       { path: PageNames.academics, element: <Academics /> },
-      { path: PageNames.messenger, element: <div>Messenger</div> },
-      { path: PageNames.market, element: <div>Market</div> },
-      { path: PageNames.account, element: <div>Account</div> },
+      { path: PageNames.messenger, element: <PlaceholderPage name="Messenger" /> },
+      { path: PageNames.market, element: <PlaceholderPage name="Market" /> },
+      { path: PageNames.account, element: <PlaceholderPage name="Account" /> },
       { path: PageNames.signUp, element: <SignUp /> },
     ],
   },

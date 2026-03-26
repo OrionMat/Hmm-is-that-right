@@ -1,5 +1,9 @@
 import type { ComponentType } from "react";
 
+// Shared types (NewsPiece, RelevantNewsPiece) live in apps/shared/dataModel.ts
+// to avoid duplication with the server. Import them from there via this re-export.
+export type { NewsPiece, RelevantNewsPiece } from "../../../shared/dataModel";
+
 export type CardKind = "MCP" | "Skills" | "Commands" | "Context";
 
 export const kindClasses: Record<CardKind, string> = {
@@ -15,31 +19,6 @@ export const kindSymbols: Record<CardKind, string> = {
   Commands: ">_",
   Context: "()",
 } as const;
-
-/**
- * News piece
- * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020", body: ["list", "of", "paragraphs"], source: "bbc"}
- */
-export interface NewsPiece {
-  url: string;
-  title: string | null | undefined;
-  date: string | null | undefined;
-  body: Array<string | null | undefined>;
-  source: string;
-}
-
-/**
- * News piece containing relevant information
- * i.e {url: "www.bbc...", title: "Tea Pots", date: "01/01/2020", mostSimilarSentence: "I am a sentence", mostSimilarParagraph: "I am several. Sentences..."}
- */
-export interface RelevantNewsPiece {
-  url: string;
-  title: string | null | undefined;
-  date: string | null | undefined;
-  source: string;
-  mostSimilarSentence: string;
-  mostSimilarParagraph: string;
-}
 
 export interface NewsSource {
   source: string;

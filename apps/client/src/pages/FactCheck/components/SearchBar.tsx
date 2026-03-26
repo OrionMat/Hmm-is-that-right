@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { IsActiveNewsSources, NewsPiece } from "../../../dataModel/dataModel";
-import { getNewsPieces } from "../../../service/getNewsPieces";
+import { getNewsPieces } from "../../../services/getNewsPieces";
 import { SearchIcon } from "../../../icons/NewsIcons";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
 
