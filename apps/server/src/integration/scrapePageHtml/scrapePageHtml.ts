@@ -5,6 +5,14 @@ import { SourceUrls, SourcePages } from "../../dataModel/dataModel";
 const log = getLogger("integration/scrapePageHtml");
 
 const SCRAPE_TIMEOUT_MS = 10000; // 10 seconds
+const PAGE_CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+const PAGE_CACHE_MAX = 200;
+const pageCache = new Map<string, { html: string; expiry: number }>();
+
+/** Clears the page HTML cache. Exported for use in tests. */
+export function clearPageCache(): void {
+  pageCache.clear();
+}
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
@@ -29,21 +37,34 @@ export async function scrapePageHtml(
       let scraped = 0;
       let failed = 0;
 
-      // Concurrent http requests for URLs within this source
-      const promisedResults = urls.map((url) => 
-        axios.get(url, {
+      // Concurrent http requests for URLs within this source (with per-URL cache)
+      const promisedResults = urls.map(async (url) => {
+        const hit = pageCache.get(url);
+        if (hit && hit.expiry > Date.now()) {
+          log.debug({ url }, "scrapePageHtml: cache hit");
+          return { status: 200, data: hit.html };
+        }
+        return axios.get(url, {
           timeout: SCRAPE_TIMEOUT_MS,
           headers: { "User-Agent": USER_AGENT },
           // Don't throw on non-2xx to handle them gracefully in allSettled
-          validateStatus: () => true 
-        })
-      );
+          validateStatus: () => true,
+        });
+      });
 
       const rawResults = await Promise.allSettled(promisedResults);
 
       rawResults.forEach((result, index) => {
         if (result.status === "fulfilled" && result.value.status === 200) {
-          webpages.push(result.value.data);
+          const html: string = result.value.data;
+          const url = urls[index];
+          if (!pageCache.has(url)) {
+            if (pageCache.size >= PAGE_CACHE_MAX) {
+              pageCache.delete(pageCache.keys().next().value as string);
+            }
+            pageCache.set(url, { html, expiry: Date.now() + PAGE_CACHE_TTL });
+          }
+          webpages.push(html);
           scraped += 1;
         } else {
           failed += 1;

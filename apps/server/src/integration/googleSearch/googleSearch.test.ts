@@ -1,7 +1,7 @@
 /** tests google searches for statement */
 import axios from "axios";
-import { vi } from "vitest";
-import { googleSearch } from "./googleSearch";
+import { vi, beforeEach } from "vitest";
+import { googleSearch, clearSearchCache } from "./googleSearch";
 
 vi.mock("axios");
 vi.mock("../../logger.ts");
@@ -15,6 +15,9 @@ const statement = "Kenya win 7s";
 const sources = ["fancy source", "shmancy source", "pure shmorce", "horse"];
 
 describe("Get URLs to related articles via Google search", () => {
+  beforeEach(() => {
+    clearSearchCache();
+  });
   test("Ideal case: axios HTTP GET requests are made with the correct parameters and URLs are correctly returned", async () => {
     // setup
     const axiosResponses = [
@@ -147,5 +150,40 @@ describe("Get URLs to related articles via Google search", () => {
 
     // asserts
     expect(dataError).toEqual(new Error("Searching Google: [object Object]"));
+  });
+
+  test("Cache hit: second call with same statement+sources skips axios", async () => {
+    // setup
+    const axiosResponse = {
+      data: {
+        organic_results: [{ link: "www.fancy.com/article-1" }],
+      },
+    };
+    for (let i = 0; i < sources.length; i++) {
+      mockAxios.get.mockResolvedValueOnce(axiosResponse);
+    }
+
+    // first call populates cache
+    await googleSearch(statement, sources);
+    const callsAfterFirst = mockAxios.get.mock.calls.length;
+
+    // second call with same args should hit cache — no new axios calls
+    await googleSearch(statement, sources);
+    expect(mockAxios.get.mock.calls.length).toBe(callsAfterFirst);
+  });
+
+  test("Cache miss: different statement bypasses cache and calls axios", async () => {
+    const axiosResponse = {
+      data: { organic_results: [{ link: "www.fancy.com/article-1" }] },
+    };
+    for (let i = 0; i < sources.length * 2; i++) {
+      mockAxios.get.mockResolvedValueOnce(axiosResponse);
+    }
+
+    await googleSearch(statement, sources);
+    const callsAfterFirst = mockAxios.get.mock.calls.length;
+
+    await googleSearch("different statement", sources);
+    expect(mockAxios.get.mock.calls.length).toBeGreaterThan(callsAfterFirst);
   });
 });

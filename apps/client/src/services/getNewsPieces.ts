@@ -10,6 +10,12 @@ export async function getNewsPieces(
   );
   console.log(sources);
 
+  const cacheKey = `newsPieces:${statement.trim().toLowerCase()}:${[...sources].sort().join(",")}`;
+  const cachedValue = sessionStorage.getItem(cacheKey);
+  if (cachedValue) {
+    return JSON.parse(cachedValue) as NewsPiece[];
+  }
+
   let response: AxiosResponse | undefined;
   try {
     response = await axios.get("http://localhost:3001/getNewsPieces", {
@@ -17,6 +23,15 @@ export async function getNewsPieces(
       paramsSerializer: { indexes: null },
     });
     console.log(response?.data);
+    if (response?.data) {
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(response.data));
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "QuotaExceededError") {
+          console.warn("sessionStorage quota exceeded; skipping cache write");
+        }
+      }
+    }
   } catch (error) {
     console.log(error);
   }

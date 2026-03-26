@@ -1,6 +1,6 @@
 import axios from "axios";
-import { vi } from "vitest";
-import { scrapePageHtml } from "./scrapePageHtml";
+import { vi, beforeEach } from "vitest";
+import { scrapePageHtml, clearPageCache } from "./scrapePageHtml";
 
 vi.mock("../../logger.ts");
 vi.mock("axios");
@@ -82,6 +82,10 @@ const reutersWebpages = [
 ];
 
 describe("Scrape webpage HTML for each URL", () => {
+  beforeEach(() => {
+    clearPageCache();
+  });
+
   test("Ideal case: scrapes webpage HTML for all source links", async () => {
     // mocks
     mockAxios.get.mockResolvedValueOnce({ status: 200, data: bbcWebPages[0] });
@@ -114,5 +118,19 @@ describe("Scrape webpage HTML for each URL", () => {
     expect(sourcePages["bbc"].webpages).toEqual(bbcWebPages);
     expect(sourcePages["nyt"].webpages).toEqual([nytWebPages[0]]);
     expect(sourcePages?.["reuters"].webpages).toEqual([]);
+  });
+
+  test("Cache hit: second scrape of the same URLs skips axios", async () => {
+    // first call — populate cache
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: bbcWebPages[0] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: nytWebPages[0] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: nytWebPages[1] });
+    mockAxios.get.mockResolvedValueOnce({ status: 200, data: reutersWebpages[0] });
+    await scrapePageHtml(sourceUrls);
+    const callsAfterFirst = mockAxios.get.mock.calls.length;
+
+    // second call — all URLs should be served from cache
+    await scrapePageHtml(sourceUrls);
+    expect(mockAxios.get.mock.calls.length).toBe(callsAfterFirst);
   });
 });

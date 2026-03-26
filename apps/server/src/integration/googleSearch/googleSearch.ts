@@ -6,6 +6,14 @@ import { SourceUrls } from "../../dataModel/dataModel";
 
 const log = getLogger("integration/googleSearch");
 
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const searchCache = new Map<string, { data: SourceUrls; expiry: number }>();
+
+/** Clears the search cache. Exported for use in tests. */
+export function clearSearchCache(): void {
+  searchCache.clear();
+}
+
 /**
  * Searches Google for the query statement and returns the top result URLs. 125 credits with SERP google search library
  * @param statement Statement to be fact checked
@@ -19,6 +27,13 @@ export async function googleSearch(
   log.info(
     `Google searching news sources: ${sources}. With statement: ${statement}`
   );
+
+  const key = `${statement.trim().toLowerCase()}:${[...sources].sort().join(",")}`;
+  const cached = searchCache.get(key);
+  if (cached && cached.expiry > Date.now()) {
+    log.info({ key }, "googleSearch: cache hit");
+    return cached.data;
+  }
 
   // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + Kenya win 7s"]
   const queries = sources.map((source) => `${source} + ${statement}`);
@@ -62,6 +77,7 @@ export async function googleSearch(
     throw new Error(`Searching Google: ${error}`);
   }
 
+  searchCache.set(key, { data: sourceUrls, expiry: Date.now() + CACHE_TTL });
   log.info(`URLs found: ${JSON.stringify(sourceUrls)}`);
   return sourceUrls;
 }
