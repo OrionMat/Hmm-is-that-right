@@ -25,10 +25,10 @@ export const getQuizQuestions = async (
 ): Promise<QuizQuestion[]> => {
   try {
     const request = {
-      topic: options?.topic || "Media Literacy and Critical Thinking",
+      topic: options?.topic || "Mathematics",
       questionCount: options?.questionCount || 5,
       difficulty: options?.difficulty || "medium",
-      category: options?.category || "Media Literacy",
+      category: options?.category || "Mathematics",
     };
 
     const response = await axios.post(`${API_BASE_URL}/questions`, request);

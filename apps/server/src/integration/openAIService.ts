@@ -172,29 +172,17 @@ Example format:
       questions: [
         {
           id: "mock-1",
-          question: `Which of the following is a key component of critical thinking when analyzing ${topic}?`,
+          question: `In ${topic}, what is the value of x if 3x + 7 = 22?`,
           options: [
-            {
-              id: "m1-a",
-              text: "Accepting information at face value",
-              label: "A",
-            },
-            {
-              id: "m1-b",
-              text: "Identifying underlying assumptions",
-              label: "B",
-            },
-            { id: "m1-c", text: "Sharing without verifying", label: "C" },
-            {
-              id: "m1-d",
-              text: "Ignoring conflicting evidence",
-              label: "D",
-            },
+            { id: "m1-a", text: "3", label: "A" },
+            { id: "m1-b", text: "5", label: "B" },
+            { id: "m1-c", text: "7", label: "C" },
+            { id: "m1-d", text: "9", label: "D" },
           ],
           correctAnswer: "m1-b",
           explanation:
-            "Critical thinking involves digging deeper into why a claim is being made.",
-          category: category || "Media Literacy",
+            "Subtract 7 from both sides to get 3x = 15, then divide by 3 to get x = 5.",
+          category: category || "Mathematics",
           difficulty,
         },
       ],
