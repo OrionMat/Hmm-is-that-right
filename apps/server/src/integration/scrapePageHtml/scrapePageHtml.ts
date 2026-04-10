@@ -1,11 +1,11 @@
 import axios from "axios";
 import { getLogger } from "../../logger";
+import { serverConfig } from "../../config/serverConfig";
 import { SourceUrls, SourcePages } from "../../dataModel/dataModel";
 
 const log = getLogger("integration/scrapePageHtml");
 
 const SCRAPE_TIMEOUT_MS = 10000; // 10 seconds
-const PAGE_CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
 const PAGE_CACHE_MAX = 200;
 const pageCache = new Map<string, { html: string; expiry: number }>();
 
@@ -62,7 +62,7 @@ export async function scrapePageHtml(
             if (pageCache.size >= PAGE_CACHE_MAX) {
               pageCache.delete(pageCache.keys().next().value as string);
             }
-            pageCache.set(url, { html, expiry: Date.now() + PAGE_CACHE_TTL });
+            pageCache.set(url, { html, expiry: Date.now() + serverConfig.pageCacheTtlMs });
           }
           webpages.push(html);
           scraped += 1;

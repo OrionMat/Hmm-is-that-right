@@ -6,7 +6,6 @@ import { SourceUrls } from "../../dataModel/dataModel";
 
 const log = getLogger("integration/googleSearch");
 
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 const searchCache = new Map<string, { data: SourceUrls; expiry: number }>();
 
 /** Clears the search cache. Exported for use in tests. */
@@ -77,7 +76,7 @@ export async function googleSearch(
     throw new Error(`Searching Google: ${error}`);
   }
 
-  searchCache.set(key, { data: sourceUrls, expiry: Date.now() + CACHE_TTL });
+  searchCache.set(key, { data: sourceUrls, expiry: Date.now() + serverConfig.googleCacheTtlMs });
   log.info(`URLs found: ${JSON.stringify(sourceUrls)}`);
   return sourceUrls;
 }
