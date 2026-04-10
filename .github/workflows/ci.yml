@@ -18,24 +18,22 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: |
-            apps/client/package-lock.json
-            apps/server/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
-        run: |
-          cd apps/client && npm ci
-          cd ../server && npm ci
+        run: npm ci
 
       - name: Lint & Type-check
         run: |
           cd apps/client && npm run lint && npm run type-check
-          cd ../server && npm run typecheck
+          cd ../../
+          cd apps/server && npm run typecheck
 
       - name: Build Apps
         run: |
           cd apps/client && npm run build
-          cd ../server && npm run build
+          cd ../../
+          cd apps/server && npm run build
 
   unit-tests:
     needs: build-and-lint
@@ -52,10 +50,9 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: apps/${{ matrix.app }}
         run: npm ci
 
       - name: Run unit tests
@@ -82,10 +79,9 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: apps/client/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      - name: Install client dependencies
-        working-directory: apps/client
+      - name: Install dependencies
         run: npm ci
 
       - name: Get Playwright version
