@@ -8,8 +8,6 @@ export async function getNewsPieces(
   const sources = Object.keys(sourceStates).filter(
     (sourceName) => sourceStates[sourceName as keyof IsActiveNewsSources],
   );
-  console.log(sources);
-
   const cacheKey = `newsPieces:${statement.trim().toLowerCase()}:${[...sources].sort().join(",")}`;
   const cachedValue = sessionStorage.getItem(cacheKey);
   if (cachedValue) {
@@ -22,7 +20,6 @@ export async function getNewsPieces(
       params: { statement, sources },
       paramsSerializer: { indexes: null },
     });
-    console.log(response?.data);
     if (response?.data) {
       try {
         sessionStorage.setItem(cacheKey, JSON.stringify(response.data));
@@ -33,7 +30,7 @@ export async function getNewsPieces(
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   return (
     response?.data || {

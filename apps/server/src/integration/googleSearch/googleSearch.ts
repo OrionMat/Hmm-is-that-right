@@ -6,6 +6,7 @@ import { SourceUrls } from "../../dataModel/dataModel";
 
 const log = getLogger("integration/googleSearch");
 
+const SEARCH_CACHE_MAX = 500;
 const searchCache = new Map<string, { data: SourceUrls; expiry: number }>();
 
 /** Clears the search cache. Exported for use in tests. */
@@ -76,6 +77,10 @@ export async function googleSearch(
     throw new Error(`Searching Google: ${error}`);
   }
 
+  if (searchCache.size >= SEARCH_CACHE_MAX) {
+    // FIFO eviction: delete the oldest inserted entry
+    searchCache.delete(searchCache.keys().next().value as string);
+  }
   searchCache.set(key, { data: sourceUrls, expiry: Date.now() + serverConfig.googleCacheTtlMs });
   log.info(`URLs found: ${JSON.stringify(sourceUrls)}`);
   return sourceUrls;

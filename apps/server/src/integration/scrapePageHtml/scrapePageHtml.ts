@@ -60,6 +60,7 @@ export async function scrapePageHtml(
           const url = urls[index];
           if (!pageCache.has(url)) {
             if (pageCache.size >= PAGE_CACHE_MAX) {
+              // FIFO eviction: delete the oldest inserted entry
               pageCache.delete(pageCache.keys().next().value as string);
             }
             pageCache.set(url, { html, expiry: Date.now() + serverConfig.pageCacheTtlMs });

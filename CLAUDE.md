@@ -135,10 +135,10 @@ apps/server/src/
 ```typescript
 interface NewsPiece {
   url: string;
-  title: string | null;
-  date: string | null;
-  body: (string | null)[];
-  source: "bbc" | "nyt" | "ap" | "reuters" | "twitter";
+  title: string | null | undefined;
+  date: string | null | undefined;
+  body: Array<string | null | undefined>;
+  source: string;
 }
 ```
 

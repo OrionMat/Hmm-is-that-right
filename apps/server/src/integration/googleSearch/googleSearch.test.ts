@@ -6,7 +6,7 @@ import { googleSearch, clearSearchCache } from "./googleSearch";
 vi.mock("axios");
 vi.mock("../../logger.ts");
 vi.mock("../../config/serverConfig", () => ({
-  serverConfig: { serpSearchApiKey: "NOT_TELLING" },
+  serverConfig: { serpSearchApiKey: "NOT_TELLING", googleCacheTtlMs: 60 * 60 * 1000 },
 }));
 
 const mockAxios = vi.mocked(axios, true);
