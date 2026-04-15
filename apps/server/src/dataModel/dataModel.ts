@@ -38,3 +38,25 @@ export interface RelevantNewsPiece {
   mostSimilarSentence: string;
   mostSimilarParagraph: string;
 }
+
+/**
+ * A single article parsed from an RSS feed
+ */
+export interface RssArticle {
+  url: string;
+  title: string;
+  date: string | null | undefined;
+  description: string | null | undefined;
+}
+
+/**
+ * A news article with an LLM-generated bullet point summary
+ * i.e {source: "bbc", url: "www.bbc...", title: "Tea Pots", date: "01/01/2020", summary: ["Key point 1", "Key point 2"]}
+ */
+export interface HeadlineSummary {
+  source: string;
+  url: string;
+  title: string;
+  date: string | null | undefined;
+  summary: string[];
+}
