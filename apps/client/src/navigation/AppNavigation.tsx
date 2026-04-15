@@ -40,6 +40,14 @@ export const AppNavigation = () => {
             </li>
             <li>
               <Link
+                to={`/${PageNames.newsBytes}`}
+                className="text-blue-600 hover:underline"
+              >
+                News Bytes
+              </Link>
+            </li>
+            <li>
+              <Link
                 to={`/${PageNames.academics}`}
                 className="text-blue-600 hover:underline"
               >

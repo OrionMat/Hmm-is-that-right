@@ -63,6 +63,25 @@ export const permanentSources: Readonly<PermanentNewsSources> = {
   twitter: "twitter",
 };
 
+/**
+ * A news article with an LLM-generated bullet point summary
+ */
+export interface HeadlineSummary {
+  source: string;
+  url: string;
+  title: string;
+  date: string | null | undefined;
+  summary: string[];
+}
+
+export const LLM_MODELS = [
+  { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite (Free)" },
+  { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { id: "gpt-4o-mini", label: "OpenAI GPT-4o-mini" },
+] as const;
+
+export type LlmModelId = (typeof LLM_MODELS)[number]["id"];
+
 export const permanentSourceUrls: Readonly<PermanentNewsSources> = {
   bbc: "https://www.bbc.co.uk",
   nyt: "https://www.nyt.com",
