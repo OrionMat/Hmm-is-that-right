@@ -70,6 +70,8 @@ This is a full-stack TypeScript application with separate client and server dire
 The server requires a `.env` file in the `server/` directory:
 ```
 SERP_SEARCH_API_KEY=<your-serpapi-key>
+GEMINI_API_KEY=<your-gemini-api-key>      # Required for News Bytes (free tier available)
+OPENAI_API_KEY=<your-openai-api-key>      # Optional — only needed if using GPT-4o-mini
 ```
 
 **Note**: The project was migrated from ScaleSerp to SerpAPI. The README mentions ScaleSerp but the code uses `google-search-results-nodejs` (SerpAPI).

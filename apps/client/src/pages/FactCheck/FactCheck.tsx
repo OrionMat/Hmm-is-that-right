@@ -17,6 +17,7 @@ export const FactCheck = () => {
     ap: true,
     reuters: true,
     twitter: true,
+    deeplearning: false,
   });
 
   /** state populated by retrieved news pieces */

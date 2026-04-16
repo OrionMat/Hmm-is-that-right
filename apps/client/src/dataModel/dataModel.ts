@@ -53,6 +53,7 @@ export interface PermanentNewsSources {
   ap: string;
   reuters: string;
   twitter: string;
+  deeplearning: string;
 }
 
 export const permanentSources: Readonly<PermanentNewsSources> = {
@@ -61,7 +62,27 @@ export const permanentSources: Readonly<PermanentNewsSources> = {
   ap: "ap",
   reuters: "reuters",
   twitter: "twitter",
+  deeplearning: "deeplearning",
 };
+
+/**
+ * A news article with an LLM-generated bullet point summary
+ */
+export interface HeadlineSummary {
+  source: string;
+  url: string;
+  title: string;
+  date: string | null | undefined;
+  summary: string[];
+}
+
+export const LLM_MODELS = [
+  { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite (Free)" },
+  { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { id: "gpt-4o-mini", label: "OpenAI GPT-4o-mini" },
+] as const;
+
+export type LlmModelId = (typeof LLM_MODELS)[number]["id"];
 
 export const permanentSourceUrls: Readonly<PermanentNewsSources> = {
   bbc: "https://www.bbc.co.uk",
@@ -69,6 +90,7 @@ export const permanentSourceUrls: Readonly<PermanentNewsSources> = {
   ap: "https://www.ap.com",
   reuters: "https://www.reuters.sa",
   twitter: "https://www.twitter.com",
+  deeplearning: "https://www.deeplearning.ai/the-batch/",
 };
 
 export interface IsActiveNewsSources {
@@ -77,6 +99,7 @@ export interface IsActiveNewsSources {
   ap: boolean;
   reuters: boolean;
   twitter: boolean;
+  deeplearning: boolean;
 }
 
 export interface CardData {
