@@ -3,10 +3,8 @@
  * These return structured XML with the current top headlines.
  */
 export const RSS_FEEDS: Record<string, string> = {
-  bbc: "https://feeds.bbci.co.uk/news/rss.xml",
-  nyt: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-  ap: "https://feeds.apnews.com/rss/topnews",
-  reuters: "https://feeds.reuters.com/reuters/topNews",
+  bbc: "https://feeds.bbci.co.uk/news/world/rss.xml",
+  nyt: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
 };
 
 /** Number of articles to take from each RSS feed */

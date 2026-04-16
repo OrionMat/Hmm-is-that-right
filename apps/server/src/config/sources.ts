@@ -1,3 +1,13 @@
+export interface HomepageConfig {
+  url: string;
+  /** How to extract article URLs from the homepage HTML */
+  strategy: "json-ld" | "css";
+  /** CSS selector for anchor elements (only used when strategy is "css") */
+  selector?: string;
+  /** Only keep URLs containing this substring (e.g. "/article/" to exclude live blogs) */
+  articleUrlPattern?: string;
+}
+
 export interface SourceConfig {
   domainAllowlist: string[];
   excludePatterns: string[];
@@ -6,6 +16,8 @@ export interface SourceConfig {
     date: string[];
     content: string[];
   };
+  /** If set, headline URLs are scraped from the homepage instead of an RSS feed */
+  homepage?: HomepageConfig;
 }
 
 export const sourceConfigs: Record<string, SourceConfig> = {
@@ -28,6 +40,11 @@ export const sourceConfigs: Record<string, SourceConfig> = {
     },
   },
   ap: {
+    homepage: {
+      url: "https://apnews.com/",
+      strategy: "json-ld",
+      articleUrlPattern: "/article/",
+    },
     domainAllowlist: ["https://apnews."],
     excludePatterns: ["/hub/", "/topic/"],
     selectors: {

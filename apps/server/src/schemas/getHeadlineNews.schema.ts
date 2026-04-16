@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const VALID_SOURCES = ["bbc", "nyt", "ap", "reuters"] as const;
+const VALID_SOURCES = ["bbc", "nyt", "ap"] as const;
 const VALID_MODELS = ["gemini-2.0-flash-lite", "gemini-2.5-flash", "gpt-4o-mini"] as const;
 
 export const getHeadlineNewsQuerySchema = z.object({

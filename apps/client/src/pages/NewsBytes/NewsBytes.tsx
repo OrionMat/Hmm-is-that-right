@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   HeadlineSummary,
+  IsActiveNewsSources,
   LlmModelId,
   permanentSourceUrls,
   PermanentNewsSources,
@@ -12,12 +13,7 @@ import { SummaryCards } from "./components/SummaryCards";
 import { PageContainer } from "../../components/PageContainer";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 
-type NewsBytesSources = {
-  bbc: boolean;
-  nyt: boolean;
-  ap: boolean;
-  reuters: boolean;
-};
+type NewsBytesSources = Omit<IsActiveNewsSources, "twitter">;
 
 const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "reuters"> = {
   bbc: permanentSourceUrls.bbc,
@@ -27,11 +23,14 @@ const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "re
 };
 
 export const NewsBytes = () => {
+  // Reuters has no public RSS feed and blocks all scraping (401)
+  const DISABLED_SOURCES: (keyof NewsBytesSources)[] = ["reuters"];
+
   const [sourceStates, setSourceStates] = useState<NewsBytesSources>({
     bbc: true,
     nyt: true,
     ap: true,
-    reuters: true,
+    reuters: false,
   });
   const [selectedModel, setSelectedModel] = useState<LlmModelId>("gemini-2.0-flash-lite");
   const [summaries, setSummaries] = useState<HeadlineSummary[]>([]);
@@ -70,6 +69,7 @@ export const NewsBytes = () => {
               source={source}
               isActive={isActive}
               url={url}
+              disabled={DISABLED_SOURCES.includes(source as keyof NewsBytesSources)}
               handleClick={(newIsActive) =>
                 toggleSource(source as keyof NewsBytesSources, newIsActive)
               }
