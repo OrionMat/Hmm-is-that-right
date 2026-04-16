@@ -113,28 +113,25 @@ async function scrapeUrlsForSource(
 export async function scrapeHomepageUrls(
   sources: string[]
 ): Promise<Record<string, string[]>> {
-  const sourcesWithHomepage = sources.filter((source) => {
-    const config = getSourceConfig(source);
-    return !!config.homepage;
-  });
+  const sourcesWithHomepage = sources
+    .map((source) => ({ source, homepage: getSourceConfig(source).homepage }))
+    .filter((s): s is { source: string; homepage: HomepageConfig } => !!s.homepage);
 
   if (sourcesWithHomepage.length === 0) return {};
 
-  log.info(`Scraping homepage URLs for sources: ${sourcesWithHomepage.join(", ")}`);
+  log.info(`Scraping homepage URLs for sources: ${sourcesWithHomepage.map((s) => s.source).join(", ")}`);
 
   const results = await Promise.allSettled(
-    sourcesWithHomepage.map(async (source) => {
-      const { homepage } = getSourceConfig(source);
-      const urls = await scrapeUrlsForSource(source, homepage!);
-      return { source, urls };
-    })
+    sourcesWithHomepage.map(({ source, homepage }) =>
+      scrapeUrlsForSource(source, homepage).then((urls) => ({ source, urls }))
+    )
   );
 
   const urlsBySource: Record<string, string[]> = {};
   let total = 0;
 
   results.forEach((result, index) => {
-    const source = sourcesWithHomepage[index];
+    const source = sourcesWithHomepage[index].source;
     if (result.status === "fulfilled") {
       urlsBySource[source] = result.value.urls;
       total += result.value.urls.length;

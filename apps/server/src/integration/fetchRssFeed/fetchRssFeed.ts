@@ -12,6 +12,14 @@ const USER_AGENT =
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
+interface RawRssItem {
+  link?: string;
+  guid?: string | { "#text"?: string };
+  title?: string;
+  pubDate?: string;
+  description?: string;
+}
+
 /**
  * Fetches and parses the RSS feed for a single source.
  * @param source The source key (e.g. "bbc")
@@ -31,12 +39,12 @@ async function fetchFeedForSource(
   });
 
   const parsed = xmlParser.parse(response.data);
-  const items: any[] = parsed?.rss?.channel?.item ?? [];
+  const items: RawRssItem[] = parsed?.rss?.channel?.item ?? [];
 
   const articles: RssArticle[] = items
     .slice(0, RSS_ARTICLES_PER_SOURCE)
     .map((item) => ({
-      url: item.link ?? item.guid ?? "",
+      url: item.link ?? (typeof item.guid === "string" ? item.guid : item.guid?.["#text"]) ?? "",
       title: item.title ?? "",
       date: item.pubDate ?? null,
       description: item.description ?? null,

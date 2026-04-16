@@ -15,6 +15,9 @@ import { LoadingSpinner } from "../../components/LoadingSpinner";
 
 type NewsBytesSources = Omit<IsActiveNewsSources, "twitter">;
 
+// Reuters has no public RSS feed and blocks all scraping (401)
+const DISABLED_SOURCES: (keyof NewsBytesSources)[] = ["reuters"];
+
 const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "reuters" | "deeplearning"> = {
   bbc: permanentSourceUrls.bbc,
   nyt: permanentSourceUrls.nyt,
@@ -24,9 +27,6 @@ const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "re
 };
 
 export const NewsBytes = () => {
-  // Reuters has no public RSS feed and blocks all scraping (401)
-  const DISABLED_SOURCES: (keyof NewsBytesSources)[] = ["reuters"];
-
   const [sourceStates, setSourceStates] = useState<NewsBytesSources>({
     bbc: true,
     nyt: true,
@@ -37,6 +37,7 @@ export const NewsBytes = () => {
   const [selectedModel, setSelectedModel] = useState<LlmModelId>("gemini-2.0-flash-lite");
   const [summaries, setSummaries] = useState<HeadlineSummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const sources = Object.entries(newsBytesSourceUrls).map(([source, url]) => ({
     source,
@@ -56,9 +57,16 @@ export const NewsBytes = () => {
     if (activeSources.length === 0) return;
 
     setIsLoading(true);
-    const results = await getHeadlineNews(activeSources, selectedModel);
-    setSummaries(results);
-    setIsLoading(false);
+    setError(null);
+    try {
+      const results = await getHeadlineNews(activeSources, selectedModel);
+      setSummaries(results);
+    } catch {
+      setError("Failed to fetch news. Please try again.");
+      setSummaries([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -89,6 +97,7 @@ export const NewsBytes = () => {
             Go
           </button>
         </div>
+        {error && <p className="font-mono text-sm text-red-500">{error}</p>}
       </div>
       {!isLoading && summaries.length > 0 && <SummaryCards summaries={summaries} />}
     </PageContainer>
