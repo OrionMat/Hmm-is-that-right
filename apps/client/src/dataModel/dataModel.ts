@@ -53,6 +53,7 @@ export interface PermanentNewsSources {
   ap: string;
   reuters: string;
   twitter: string;
+  deeplearning: string;
 }
 
 export const permanentSources: Readonly<PermanentNewsSources> = {
@@ -61,6 +62,7 @@ export const permanentSources: Readonly<PermanentNewsSources> = {
   ap: "ap",
   reuters: "reuters",
   twitter: "twitter",
+  deeplearning: "deeplearning",
 };
 
 /**
@@ -88,6 +90,7 @@ export const permanentSourceUrls: Readonly<PermanentNewsSources> = {
   ap: "https://www.ap.com",
   reuters: "https://www.reuters.sa",
   twitter: "https://www.twitter.com",
+  deeplearning: "https://www.deeplearning.ai/the-batch/",
 };
 
 export interface IsActiveNewsSources {
@@ -96,6 +99,7 @@ export interface IsActiveNewsSources {
   ap: boolean;
   reuters: boolean;
   twitter: boolean;
+  deeplearning: boolean;
 }
 
 export interface CardData {

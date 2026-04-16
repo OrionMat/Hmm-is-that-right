@@ -83,7 +83,7 @@ async function scrapeUrlsForSource(
     responseType: "text",
   });
 
-  const dom = new JSDOM(response.data).window.document;
+  const dom = new JSDOM(response.data, { url: homepageConfig.url }).window.document;
 
   let urls: string[];
   if (homepageConfig.strategy === "json-ld") {

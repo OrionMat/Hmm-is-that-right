@@ -68,6 +68,21 @@ export const sourceConfigs: Record<string, SourceConfig> = {
       ],
     },
   },
+  deeplearning: {
+    homepage: {
+      url: "https://www.deeplearning.ai/the-batch/",
+      strategy: "css",
+      selector: "a[href*='/the-batch/issue-']",
+      articleUrlPattern: "/the-batch/issue-",
+    },
+    domainAllowlist: ["https://www.deeplearning.ai/"],
+    excludePatterns: [],
+    selectors: {
+      title: ["h1"],
+      date: ["time"],
+      content: ["article p", "p"],
+    },
+  },
   reuters: {
     domainAllowlist: ["https://www.reuters."],
     excludePatterns: [],

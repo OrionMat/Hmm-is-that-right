@@ -28,6 +28,27 @@ export const TwitterGreyIcon = () => (
   <TwitterGreySVG className="h-[45px] w-[45px]" />
 );
 
+const TextIcon = ({ text, isActive }: { text: string; isActive: boolean }) => (
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: 45,
+      height: 45,
+      fontSize: 10,
+      fontWeight: 700,
+      fontFamily: "monospace",
+      color: isActive ? "var(--color-dark-grey)" : "var(--color-light-grey)",
+      border: `1.5px solid ${isActive ? "var(--color-dark-grey)" : "var(--color-light-grey)"}`,
+      borderRadius: 4,
+      letterSpacing: "0.05em",
+    }}
+  >
+    {text}
+  </span>
+);
+
 export const SelectNewsIcon = ({
   source,
   isActive,
@@ -48,8 +69,7 @@ export const SelectNewsIcon = ({
       case "TWITTER":
         return <TwitterIcon />;
       default:
-        console.log("Source is not recognised as a case");
-        return null;
+        return <TextIcon text={source.toUpperCase().slice(0, 5)} isActive={true} />;
     }
   } else {
     switch (source.toUpperCase()) {
@@ -64,8 +84,7 @@ export const SelectNewsIcon = ({
       case "TWITTER":
         return <TwitterGreyIcon />;
       default:
-        console.log("Agency is not recognised as a case");
-        return null;
+        return <TextIcon text={source.toUpperCase().slice(0, 5)} isActive={false} />;
     }
   }
 };

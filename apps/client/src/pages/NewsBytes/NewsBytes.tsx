@@ -15,11 +15,12 @@ import { LoadingSpinner } from "../../components/LoadingSpinner";
 
 type NewsBytesSources = Omit<IsActiveNewsSources, "twitter">;
 
-const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "reuters"> = {
+const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "reuters" | "deeplearning"> = {
   bbc: permanentSourceUrls.bbc,
   nyt: permanentSourceUrls.nyt,
   ap: permanentSourceUrls.ap,
   reuters: permanentSourceUrls.reuters,
+  deeplearning: permanentSourceUrls.deeplearning,
 };
 
 export const NewsBytes = () => {
@@ -31,6 +32,7 @@ export const NewsBytes = () => {
     nyt: true,
     ap: true,
     reuters: false,
+    deeplearning: true,
   });
   const [selectedModel, setSelectedModel] = useState<LlmModelId>("gemini-2.0-flash-lite");
   const [summaries, setSummaries] = useState<HeadlineSummary[]>([]);
