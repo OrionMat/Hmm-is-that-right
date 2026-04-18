@@ -28,6 +28,7 @@ describe("getNewsPieces", () => {
       reuters: false,
       twitter: false,
       deeplearning: false,
+      googlenewstech: false,
     };
 
     const result = await getNewsPieces("Test statement", sourceStates);
@@ -52,6 +53,7 @@ describe("getNewsPieces", () => {
       reuters: false,
       twitter: false,
       deeplearning: false,
+      googlenewstech: false,
     });
 
     // The implementation returns an object with status:500 when there is an error
@@ -69,6 +71,7 @@ describe("getNewsPieces", () => {
       reuters: false,
       twitter: false,
       deeplearning: false,
+      googlenewstech: false,
     });
 
     expect(mockedAxios.get).toHaveBeenCalled();

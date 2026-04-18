@@ -18,6 +18,7 @@ export const FactCheck = () => {
     reuters: true,
     twitter: true,
     deeplearning: false,
+    googlenewstech: false,
   });
 
   /** state populated by retrieved news pieces */
