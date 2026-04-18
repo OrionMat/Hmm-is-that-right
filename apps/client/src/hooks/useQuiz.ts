@@ -124,7 +124,7 @@ export const useQuiz = (topic?: string) => {
       dispatch({ type: "SELECT_ANSWER", questionId: currentQuestion.id, optionId });
       setTimeout(() => dispatch({ type: "ADVANCE" }), 800);
     },
-    [currentQuestion?.id],
+    [currentQuestion],
   );
 
   useEffect(() => {

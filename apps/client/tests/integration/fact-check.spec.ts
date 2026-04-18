@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { mockGetNewsPiecesData } from "./mocks/apiResponses/getNewsPeieces";
+import { mockGetNewsPiecesData } from "./mocks/apiResponses/getNewsPieces";
 
 test("Fact checking", async ({ page }) => {
   // Mocks
