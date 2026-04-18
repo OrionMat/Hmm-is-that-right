@@ -18,12 +18,13 @@ type NewsBytesSources = Omit<IsActiveNewsSources, "twitter">;
 // Reuters has no public RSS feed and blocks all scraping (401)
 const DISABLED_SOURCES: (keyof NewsBytesSources)[] = ["reuters"];
 
-const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "reuters" | "deeplearning"> = {
+const newsBytesSourceUrls: Pick<PermanentNewsSources, "bbc" | "nyt" | "ap" | "reuters" | "deeplearning" | "googlenewstech"> = {
   bbc: permanentSourceUrls.bbc,
   nyt: permanentSourceUrls.nyt,
   ap: permanentSourceUrls.ap,
   reuters: permanentSourceUrls.reuters,
   deeplearning: permanentSourceUrls.deeplearning,
+  googlenewstech: permanentSourceUrls.googlenewstech,
 };
 
 export const NewsBytes = () => {
@@ -33,6 +34,7 @@ export const NewsBytes = () => {
     ap: true,
     reuters: false,
     deeplearning: true,
+    googlenewstech: true,
   });
   const [selectedModel, setSelectedModel] = useState<LlmModelId>("gemini-2.0-flash-lite");
   const [summaries, setSummaries] = useState<HeadlineSummary[]>([]);

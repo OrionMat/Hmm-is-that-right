@@ -83,6 +83,15 @@ export const sourceConfigs: Record<string, SourceConfig> = {
       content: ["article p", "p"],
     },
   },
+  googlenewstech: {
+    domainAllowlist: ["https://news.google."],
+    excludePatterns: [],
+    selectors: {
+      title: ["h1"],
+      date: ["time"],
+      content: ["article p", "p"],
+    },
+  },
   reuters: {
     domainAllowlist: ["https://www.reuters."],
     excludePatterns: [],
