@@ -30,7 +30,7 @@ describe("Filtering for HTTP URLs", () => {
     });
   });
 
-  test("Ideal calse: for a known source only URLs to their webpages remain", () => {
+  test("Ideal case: for a known source only URLs to their webpages remain", () => {
     // setup
     const rawSourceUrls = {
       bbc: [
@@ -70,7 +70,7 @@ describe("Filtering for HTTP URLs", () => {
     });
   });
 
-  test("Non-ideal calse: No sources are provided", () => {
+  test("Non-ideal case: No sources are provided", () => {
     // setup
     const rawSourceUrls = { "fancy source": [] };
 

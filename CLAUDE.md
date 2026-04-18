@@ -2,6 +2,25 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Quick Start
+
+```bash
+# Install dependencies
+cd apps/server && npm install
+cd ../client && npm install
+
+# Copy env template and fill in keys (see Environment Setup below)
+cp apps/server/.env.example apps/server/.env
+
+# Run dev servers (two terminals)
+cd apps/server && npm run dev   # → http://localhost:3001
+cd apps/client && npm run dev   # → http://localhost:3000
+
+# Verify everything is working
+cd apps/server && npm test
+cd apps/client && npm run test:unit
+```
+
 ## Project Overview
 
 "Hmm is that right?" is a fact-checking web application that automates cross-checking news statements across multiple sources. Users enter a statement, select news sources, and the app scrapes and displays related articles for comparison. It also offers LLM-generated headline summaries (NewsBytes) and a media literacy quiz (Academics).
@@ -120,6 +139,9 @@ npm run build      # tsup → dist/
 npm run start      # node dist/index.js
 npm run test       # Vitest (run once)
 npm run typecheck  # tsc --noEmit
+
+# Run a single test file (faster feedback)
+npx vitest run src/service/cleanUrls/cleanUrls.test.ts
 ```
 
 ### Client
@@ -135,6 +157,10 @@ npm run test:integration # Playwright integration tests
 npm run test:e2e         # Playwright E2E tests
 npm run lint             # ESLint (0 warnings allowed)
 npm run type-check       # tsc --noEmit
+
+# Run a single test file (faster feedback)
+npx vitest run src/pages/FactCheck/FactCheck.test.tsx
+npx playwright test tests/integration/fact-check.spec.ts
 ```
 
 ## Environment Setup
@@ -227,6 +253,18 @@ Three sequential stages, triggered on push to `main`/`master` and on PRs:
 - **SerpAPI**: Codebase uses `serpapi` package. README mentions ScaleSerp — this is outdated; ignore it
 - **Express 5**: Server uses Express 5 (`^5.2.1`), which changes some error-handling behavior vs Express 4
 - **Tailwind CSS 4**: Client uses Tailwind 4 (not 3) — config syntax differs from older docs
+
+## Gold Standard Files
+
+When adding new features, use these files as canonical examples of each pattern:
+
+| Pattern | Reference file(s) |
+|---------|-------------------|
+| Service + unit tests | `apps/server/src/service/cleanUrls/cleanUrls.ts` + `cleanUrls.test.ts` — pure function, metrics logging, full coverage across ideal and non-ideal cases |
+| Route → controller → schema triple | `apps/server/src/routes/getNewsPieces.route.ts`, `src/controllers/getNewsPieces.controller.ts`, `src/schemas/getNewsPieces.schema.ts` |
+| Reusable Express middleware | `apps/server/src/middleware/validateRequest.ts` — generic Zod validation, attaches to `request.validated` |
+| Playwright integration test | `apps/client/tests/integration/fact-check.spec.ts` — route interception mock, user actions, assertions |
+| React page with async data | `apps/client/src/pages/FactCheck/FactCheck.tsx` + `FactCheck.test.tsx` |
 
 ## Future Plans (from README TODO)
 - Stance detection and summarization via ChatGPT API
