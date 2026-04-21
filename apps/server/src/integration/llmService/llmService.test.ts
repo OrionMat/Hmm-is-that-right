@@ -83,7 +83,8 @@ describe("LlmService", () => {
     const result = await llmService.complete("hello", "gpt-4o-mini");
 
     expect(mockChatCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ model: "gpt-4o-mini" })
+      expect.objectContaining({ model: "gpt-4o-mini" }),
+      { signal: undefined },
     );
     expect(result).toBe("openai output");
   });
@@ -119,7 +120,8 @@ describe("LlmService", () => {
     const result = await llmService.complete("hello", "claude-sonnet-4-6");
 
     expect(mockAnthropicCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ model: "claude-sonnet-4-6" })
+      expect.objectContaining({ model: "claude-sonnet-4-6" }),
+      { signal: undefined },
     );
     expect(result).toBe("claude output");
   });

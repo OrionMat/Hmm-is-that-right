@@ -30,8 +30,13 @@ export async function buildSection(
   spec: SectionSpec,
   personalCtx: string,
   requestId: string,
+  signal?: AbortSignal,
 ): Promise<SectionPayload> {
+  if (signal?.aborted) throw new Error("Request aborted");
+
   const candidates = await spec.fetchCandidates();
+
+  if (signal?.aborted) throw new Error("Request aborted");
 
   if (candidates.length === 0) {
     log.warn({ section: spec.section, requestId }, "No candidates found for section");
@@ -41,7 +46,7 @@ export async function buildSection(
   log.info({ section: spec.section, candidates: candidates.length, requestId }, "Candidates fetched");
 
   // Stage 1: let Claude pick the best N
-  const pickedIds = await selectCandidates(candidates, spec.n, spec.section, spec.mode, personalCtx);
+  const pickedIds = await selectCandidates(candidates, spec.n, spec.section, spec.mode, personalCtx, signal);
   let picked = pickedIds
     .map((id) => candidates.find((c) => c.id === id))
     .filter((c): c is SectionCandidate => c !== undefined);
@@ -54,9 +59,11 @@ export async function buildSection(
 
   log.info({ section: spec.section, picked: picked.length, requestId }, "Candidates selected");
 
+  if (signal?.aborted) throw new Error("Request aborted");
+
   // Stage 2: scrape + summarise each pick
   const contentByUrl = await scrapePickedContent(picked);
-  const items = await summarisePicked(picked, contentByUrl, spec.mode, personalCtx, requestId);
+  const items = await summarisePicked(picked, contentByUrl, spec.mode, personalCtx, requestId, signal);
 
   return { section: spec.section, mode: spec.mode, items, generatedAt: new Date().toISOString() };
 }
@@ -71,13 +78,15 @@ async function selectCandidates(
   section: MorningBriefSection,
   mode: LongformMode | undefined,
   personalCtx: string,
+  signal?: AbortSignal,
 ): Promise<string[]> {
   const prompt = buildSelectionPrompt(candidates, n, section, mode, personalCtx);
 
   let raw: string;
   try {
-    raw = await llmService.complete(prompt, "claude-sonnet-4-6");
+    raw = await llmService.complete(prompt, "claude-sonnet-4-6", signal);
   } catch (err) {
+    if (signal?.aborted) throw err;
     log.warn({ section, err }, "Stage-1 LLM call failed, using score fallback");
     return [];
   }
@@ -85,15 +94,19 @@ async function selectCandidates(
   const parsed = tryParsePicksJson(raw);
   if (parsed) return parsed;
 
+  if (signal?.aborted) throw new Error("Request aborted");
+
   // One retry with an explicit JSON-only reminder
   try {
     const retryRaw = await llmService.complete(
       prompt + "\n\nReturn ONLY the JSON object. No other text.",
       "claude-sonnet-4-6",
+      signal,
     );
     const retryParsed = tryParsePicksJson(retryRaw);
     if (retryParsed) return retryParsed;
-  } catch {
+  } catch (err) {
+    if (signal?.aborted) throw err;
     // ignore retry failure
   }
 
@@ -152,6 +165,7 @@ async function summarisePicked(
   mode: LongformMode | undefined,
   personalCtx: string,
   requestId: string,
+  signal?: AbortSignal,
 ): Promise<BriefItem[]> {
   return Promise.all(
     picked.map(async (candidate) => {
@@ -166,8 +180,9 @@ async function summarisePicked(
       );
       let summary = "";
       try {
-        summary = await llmService.complete(prompt, "claude-sonnet-4-6");
+        summary = await llmService.complete(prompt, "claude-sonnet-4-6", signal);
       } catch (err) {
+        if (signal?.aborted) throw err;
         log.warn({ title: candidate.title, requestId, err }, "Stage-2 LLM call failed");
       }
       return { title: candidate.title, url: candidate.url, source: candidate.source, summary };

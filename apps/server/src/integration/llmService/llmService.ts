@@ -57,17 +57,17 @@ class LlmService {
   /**
    * Sends a prompt to the specified model and returns the complete text response.
    */
-  async complete(prompt: string, model: SupportedModel): Promise<string> {
+  async complete(prompt: string, model: SupportedModel, signal?: AbortSignal): Promise<string> {
     log.debug({ model }, "Sending prompt to LLM");
 
     if ((GEMINI_MODELS as readonly string[]).includes(model)) {
-      return this.callGemini(prompt, model);
+      return this.callGemini(prompt, model, signal);
     }
     if (model === "gpt-4o-mini") {
-      return this.callOpenAi(prompt);
+      return this.callOpenAi(prompt, signal);
     }
     if ((CLAUDE_MODELS as readonly string[]).includes(model)) {
-      return this.callClaude(prompt, model);
+      return this.callClaude(prompt, model, signal);
     }
     throw new Error(`Unsupported model: ${model}`);
   }
@@ -86,7 +86,8 @@ class LlmService {
     yield text;
   }
 
-  private async callGemini(prompt: string, model: string): Promise<string> {
+  private async callGemini(prompt: string, model: string, signal?: AbortSignal): Promise<string> {
+    if (signal?.aborted) throw new Error("Request aborted");
     const client = this.getGeminiClient();
     const geminiModel = client.getGenerativeModel({ model });
     const result = await geminiModel.generateContent(prompt);
@@ -95,25 +96,31 @@ class LlmService {
     return text;
   }
 
-  private async callOpenAi(prompt: string): Promise<string> {
+  private async callOpenAi(prompt: string, signal?: AbortSignal): Promise<string> {
     const client = this.getOpenAiClient();
-    const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-    });
+    const response = await client.chat.completions.create(
+      {
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+      },
+      { signal },
+    );
     const text = response.choices[0]?.message?.content ?? "";
     log.debug({ responseLength: text.length }, "OpenAI response received");
     return text;
   }
 
-  private async callClaude(prompt: string, model: string): Promise<string> {
+  private async callClaude(prompt: string, model: string, signal?: AbortSignal): Promise<string> {
     const client = this.getAnthropicClient();
-    const response = await client.messages.create({
-      model,
-      max_tokens: 2048,
-      messages: [{ role: "user", content: prompt }],
-    });
+    const response = await client.messages.create(
+      {
+        model,
+        max_tokens: 2048,
+        messages: [{ role: "user", content: prompt }],
+      },
+      { signal },
+    );
     const block = response.content[0];
     const text = block?.type === "text" ? block.text : "";
     log.debug({ model, responseLength: text.length }, "Anthropic response received");

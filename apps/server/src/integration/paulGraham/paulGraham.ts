@@ -12,6 +12,17 @@ export interface PgEssay {
   url: string;
 }
 
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)));
+}
+
 /**
  * Scrapes the Paul Graham essays index and returns all listed essays.
  * The page is plain static HTML — stable enough for a simple regex approach.
@@ -36,7 +47,7 @@ export async function listEssays(): Promise<PgEssay[]> {
     while ((match = pattern.exec(html)) !== null) {
       essays.push({
         url: `${BASE_URL}/${match[1]}`,
-        title: match[2].trim(),
+        title: decodeHtmlEntities(match[2].trim()),
       });
     }
 

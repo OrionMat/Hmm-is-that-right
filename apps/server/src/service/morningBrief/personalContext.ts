@@ -4,8 +4,10 @@ import { getLogger } from "../../logger";
 
 const log = getLogger("service/morningBrief/personalContext");
 
-const CONTEXT_PATH = path.join(__dirname, "../../../context/personalContext.md");
-const EXAMPLE_PATH = path.join(__dirname, "../../../context/personalContext.example.md");
+// process.cwd() = apps/server/ whether running via tsx watch or node dist/index.js,
+// so this resolves correctly in both dev and production builds.
+const CONTEXT_PATH = path.join(process.cwd(), "context/personalContext.md");
+const EXAMPLE_PATH = path.join(process.cwd(), "context/personalContext.example.md");
 
 function load(): string {
   if (fs.existsSync(CONTEXT_PATH)) {

@@ -31,12 +31,19 @@ export function subscribeMorningBrief(handlers: MorningBriefHandlers): () => voi
     handlers.onSectionError(data.section, data.message);
   });
 
+  let doneReceived = false;
+
   es.addEventListener("done", () => {
+    doneReceived = true;
     handlers.onDone();
     es.close();
   });
 
+  // onerror fires on both real connection failures AND after the server closes the
+  // stream normally (because res.end() triggers a browser-level error event).
+  // Guard with doneReceived so a clean completion never shows an error banner.
   es.onerror = () => {
+    if (doneReceived) return;
     handlers.onConnectionError();
     es.close();
   };

@@ -11,11 +11,22 @@ import { MorningBriefQuery } from "../schemas/morningBrief.schema";
 
 const log = getLogger("controllers/morningBrief");
 
+// One concurrent brief per client IP — prevents runaway Claude spend on refresh-spam.
+const inFlight = new Set<string>();
+
 function emit(res: Response, event: string, data: unknown): void {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
 export async function morningBriefController(request: Request, response: Response): Promise<void> {
+  const clientIp = request.ip ?? "unknown";
+
+  if (inFlight.has(clientIp)) {
+    response.status(429).json({ message: "A brief is already being generated. Please wait." });
+    return;
+  }
+  inFlight.add(clientIp);
+
   const { date: dateParam, nocache } = (request.validated?.query ?? {}) as MorningBriefQuery;
   const requestId = request.id ? String(request.id) : "unknown";
 
@@ -39,8 +50,15 @@ export async function morningBriefController(request: Request, response: Respons
   emit(response, "section_start", { section: "tech" });
   emit(response, "section_start", { section: "longform", mode });
 
+  const ac = new AbortController();
   const keepalive = setInterval(() => response.write(": keepalive\n\n"), 15000);
-  request.on("close", () => clearInterval(keepalive));
+
+  request.on("close", () => {
+    ac.abort();
+    clearInterval(keepalive);
+    inFlight.delete(clientIp);
+    log.info({ requestId }, "Client disconnected — brief aborted");
+  });
 
   const sections = [
     { spec: worldSpec(), key: cacheKey(dateStr, "world") },
@@ -48,28 +66,37 @@ export async function morningBriefController(request: Request, response: Respons
     { spec: longformSpec(mode), key: cacheKey(dateStr, "longform", mode) },
   ];
 
-  await Promise.allSettled(
-    sections.map(async ({ spec, key }) => {
-      const section = spec.section;
-      try {
-        const cached = bypassCache ? undefined : cacheGet<SectionPayload>(key);
-        if (cached) {
-          log.info({ section, requestId }, "Cache hit");
-          emit(response, "section_complete", cached);
-          return;
+  try {
+    await Promise.allSettled(
+      sections.map(async ({ spec, key }) => {
+        const section = spec.section;
+        try {
+          if (ac.signal.aborted) return;
+          const cached = bypassCache ? undefined : cacheGet<SectionPayload>(key);
+          if (cached) {
+            log.info({ section, requestId }, "Cache hit");
+            emit(response, "section_complete", cached);
+            return;
+          }
+          const payload = await buildSection(spec, personalContext, requestId, ac.signal);
+          if (ac.signal.aborted) return;
+          cacheSet(key, payload, ttlMs);
+          emit(response, "section_complete", payload);
+        } catch (err) {
+          if (ac.signal.aborted) return;
+          const message = err instanceof Error ? err.message : "Unknown error";
+          log.error({ section, requestId, message }, "Section failed");
+          emit(response, "section_error", { section, message });
         }
-        const payload = await buildSection(spec, personalContext, requestId);
-        cacheSet(key, payload, ttlMs);
-        emit(response, "section_complete", payload);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Unknown error";
-        log.error({ section, requestId, message }, "Section failed");
-        emit(response, "section_error", { section, message });
-      }
-    }),
-  );
+      }),
+    );
+  } finally {
+    clearInterval(keepalive);
+    inFlight.delete(clientIp);
+  }
 
-  clearInterval(keepalive);
-  emit(response, "done", {});
-  response.end();
+  if (!ac.signal.aborted) {
+    emit(response, "done", {});
+    response.end();
+  }
 }
