@@ -1,0 +1,93 @@
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { MorningBrief } from "./MorningBrief";
+import * as streamService from "../../service/morningBriefStream";
+import { MorningBriefHandlers } from "../../service/morningBriefStream";
+
+vi.mock("../../service/morningBriefStream");
+
+let capturedHandlers: MorningBriefHandlers | null = null;
+
+beforeEach(() => {
+  capturedHandlers = null;
+  vi.mocked(streamService.subscribeMorningBrief).mockImplementation((handlers) => {
+    capturedHandlers = handlers;
+    return () => {};
+  });
+});
+
+describe("MorningBrief", () => {
+  it("renders the page with a button", () => {
+    render(<MorningBrief />);
+    expect(screen.getByRole("button", { name: /get my brief/i })).toBeInTheDocument();
+    expect(screen.getByText("Morning Brief")).toBeInTheDocument();
+  });
+
+  it("shows loading state for all sections after clicking the button", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    expect(screen.getByText("World Headlines")).toBeInTheDocument();
+    expect(screen.getByText("Tech & AI")).toBeInTheDocument();
+    expect(screen.getByText("Long-Form Insight")).toBeInTheDocument();
+  });
+
+  it("renders section content when section_complete fires", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onSectionComplete({
+      section: "world",
+      items: [
+        { title: "Major World Event", url: "https://bbc.co.uk/1", source: "bbc", summary: "It happened today." },
+      ],
+      generatedAt: "2026-04-21T08:00:00Z",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Major World Event")).toBeInTheDocument();
+      expect(screen.getByText("It happened today.")).toBeInTheDocument();
+    });
+  });
+
+  it("shows per-section error without affecting other sections", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onSectionComplete({
+      section: "world",
+      items: [{ title: "World Story", url: "https://bbc.co.uk/1", source: "bbc", summary: "Summary here." }],
+      generatedAt: "2026-04-21T08:00:00Z",
+    });
+    capturedHandlers!.onSectionError("tech", "LLM timeout");
+
+    await waitFor(() => {
+      expect(screen.getByText("World Story")).toBeInTheDocument();
+      expect(screen.getByText("LLM timeout")).toBeInTheDocument();
+    });
+  });
+
+  it("re-enables the button and hides spinner after done fires", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    expect(screen.getByRole("button")).toBeDisabled();
+
+    capturedHandlers!.onDone();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button")).not.toBeDisabled();
+    });
+  });
+
+  it("shows a connection error message if the stream fails", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onConnectionError();
+
+    await waitFor(() => {
+      expect(screen.getByText(/connection lost/i)).toBeInTheDocument();
+    });
+  });
+});
