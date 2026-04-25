@@ -22,6 +22,7 @@ export async function morningBriefController(request: Request, response: Respons
   const clientIp = request.ip ?? "unknown";
 
   if (inFlight.has(clientIp)) {
+    log.warn({ clientIp }, "Morning Brief rejected — request already in flight for this IP");
     response.status(429).json({ message: "A brief is already being generated. Please wait." });
     return;
   }
@@ -51,13 +52,16 @@ export async function morningBriefController(request: Request, response: Respons
   emit(response, "section_start", { section: "longform", mode });
 
   const ac = new AbortController();
+  const startedAt = Date.now();
+  let streamCompleted = false;
   const keepalive = setInterval(() => response.write(": keepalive\n\n"), 15000);
 
   request.on("close", () => {
+    if (streamCompleted) return; // normal TCP close after response.end() — not a true disconnect
     ac.abort();
     clearInterval(keepalive);
     inFlight.delete(clientIp);
-    log.info({ requestId }, "Client disconnected — brief aborted");
+    log.info({ requestId }, "Client disconnected mid-stream — brief aborted");
   });
 
   const sections = [
@@ -96,6 +100,8 @@ export async function morningBriefController(request: Request, response: Respons
   }
 
   if (!ac.signal.aborted) {
+    streamCompleted = true;
+    log.info({ requestId, durationMs: Date.now() - startedAt }, "Morning Brief complete");
     emit(response, "done", {});
     response.end();
   }

@@ -57,12 +57,31 @@ export async function buildSection(
     picked = [...candidates].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, spec.n);
   }
 
-  log.info({ section: spec.section, picked: picked.length, requestId }, "Candidates selected");
+  log.info(
+    { section: spec.section, requestId, picks: picked.map((p) => `${p.title} [${p.source}]`) },
+    "Stage-1 selected articles",
+  );
 
   if (signal?.aborted) throw new Error("Request aborted");
 
   // Stage 2: scrape + summarise each pick
   const contentByUrl = await scrapePickedContent(picked);
+
+  const withContent = picked.filter((c) => !!contentByUrl.get(c.url));
+  const snippetOnly = picked.filter((c) => !contentByUrl.get(c.url));
+  if (snippetOnly.length > 0) {
+    log.warn(
+      { section: spec.section, requestId, snippetOnly: snippetOnly.map((c) => c.title) },
+      "Scrape yielded no content — summarising from snippet",
+    );
+  }
+  if (withContent.length > 0) {
+    log.debug(
+      { section: spec.section, requestId, scraped: withContent.map((c) => c.title) },
+      "Scraped content ready",
+    );
+  }
+
   const items = await summarisePicked(picked, contentByUrl, spec.mode, personalCtx, requestId, signal);
 
   return { section: spec.section, mode: spec.mode, items, generatedAt: new Date().toISOString() };
@@ -178,6 +197,7 @@ async function summarisePicked(
         mode,
         personalCtx,
       );
+      log.debug({ title: candidate.title, requestId }, "Summarising article");
       let summary = "";
       try {
         summary = await llmService.complete(prompt, "claude-sonnet-4-6", signal);
