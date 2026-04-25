@@ -8,11 +8,15 @@ export const RSS_FEEDS: Record<string, string> = {
   googlenewstech:
     "https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-US&gl=US&ceid=US:en",
   // Morning Brief sources
-  ap: "https://feeds.apnews.com/rss/apf-topnews",
-  // Reuters killed their public RSS; falling back to Google News site-filter
+  // Several major outlets have killed or moved their public RSS feeds.
+  // Where the official feed is gone, we fall back to Google News site-filter,
+  // which returns headline + short snippet (no full article content). The
+  // snippet-aware summary prompt handles these gracefully.
+  ap: "https://news.google.com/rss/search?q=site:apnews.com&hl=en-US&gl=US&ceid=US:en",
   reuters: "https://news.google.com/rss/search?q=site:reuters.com&hl=en-US&gl=US&ceid=US:en",
-  theBatch: "https://www.deeplearning.ai/the-batch/feed/",
-  anthropicBlog: "https://www.anthropic.com/rss.xml",
+  theBatch:
+    "https://news.google.com/rss/search?q=%22the+batch%22+site:deeplearning.ai&hl=en-US&gl=US&ceid=US:en",
+  anthropicBlog: "https://news.google.com/rss/search?q=site:anthropic.com&hl=en-US&gl=US&ceid=US:en",
   githubBlog: "https://github.blog/feed/",
 };
 
