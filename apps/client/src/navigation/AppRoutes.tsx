@@ -4,6 +4,7 @@ import { PageNames } from "../pages/PageNames";
 import ErrorPage from "../pages/ErrorPage";
 import { FactCheck } from "../pages/FactCheck/FactCheck";
 import { NewsBytes } from "../pages/NewsBytes/NewsBytes";
+import { MorningBrief } from "../pages/MorningBrief/MorningBrief";
 import { Academics } from "../pages/Academics/Academics";
 import { SignUp } from "../pages/SignUp/SignUp";
 import { Home } from "../pages/Home/Home";
@@ -21,6 +22,7 @@ export const AppRoutes = [
       { path: PageNames.home, element: <Home /> },
       { path: PageNames.factCheck, element: <FactCheck /> },
       { path: PageNames.newsBytes, element: <NewsBytes /> },
+      { path: PageNames.morningBrief, element: <MorningBrief /> },
       { path: PageNames.academics, element: <Academics /> },
       { path: PageNames.messenger, element: <div>Messenger</div> },
       { path: PageNames.market, element: <div>Market</div> },

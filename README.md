@@ -69,12 +69,28 @@ Hmm-is-that-right/
     cd ../server && npm install
     ```
 3.  **Environment Configuration**:
-    Create `apps/server/.env`:
+    Copy `apps/server/.env.example` to `apps/server/.env` and fill in your keys:
     ```env
+    # Required for Fact Check (Google Search via SerpAPI)
     SERP_SEARCH_API_KEY=<your-serpapi-key>
+
+    # Required for NewsBytes LLM summarisation
+    GEMINI_API_KEY=<your-gemini-key>
+
+    # Required for Morning Brief (Claude Sonnet 4.6)
+    ANTHROPIC_API_KEY=<your-anthropic-key>
+
+    # Optional
+    OPENAI_API_KEY=<your-openai-key>
     LOG_LEVEL=info
-    PORT=3001
     ```
+
+4.  **Morning Brief personalisation context** (optional but recommended):
+    ```bash
+    cp apps/server/context/personalContext.example.md apps/server/context/personalContext.md
+    # Edit personalContext.md with your CTO route-plan, current projects, and life priorities
+    ```
+    This file is gitignored — it is never committed.
 
 ---
 
@@ -163,6 +179,12 @@ The CI job fails if any of these steps fail, ensuring code quality before mergin
 ---
 
 ## Roadmap & TODOs
+
+### Morning Brief — Known Limitations & Future Work
+
+- [ ] **Seen-content tracking**: Paul Graham essays and other non-daily sources can repeat across runs. A simple "seen list" (JSON file storing seen URLs) would prevent repetition.
+- [ ] **Token-level streaming**: The SSE stream currently delivers each section as a complete payload. Per-token streaming (using Claude's streaming API) would make the UI feel more alive.
+- [ ] **Personalisation UI**: The `personalContext.md` file is currently edited manually. A simple textarea on the Morning Brief page that saves to the server would be more convenient.
 
 ### Upcoming Features
 

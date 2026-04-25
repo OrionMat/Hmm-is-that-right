@@ -48,3 +48,6 @@ Thumbs.db
 # IDE Specific
 .vscode/
 .idea/
+
+# Morning Brief personalisation context (contains personal data — never commit)
+apps/server/context/personalContext.md

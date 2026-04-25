@@ -60,3 +60,22 @@ export interface HeadlineSummary {
   date: string | null | undefined;
   summary: string[];
 }
+
+// ─── Morning Brief ────────────────────────────────────────────────────────────
+
+export type MorningBriefSection = "world" | "tech" | "longform";
+export type LongformMode = "zoom-in" | "zoom-out" | "inversion";
+
+export interface BriefItem {
+  title: string;
+  url: string;
+  source: string;
+  summary: string;
+}
+
+export interface SectionPayload {
+  section: MorningBriefSection;
+  mode?: LongformMode;
+  items: BriefItem[];
+  generatedAt: string;
+}
