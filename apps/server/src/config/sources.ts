@@ -109,6 +109,18 @@ export const sourceConfigs: Record<string, SourceConfig> = {
       ],
     },
   },
+  paulgraham: {
+    // PG's site is plain old-school HTML — content lives inside <font> tags inside
+    // <td> cells, with no <h1>, no <article>, no <p>. The default ["p"] selector
+    // never matches.
+    domainAllowlist: ["https://paulgraham.com/", "http://paulgraham.com/"],
+    excludePatterns: [],
+    selectors: {
+      title: ["title"],
+      date: [],
+      content: ["td > font", "font"],
+    },
+  },
 };
 
 export const defaultSourceConfig: SourceConfig = {
