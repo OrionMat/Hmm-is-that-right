@@ -12,6 +12,12 @@ const USER_AGENT =
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
+// Short-lived in-flight dedupe so concurrent requests for the same RSS source
+// (e.g. Morning Brief's tech + longform sections both asking for theBatch)
+// share a single HTTP fetch instead of hitting the upstream twice.
+const INFLIGHT_TTL_MS = 30_000;
+const inflight = new Map<string, { promise: Promise<RssArticle[]>; expiresAt: number }>();
+
 interface RawRssItem {
   link?: string;
   guid?: string | { "#text"?: string };
@@ -72,7 +78,23 @@ export async function fetchRssFeeds(
         log.warn({ source }, "No RSS feed configured for source, skipping");
         return { source, articles: [] };
       }
-      const articles = await fetchFeedForSource(source, feedUrl);
+      const now = Date.now();
+      const existing = inflight.get(source);
+      let articles: RssArticle[];
+      if (existing && existing.expiresAt > now) {
+        log.debug({ source }, "Reusing in-flight RSS fetch");
+        articles = await existing.promise;
+      } else {
+        const promise = fetchFeedForSource(source, feedUrl);
+        inflight.set(source, { promise, expiresAt: now + INFLIGHT_TTL_MS });
+        try {
+          articles = await promise;
+        } finally {
+          // Clear immediately so a follow-up minutes later refetches; the dedupe
+          // window only needs to cover a single brief run.
+          inflight.delete(source);
+        }
+      }
       return { source, articles };
     })
   );

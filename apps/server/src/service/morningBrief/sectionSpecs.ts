@@ -9,6 +9,19 @@ function makeId(index: number): string {
   return `c${index}`;
 }
 
+// RSS feeds (especially Google News fallbacks) often append the source name
+// as a suffix to every title — "Trump signs bill - Reuters", "AI breakthrough |
+// The Verge". When the snippet is also just the title, this becomes paraphrase
+// spam in summaries. Strip a trailing " - <source>" (or em/en dash, or pipe).
+const TITLE_SUFFIX_PATTERN = /\s+[-–—|]\s+[\w][\w &'.,]*$/;
+
+function cleanTitle(raw: string): string {
+  const trimmed = raw.trim();
+  const stripped = trimmed.replace(TITLE_SUFFIX_PATTERN, "").trim();
+  // Don't strip if it would leave the title oddly short (e.g. "Trump - News")
+  return stripped.length >= 8 ? stripped : trimmed;
+}
+
 function toCandidate(
   index: number,
   title: string,
@@ -16,7 +29,7 @@ function toCandidate(
   url: string,
   extra?: Pick<SectionCandidate, "score" | "snippet" | "content">,
 ): SectionCandidate {
-  return { id: makeId(index), title, source, url, ...extra };
+  return { id: makeId(index), title: cleanTitle(title), source, url, ...extra };
 }
 
 export function worldSpec(): SectionSpec {
