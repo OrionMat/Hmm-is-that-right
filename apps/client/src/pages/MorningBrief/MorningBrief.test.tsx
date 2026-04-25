@@ -90,4 +90,36 @@ describe("MorningBrief", () => {
       expect(screen.getByText(/connection lost/i)).toBeInTheDocument();
     });
   });
+
+  it("appends streaming summary chunks to the matching item by url", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    // Server sends section_complete with empty summaries (skeleton)
+    capturedHandlers!.onSectionComplete({
+      section: "world",
+      items: [
+        { title: "Story A", url: "https://bbc.co.uk/a", source: "bbc", summary: "" },
+        { title: "Story B", url: "https://reuters.com/b", source: "reuters", summary: "" },
+      ],
+      generatedAt: "2026-04-21T08:00:00Z",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Story A")).toBeInTheDocument();
+      expect(screen.getByText("Story B")).toBeInTheDocument();
+    });
+
+    // Stream chunks for Story A
+    capturedHandlers!.onSummaryChunk!({ section: "world", url: "https://bbc.co.uk/a", delta: "Hello " });
+    capturedHandlers!.onSummaryChunk!({ section: "world", url: "https://bbc.co.uk/a", delta: "world." });
+
+    // And one chunk for Story B (interleaved is fine)
+    capturedHandlers!.onSummaryChunk!({ section: "world", url: "https://reuters.com/b", delta: "Other story." });
+
+    await waitFor(() => {
+      expect(screen.getByText("Hello world.")).toBeInTheDocument();
+      expect(screen.getByText("Other story.")).toBeInTheDocument();
+    });
+  });
 });
