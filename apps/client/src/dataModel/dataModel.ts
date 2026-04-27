@@ -125,6 +125,19 @@ export interface SectionPayload {
   generatedAt: string;
 }
 
+/** SSE payload for a Stage-2 streaming token delta. */
+export interface SummaryChunkPayload {
+  section: MorningBriefSection;
+  url: string;
+  delta: string;
+}
+
+/** SSE payload signalling that a single item's summary has finished streaming. */
+export interface SummaryDonePayload {
+  section: MorningBriefSection;
+  url: string;
+}
+
 export interface CardData {
   name: string;
   handle: string;

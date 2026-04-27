@@ -39,6 +39,7 @@ export function buildSelectionPrompt(
 Pick the ${n} most important and genuinely interesting article(s) for the "${section}" section from the candidates below.
 
 Prioritise genuine significance and relevance to the reader's context over novelty or recency.
+Where possible, pick diverse sources — avoid selecting more than one article from the same source unless the second is clearly more important.
 ${modeNote}
 Personal context:
 ${personalCtx}
@@ -50,6 +51,8 @@ Respond with ONLY valid JSON — no explanation, no markdown:
 {"picks":["id1"${n > 1 ? ',"id2"' : ""}]}`;
 }
 
+const SNIPPET_CONTENT_THRESHOLD = 500;
+
 export function buildSummaryPrompt(
   title: string,
   source: string,
@@ -58,6 +61,26 @@ export function buildSummaryPrompt(
   mode: LongformMode | undefined,
   personalCtx: string,
 ): string {
+  // Defensive path: when scraping yielded little/nothing, only the headline is
+  // available. Tell Claude not to invent details — a thin honest summary beats
+  // a confident hallucinated one.
+  if (content.length < SNIPPET_CONTENT_THRESHOLD) {
+    return `You are writing a personalised morning brief, but you ONLY have a brief headline/snippet for this article — the full content was not available.
+
+Write 1–2 factual sentences referencing only what's in the snippet. Do NOT invent details, quotes, statistics, or context beyond what is explicitly stated. If the snippet is too thin to summarise meaningfully, say so honestly (e.g. "Headline only — full article unavailable.").
+
+Personal context (for relevance, not for inventing content):
+${personalCtx}
+
+Article:
+Title: ${title}
+Source: ${source}
+URL: ${url}
+
+Snippet:
+${content}`;
+  }
+
   const modeInstruction = mode ? `\n${MODE_SUMMARY_INSTRUCTION[mode]}\n` : "";
 
   return `You are writing a personalised morning brief.

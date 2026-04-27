@@ -46,6 +46,20 @@ export const MorningBrief = () => {
         patchSection(payload.section, { status: "complete", items: payload.items, mode: payload.mode }),
       onSectionError: (section, message) =>
         patchSection(section, { status: "error", error: message }),
+      onSummaryChunk: ({ section, url, delta }) =>
+        setSections((prev) => {
+          const current = prev[section];
+          if (!current.items) return prev;
+          return {
+            ...prev,
+            [section]: {
+              ...current,
+              items: current.items.map((item) =>
+                item.url === url ? { ...item, summary: item.summary + delta } : item,
+              ),
+            },
+          };
+        }),
       onDone: () => setRunning(false),
       onConnectionError: () => {
         setRunning(false);

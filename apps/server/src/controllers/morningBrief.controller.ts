@@ -78,14 +78,37 @@ export async function morningBriefController(request: Request, response: Respons
           if (ac.signal.aborted) return;
           const cached = bypassCache ? undefined : cacheGet<SectionPayload>(key);
           if (cached) {
+            // Cache hit — emit the full payload in one shot. Client renders summaries
+            // immediately and ignores the streaming protocol for this section.
             log.info({ section, requestId }, "Cache hit");
             emit(response, "section_complete", cached);
             return;
           }
-          const payload = await buildSection(spec, personalContext, requestId, ac.signal);
+          // Track whether onSectionReady fired so we can fall back to emitting
+          // section_complete here if buildSection returns without ever emitting
+          // (e.g. zero candidates → emptyPayload returns early before the callback).
+          let readyEmitted = false;
+          const payload = await buildSection(spec, personalContext, requestId, ac.signal, {
+            onSectionReady: (initial) => {
+              readyEmitted = true;
+              emit(response, "section_complete", initial);
+            },
+            onSummaryChunk: (url, delta) => {
+              if (ac.signal.aborted) return;
+              emit(response, "summary_chunk", { section, url, delta });
+            },
+            onSummaryDone: (url) => {
+              if (ac.signal.aborted) return;
+              emit(response, "summary_done", { section, url });
+            },
+          });
           if (ac.signal.aborted) return;
           cacheSet(key, payload, ttlMs);
-          emit(response, "section_complete", payload);
+          if (!readyEmitted) {
+            // No picks were made (empty section) — emit section_complete with the
+            // empty payload so the client gets a final state.
+            emit(response, "section_complete", payload);
+          }
         } catch (err) {
           if (ac.signal.aborted) return;
           const message = err instanceof Error ? err.message : "Unknown error";

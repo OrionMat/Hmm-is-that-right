@@ -76,13 +76,17 @@ class LlmService {
    * Streams a prompt response from the specified model, yielding text deltas.
    * Falls back to yielding the complete response as a single chunk for non-streaming models.
    */
-  async *completeStream(prompt: string, model: SupportedModel): AsyncGenerator<string> {
+  async *completeStream(
+    prompt: string,
+    model: SupportedModel,
+    signal?: AbortSignal,
+  ): AsyncGenerator<string> {
     if ((CLAUDE_MODELS as readonly string[]).includes(model)) {
-      yield* this.streamClaude(prompt, model);
+      yield* this.streamClaude(prompt, model, signal);
       return;
     }
     // Non-streaming fallback: complete() then yield the whole string once
-    const text = await this.complete(prompt, model);
+    const text = await this.complete(prompt, model, signal);
     yield text;
   }
 
@@ -127,14 +131,21 @@ class LlmService {
     return text;
   }
 
-  private async *streamClaude(prompt: string, model: string): AsyncGenerator<string> {
+  private async *streamClaude(
+    prompt: string,
+    model: string,
+    signal?: AbortSignal,
+  ): AsyncGenerator<string> {
     const client = this.getAnthropicClient();
-    const stream = await client.messages.create({
-      model,
-      max_tokens: 2048,
-      messages: [{ role: "user", content: prompt }],
-      stream: true,
-    });
+    const stream = await client.messages.create(
+      {
+        model,
+        max_tokens: 2048,
+        messages: [{ role: "user", content: prompt }],
+        stream: true,
+      },
+      { signal },
+    );
     for await (const event of stream) {
       if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
         yield event.delta.text;

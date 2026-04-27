@@ -26,11 +26,26 @@ export interface SectionSpec {
   fetchCandidates: () => Promise<SectionCandidate[]>;
 }
 
+/**
+ * Callbacks for streaming progress updates. All optional — buildSection can
+ * be called without them and behaves like a non-streaming function (returns
+ * the full payload at the end).
+ */
+export interface BuildSectionCallbacks {
+  /** Fires once Stage-1 picks are decided, with empty `summary` strings. */
+  onSectionReady?: (payload: SectionPayload) => void;
+  /** Fires for each token delta during Stage-2 summarisation. */
+  onSummaryChunk?: (url: string, delta: string) => void;
+  /** Fires once a single item's summary has finished streaming. */
+  onSummaryDone?: (url: string) => void;
+}
+
 export async function buildSection(
   spec: SectionSpec,
   personalCtx: string,
   requestId: string,
   signal?: AbortSignal,
+  callbacks?: BuildSectionCallbacks,
 ): Promise<SectionPayload> {
   if (signal?.aborted) throw new Error("Request aborted");
 
@@ -62,6 +77,24 @@ export async function buildSection(
     "Stage-1 selected articles",
   );
 
+  // Notify the caller that picks are decided so the UI can render skeleton items
+  // immediately. Summaries fill in via onSummaryChunk while Stage-2 runs.
+  const generatedAt = new Date().toISOString();
+  if (callbacks?.onSectionReady) {
+    const skeletonItems: BriefItem[] = picked.map((c) => ({
+      title: c.title,
+      url: c.url,
+      source: c.source,
+      summary: "",
+    }));
+    callbacks.onSectionReady({
+      section: spec.section,
+      mode: spec.mode,
+      items: skeletonItems,
+      generatedAt,
+    });
+  }
+
   if (signal?.aborted) throw new Error("Request aborted");
 
   // Stage 2: scrape + summarise each pick
@@ -82,9 +115,17 @@ export async function buildSection(
     );
   }
 
-  const items = await summarisePicked(picked, contentByUrl, spec.mode, personalCtx, requestId, signal);
+  const items = await summarisePicked(
+    picked,
+    contentByUrl,
+    spec.mode,
+    personalCtx,
+    requestId,
+    signal,
+    callbacks,
+  );
 
-  return { section: spec.section, mode: spec.mode, items, generatedAt: new Date().toISOString() };
+  return { section: spec.section, mode: spec.mode, items, generatedAt };
 }
 
 function emptyPayload(spec: SectionSpec): SectionPayload {
@@ -185,6 +226,7 @@ async function summarisePicked(
   personalCtx: string,
   requestId: string,
   signal?: AbortSignal,
+  callbacks?: BuildSectionCallbacks,
 ): Promise<BriefItem[]> {
   return Promise.all(
     picked.map(async (candidate) => {
@@ -200,11 +242,15 @@ async function summarisePicked(
       log.debug({ title: candidate.title, requestId }, "Summarising article");
       let summary = "";
       try {
-        summary = await llmService.complete(prompt, "claude-sonnet-4-6", signal);
+        for await (const delta of llmService.completeStream(prompt, "claude-sonnet-4-6", signal)) {
+          summary += delta;
+          callbacks?.onSummaryChunk?.(candidate.url, delta);
+        }
       } catch (err) {
         if (signal?.aborted) throw err;
         log.warn({ title: candidate.title, requestId, err }, "Stage-2 LLM call failed");
       }
+      callbacks?.onSummaryDone?.(candidate.url);
       return { title: candidate.title, url: candidate.url, source: candidate.source, summary };
     }),
   );

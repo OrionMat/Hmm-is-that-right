@@ -34,7 +34,10 @@ function extractNewsInfo(
     const targetContent = dom.querySelector(selector)?.textContent;
     if (targetContent) return targetContent.trim();
   }
-  log.warn(
+  // debug, not warn — empty content is normal when scrapers fall through to
+  // snippets, and the Morning Brief pipeline emits a single consolidated WARN
+  // ("Scrape yielded no content — summarising from snippet") that's actionable.
+  log.debug(
     `target content not found for source: ${source}, with information selectors: ${selectors.join(
       ", ",
     )}`,
@@ -66,7 +69,7 @@ function extractNewsBody(
   }
 
   if (!htmlParagraphs) {
-    log.warn(
+    log.debug(
       `target content not found for source: ${source}, with content selectors: ${contentSelectors.join(
         ", ",
       )}`,

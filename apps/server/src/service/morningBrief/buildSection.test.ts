@@ -2,16 +2,28 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("../../logger.ts");
 
-const { mockLlmComplete, mockScrapePageHtml, mockParseHtmlWithMetrics } = vi.hoisted(() => {
-  return {
-    mockLlmComplete: vi.fn(),
-    mockScrapePageHtml: vi.fn(),
-    mockParseHtmlWithMetrics: vi.fn(),
-  };
-});
+const { mockLlmComplete, mockLlmCompleteStream, mockScrapePageHtml, mockParseHtmlWithMetrics } =
+  vi.hoisted(() => {
+    return {
+      mockLlmComplete: vi.fn(),
+      mockLlmCompleteStream: vi.fn(),
+      mockScrapePageHtml: vi.fn(),
+      mockParseHtmlWithMetrics: vi.fn(),
+    };
+  });
+
+// Helper to wrap a string (or chunks) as an AsyncGenerator that completeStream yields.
+function streamOf(...chunks: string[]): AsyncGenerator<string> {
+  return (async function* () {
+    for (const c of chunks) yield c;
+  })();
+}
 
 vi.mock("../../integration/llmService/llmService", () => ({
-  llmService: { complete: mockLlmComplete },
+  llmService: {
+    complete: mockLlmComplete,
+    completeStream: mockLlmCompleteStream,
+  },
 }));
 vi.mock("../../integration/scrapePageHtml/scrapePageHtml", () => ({
   scrapePageHtml: mockScrapePageHtml,
@@ -42,6 +54,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockScrapePageHtml.mockResolvedValue({});
   mockParseHtmlWithMetrics.mockReturnValue({ newsPieces: [] });
+  // Default: every Stage-2 stream yields a single chunk so existing tests just work
+  mockLlmCompleteStream.mockImplementation(() => streamOf("Summary."));
 });
 
 describe("buildSection", () => {
@@ -55,9 +69,8 @@ describe("buildSection", () => {
   });
 
   it("runs the two-stage pipeline and returns summaries for picked items", async () => {
-    mockLlmComplete
-      .mockResolvedValueOnce('{"picks":["c1"]}')   // stage-1
-      .mockResolvedValueOnce("A great summary.");   // stage-2
+    mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}'); // stage-1
+    mockLlmCompleteStream.mockImplementationOnce(() => streamOf("A great summary."));
 
     const result = await buildSection(makeSpec(), "ctx", "req-1");
 
@@ -72,12 +85,44 @@ describe("buildSection", () => {
     expect(result.generatedAt).toBeTruthy();
   });
 
+  it("invokes streaming callbacks: onSectionReady (skeleton), onSummaryChunk, onSummaryDone", async () => {
+    mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}');
+    mockLlmCompleteStream.mockImplementationOnce(() => streamOf("Hello ", "world."));
+
+    const onSectionReady = vi.fn();
+    const onSummaryChunk = vi.fn();
+    const onSummaryDone = vi.fn();
+
+    const result = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1", undefined, {
+      onSectionReady,
+      onSummaryChunk,
+      onSummaryDone,
+    });
+
+    // Skeleton fires once with empty summary
+    expect(onSectionReady).toHaveBeenCalledTimes(1);
+    expect(onSectionReady.mock.calls[0][0].items[0]).toMatchObject({
+      title: "Story One",
+      summary: "",
+    });
+
+    // One chunk per delta, accumulating to the final summary
+    expect(onSummaryChunk).toHaveBeenCalledTimes(2);
+    expect(onSummaryChunk).toHaveBeenNthCalledWith(1, "https://bbc.co.uk/1", "Hello ");
+    expect(onSummaryChunk).toHaveBeenNthCalledWith(2, "https://bbc.co.uk/1", "world.");
+
+    // onSummaryDone fires once per item, after the stream
+    expect(onSummaryDone).toHaveBeenCalledWith("https://bbc.co.uk/1");
+
+    // Final return value still has the full accumulated summary
+    expect(result.items[0].summary).toBe("Hello world.");
+  });
+
   it("falls back to top-by-score when stage-1 returns invalid JSON", async () => {
-    // Both stage-1 attempts return non-JSON
+    // Both stage-1 attempts return non-JSON. Stage-2 uses the default streaming mock.
     mockLlmComplete
-      .mockResolvedValueOnce("Sorry, I cannot help with that.")  // first attempt
-      .mockResolvedValueOnce("Still not JSON.")                   // retry
-      .mockResolvedValue("Summary.");                              // stage-2 calls
+      .mockResolvedValueOnce("Sorry, I cannot help with that.")
+      .mockResolvedValueOnce("Still not JSON.");
 
     const result = await buildSection(makeSpec({ n: 2 }), "ctx", "req-1");
 
@@ -89,9 +134,7 @@ describe("buildSection", () => {
   });
 
   it("falls back to top-by-score when stage-1 LLM throws", async () => {
-    mockLlmComplete
-      .mockRejectedValueOnce(new Error("LLM unavailable"))  // stage-1 throws
-      .mockResolvedValue("Summary.");                         // stage-2
+    mockLlmComplete.mockRejectedValueOnce(new Error("LLM unavailable")); // stage-1 throws
 
     const result = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1");
 
@@ -106,9 +149,7 @@ describe("buildSection", () => {
       ]),
       n: 1,
     });
-    mockLlmComplete
-      .mockResolvedValueOnce('{"picks":["c1"]}')  // stage-1
-      .mockResolvedValueOnce("Summary.");           // stage-2
+    mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}'); // stage-1
 
     await buildSection(specWithContent, "ctx", "req-1");
 
