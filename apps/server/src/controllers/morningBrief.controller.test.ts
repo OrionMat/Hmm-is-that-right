@@ -47,11 +47,25 @@ const TECH_PAYLOAD = {
   generatedAt: "2026-04-21T08:00:00.000Z",
 };
 
+function diagnosticsFor(section: string) {
+  return {
+    section,
+    cacheHit: false,
+    llmModel: "claude-sonnet-4-6",
+    selectionMethod: "llm",
+    personalContextUsed: true,
+    sources: [],
+    candidates: [],
+    scrapes: [],
+    durations: { fetchCandidatesMs: 0, selectionMs: 0, scrapingMs: 0, summarisationMs: 0, totalMs: 0 },
+  };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockBuildSection
-    .mockResolvedValueOnce(WORLD_PAYLOAD)
-    .mockResolvedValueOnce(TECH_PAYLOAD)
+    .mockResolvedValueOnce({ payload: WORLD_PAYLOAD, diagnostics: diagnosticsFor("world") })
+    .mockResolvedValueOnce({ payload: TECH_PAYLOAD, diagnostics: diagnosticsFor("tech") })
     .mockRejectedValueOnce(new Error("LLM timeout")); // longform fails
 });
 
@@ -114,6 +128,22 @@ describe("GET /api/morning-brief/stream", () => {
     expect(body).toContain('"section":"longform"');
     // Other sections still completed
     expect(body).toContain('"section":"world"');
+  });
+
+  it("emits section_diagnostics for successful sections", async () => {
+    const res = await request(app)
+      .get("/api/morning-brief/stream")
+      .buffer(true)
+      .parse((res, callback) => {
+        let data = "";
+        res.on("data", (chunk: Buffer) => (data += chunk.toString()));
+        res.on("end", () => callback(null, data));
+      });
+
+    const body = res.body as string;
+    expect(body).toContain("event: section_diagnostics");
+    expect(body).toContain('"llmModel":"claude-sonnet-4-6"');
+    expect(body).toContain('"selectionMethod":"llm"');
   });
 
   it("emits done at the end", async () => {

@@ -61,22 +61,28 @@ async function fetchFeedForSource(
   return articles;
 }
 
+export interface RssFeedResult {
+  source: string;
+  articles: RssArticle[];
+  status: "ok" | "failed" | "empty";
+  error?: string;
+}
+
 /**
- * Fetches RSS headlines for each selected source in parallel.
- * @param sources Array of source keys to fetch (e.g. ["bbc", "ap"])
- * @returns Map of source → RssArticle[]
+ * Fetches RSS headlines for each source in parallel, returning per-source status
+ * alongside the articles. Used by the Morning Brief diagnostics pipeline.
  */
-export async function fetchRssFeeds(
+export async function fetchRssFeedsWithStatus(
   sources: string[]
-): Promise<Record<string, RssArticle[]>> {
+): Promise<RssFeedResult[]> {
   log.info(`Fetching RSS feeds for sources: ${sources.join(", ")}`);
 
-  const results = await Promise.allSettled(
+  const settled = await Promise.allSettled(
     sources.map(async (source) => {
       const feedUrl = RSS_FEEDS[source];
       if (!feedUrl) {
         log.warn({ source }, "No RSS feed configured for source, skipping");
-        return { source, articles: [] };
+        return { source, articles: [] as RssArticle[] };
       }
       const now = Date.now();
       const existing = inflight.get(source);
@@ -99,20 +105,42 @@ export async function fetchRssFeeds(
     })
   );
 
-  const feedsBySource: Record<string, RssArticle[]> = {};
+  const results: RssFeedResult[] = [];
   let totalArticles = 0;
 
-  results.forEach((result, index) => {
+  settled.forEach((result, index) => {
     const source = sources[index];
     if (result.status === "fulfilled") {
-      feedsBySource[source] = result.value.articles;
-      totalArticles += result.value.articles.length;
+      const articles = result.value.articles;
+      totalArticles += articles.length;
+      results.push({
+        source,
+        articles,
+        status: articles.length === 0 ? "empty" : "ok",
+      });
     } else {
-      log.warn({ source, reason: result.reason?.message }, "Failed to fetch RSS feed");
-      feedsBySource[source] = [];
+      const reason = (result.reason as Error | undefined)?.message ?? "unknown error";
+      log.warn({ source, reason }, "Failed to fetch RSS feed");
+      results.push({ source, articles: [], status: "failed", error: reason });
     }
   });
 
   log.info({ sources, totalArticles }, "RSS feed fetch complete");
+  return results;
+}
+
+/**
+ * Fetches RSS headlines for each selected source in parallel.
+ * @param sources Array of source keys to fetch (e.g. ["bbc", "ap"])
+ * @returns Map of source → RssArticle[]
+ */
+export async function fetchRssFeeds(
+  sources: string[]
+): Promise<Record<string, RssArticle[]>> {
+  const results = await fetchRssFeedsWithStatus(sources);
+  const feedsBySource: Record<string, RssArticle[]> = {};
+  for (const { source, articles } of results) {
+    feedsBySource[source] = articles;
+  }
   return feedsBySource;
 }

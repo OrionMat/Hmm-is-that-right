@@ -1,13 +1,18 @@
 import { Request, Response } from "express";
 import { getLogger } from "../logger";
 import { serverConfig } from "../config/serverConfig";
-import { SectionPayload } from "../dataModel/dataModel";
+import { SectionDiagnostics, SectionPayload } from "../dataModel/dataModel";
 import { getModeForDate } from "../service/morningBrief/modeRotation";
 import { cacheKey, cacheGet, cacheSet } from "../service/morningBrief/cache";
 import { personalContext } from "../service/morningBrief/personalContext";
 import { buildSection } from "../service/morningBrief/buildSection";
 import { worldSpec, techSpec, longformSpec } from "../service/morningBrief/sectionSpecs";
 import { MorningBriefQuery } from "../schemas/morningBrief.schema";
+
+interface CachedSection {
+  payload: SectionPayload;
+  diagnostics: SectionDiagnostics;
+}
 
 const log = getLogger("controllers/morningBrief");
 
@@ -76,39 +81,47 @@ export async function morningBriefController(request: Request, response: Respons
         const section = spec.section;
         try {
           if (ac.signal.aborted) return;
-          const cached = bypassCache ? undefined : cacheGet<SectionPayload>(key);
+          const cached = bypassCache ? undefined : cacheGet<CachedSection>(key);
           if (cached) {
             // Cache hit — emit the full payload in one shot. Client renders summaries
             // immediately and ignores the streaming protocol for this section.
             log.info({ section, requestId }, "Cache hit");
-            emit(response, "section_complete", cached);
+            emit(response, "section_complete", cached.payload);
+            emit(response, "section_diagnostics", { ...cached.diagnostics, cacheHit: true });
             return;
           }
           // Track whether onSectionReady fired so we can fall back to emitting
           // section_complete here if buildSection returns without ever emitting
           // (e.g. zero candidates → emptyPayload returns early before the callback).
           let readyEmitted = false;
-          const payload = await buildSection(spec, personalContext, requestId, ac.signal, {
-            onSectionReady: (initial) => {
-              readyEmitted = true;
-              emit(response, "section_complete", initial);
+          const { payload, diagnostics } = await buildSection(
+            spec,
+            personalContext,
+            requestId,
+            ac.signal,
+            {
+              onSectionReady: (initial) => {
+                readyEmitted = true;
+                emit(response, "section_complete", initial);
+              },
+              onSummaryChunk: (url, delta) => {
+                if (ac.signal.aborted) return;
+                emit(response, "summary_chunk", { section, url, delta });
+              },
+              onSummaryDone: (url) => {
+                if (ac.signal.aborted) return;
+                emit(response, "summary_done", { section, url });
+              },
             },
-            onSummaryChunk: (url, delta) => {
-              if (ac.signal.aborted) return;
-              emit(response, "summary_chunk", { section, url, delta });
-            },
-            onSummaryDone: (url) => {
-              if (ac.signal.aborted) return;
-              emit(response, "summary_done", { section, url });
-            },
-          });
+          );
           if (ac.signal.aborted) return;
-          cacheSet(key, payload, ttlMs);
+          cacheSet<CachedSection>(key, { payload, diagnostics }, ttlMs);
           if (!readyEmitted) {
             // No picks were made (empty section) — emit section_complete with the
             // empty payload so the client gets a final state.
             emit(response, "section_complete", payload);
           }
+          emit(response, "section_diagnostics", diagnostics);
         } catch (err) {
           if (ac.signal.aborted) return;
           const message = err instanceof Error ? err.message : "Unknown error";

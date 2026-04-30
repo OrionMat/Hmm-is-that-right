@@ -177,4 +177,38 @@ test.describe("Morning Brief", () => {
     await expect(page.getByRole("link", { name: "Global Climate Summit Opens" })).toBeVisible();
     await expect(page.getByRole("link", { name: "The Hidden Cost of Data Centers" })).toBeVisible();
   });
+
+  test("Test 6 — behind-the-scenes panel renders diagnostics from section_diagnostics events", async ({
+    page,
+  }) => {
+    await page.route(SSE_ROUTE, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/event-stream",
+        headers: SSE_HEADERS,
+        body: buildSseBody(HAPPY_PATH_SSE_EVENTS),
+      });
+    });
+
+    await page.goto("/morning-brief");
+    await page.getByRole("button", { name: /get my brief/i }).click();
+
+    // Panel summary visible
+    const panel = page.getByTestId("behind-the-scenes");
+    await expect(panel).toBeVisible();
+    await expect(panel.getByText(/Behind the scenes/i)).toBeVisible();
+
+    // World source list shows the failed feed with its error
+    await expect(panel.getByText(/timeout/i)).toBeVisible();
+
+    // Considered candidates are listed
+    await expect(panel.getByText("Other story")).toBeVisible();
+
+    // Scrape outcomes show the snippet-fallback case
+    await expect(panel.getByText(/snippet fallback/i)).toBeVisible();
+
+    // Pipeline meta — selection method and timing
+    await expect(panel.getByText(/Selection: LLM/i)).toBeVisible();
+    await expect(panel.getByText(/total/i)).toBeVisible();
+  });
 });

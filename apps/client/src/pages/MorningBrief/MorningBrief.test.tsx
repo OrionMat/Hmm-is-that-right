@@ -91,6 +91,66 @@ describe("MorningBrief", () => {
     });
   });
 
+  it("renders the Behind the scenes panel after section_diagnostics arrives", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onSectionDiagnostics!({
+      section: "world",
+      cacheHit: false,
+      llmModel: "claude-sonnet-4-6",
+      selectionMethod: "llm",
+      personalContextUsed: true,
+      sources: [
+        { source: "bbc", kind: "rss", status: "ok", articlesReturned: 3 },
+        { source: "ap", kind: "rss", status: "failed", articlesReturned: 0, error: "timeout" },
+      ],
+      candidates: [
+        {
+          id: "c1",
+          title: "Considered headline A",
+          source: "bbc",
+          url: "https://bbc.co.uk/a",
+          picked: true,
+        },
+        {
+          id: "c2",
+          title: "Considered headline B",
+          source: "ap",
+          url: "https://apnews.com/b",
+          picked: false,
+        },
+      ],
+      scrapes: [
+        {
+          url: "https://bbc.co.uk/a",
+          title: "Considered headline A",
+          source: "bbc",
+          outcome: "scraped",
+          contentChars: 1234,
+        },
+      ],
+      durations: {
+        fetchCandidatesMs: 100,
+        selectionMs: 200,
+        scrapingMs: 300,
+        summarisationMs: 400,
+        totalMs: 1000,
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Behind the scenes/i)).toBeInTheDocument();
+      // Picked headline appears in candidates list and scrape list
+      expect(screen.getAllByText("Considered headline A").length).toBeGreaterThan(0);
+      expect(screen.getByText("Considered headline B")).toBeInTheDocument();
+      // Failed source surfaces its error
+      expect(screen.getByText(/timeout/i)).toBeInTheDocument();
+      // Selection method line
+      expect(screen.getByText(/Selection: LLM/i)).toBeInTheDocument();
+    });
+  });
+
   it("appends streaming summary chunks to the matching item by url", async () => {
     render(<MorningBrief />);
     fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));

@@ -92,3 +92,54 @@ export interface SummaryDonePayload {
   section: MorningBriefSection;
   url: string;
 }
+
+/** Outcome of querying a single upstream source for a section. */
+export interface SourceQueryResult {
+  source: string;
+  kind: "rss" | "hackernews" | "reddit" | "paulgraham";
+  status: "ok" | "failed" | "empty";
+  articlesReturned: number;
+  error?: string;
+}
+
+/** A raw candidate article considered for Stage-1 selection. `picked` flags Stage-1 winners. */
+export interface CandidateMeta {
+  id: string;
+  title: string;
+  source: string;
+  url: string;
+  score?: number;
+  picked: boolean;
+}
+
+export type ScrapeOutcome = "scraped" | "snippet-fallback" | "prefetched";
+
+export interface ScrapeAttempt {
+  url: string;
+  title: string;
+  source: string;
+  outcome: ScrapeOutcome;
+  contentChars?: number;
+}
+
+export interface SectionDurations {
+  fetchCandidatesMs: number;
+  selectionMs: number;
+  scrapingMs: number;
+  summarisationMs: number;
+  totalMs: number;
+}
+
+/** Behind-the-scenes report of how a section was built. */
+export interface SectionDiagnostics {
+  section: MorningBriefSection;
+  mode?: LongformMode;
+  cacheHit: boolean;
+  llmModel: string;
+  selectionMethod: "llm" | "score-fallback" | "none";
+  personalContextUsed: boolean;
+  sources: SourceQueryResult[];
+  candidates: CandidateMeta[];
+  scrapes: ScrapeAttempt[];
+  durations: SectionDurations;
+}
