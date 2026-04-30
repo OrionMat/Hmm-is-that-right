@@ -2,7 +2,12 @@ import { fetchRssFeedsWithStatus, RssFeedResult } from "../../integration/fetchR
 import { getTopStories, HnStory } from "../../integration/hackerNews/hackerNews";
 import { getSubredditTop, RedditPost } from "../../integration/reddit/reddit";
 import { listEssays, PgEssay } from "../../integration/paulGraham/paulGraham";
-import { LongformMode, SourceQueryResult } from "../../dataModel/dataModel";
+import {
+  LongformMode,
+  SourceQueryResult,
+  SOURCE_KIND,
+  SOURCE_STATUS,
+} from "../../dataModel/dataModel";
 import { getLogger } from "../../logger";
 import { FetchCandidatesResult, SectionCandidate, SectionSpec } from "./buildSection";
 
@@ -36,7 +41,7 @@ function toCandidate(
 }
 
 function statusFor(count: number): SourceQueryResult["status"] {
-  return count === 0 ? "empty" : "ok";
+  return count === 0 ? SOURCE_STATUS.empty : SOURCE_STATUS.ok;
 }
 
 async function fetchHnStories(
@@ -49,7 +54,7 @@ async function fetchHnStories(
       stories,
       result: {
         source: "hackernews",
-        kind: "hackernews",
+        kind: SOURCE_KIND.hackernews,
         status: statusFor(stories.length),
         articlesReturned: stories.length,
       },
@@ -61,8 +66,8 @@ async function fetchHnStories(
       stories: [],
       result: {
         source: "hackernews",
-        kind: "hackernews",
-        status: "failed",
+        kind: SOURCE_KIND.hackernews,
+        status: SOURCE_STATUS.failed,
         articlesReturned: 0,
         error: message,
       },
@@ -80,7 +85,7 @@ async function fetchSubreddit(
     posts,
     result: {
       source: `r/${subreddit}`,
-      kind: "reddit",
+      kind: SOURCE_KIND.reddit,
       status: statusFor(posts.length),
       articlesReturned: posts.length,
     },
@@ -93,7 +98,7 @@ async function fetchPgEssays(): Promise<{ essays: PgEssay[]; result: SourceQuery
     essays,
     result: {
       source: "paulgraham",
-      kind: "paulgraham",
+      kind: SOURCE_KIND.paulgraham,
       status: statusFor(essays.length),
       articlesReturned: essays.length,
     },
@@ -103,7 +108,7 @@ async function fetchPgEssays(): Promise<{ essays: PgEssay[]; result: SourceQuery
 function rssToSourceResults(results: RssFeedResult[]): SourceQueryResult[] {
   return results.map((r) => ({
     source: r.source,
-    kind: "rss",
+    kind: SOURCE_KIND.rss,
     status: r.status,
     articlesReturned: r.articles.length,
     error: r.error,

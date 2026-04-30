@@ -9,6 +9,8 @@ import {
   SourceQueryResult,
   CandidateMeta,
   ScrapeAttempt,
+  SCRAPE_OUTCOME,
+  SELECTION_METHOD,
 } from "../../dataModel/dataModel";
 import { llmService } from "../../integration/llmService/llmService";
 import { scrapePageHtml } from "../../integration/scrapePageHtml/scrapePageHtml";
@@ -91,7 +93,7 @@ export async function buildSection(
       spec,
       sources: sourcesQueried,
       candidateMetas: [],
-      selectionMethod: "none",
+      selectionMethod: SELECTION_METHOD.none,
       scrapes: [],
       personalContextUsed,
       durations: {
@@ -115,11 +117,11 @@ export async function buildSection(
     .filter((c): c is SectionCandidate => c !== undefined);
 
   // Fallback to top-by-score if Claude selection fails
-  let selectionMethod: SectionDiagnostics["selectionMethod"] = "llm";
+  let selectionMethod: SectionDiagnostics["selectionMethod"] = SELECTION_METHOD.llm;
   if (picked.length === 0) {
     log.warn({ section: spec.section, requestId }, "Stage-1 selection empty, falling back to score order");
     picked = [...candidates].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, spec.n);
-    selectionMethod = "score-fallback";
+    selectionMethod = SELECTION_METHOD.scoreFallback;
   }
   const selectionMs = Date.now() - selectionStart;
 
@@ -310,7 +312,7 @@ async function scrapePickedContent(
         url: c.url,
         title: c.title,
         source: c.source,
-        outcome: "prefetched",
+        outcome: SCRAPE_OUTCOME.prefetched,
         contentChars: c.content.length,
       });
     }
@@ -344,7 +346,7 @@ async function scrapePickedContent(
         url: c.url,
         title: c.title,
         source: c.source,
-        outcome: "scraped",
+        outcome: SCRAPE_OUTCOME.scraped,
         contentChars: text.length,
       });
     } else {
@@ -352,7 +354,7 @@ async function scrapePickedContent(
         url: c.url,
         title: c.title,
         source: c.source,
-        outcome: "snippet-fallback",
+        outcome: SCRAPE_OUTCOME.snippetFallback,
         contentChars: c.snippet?.length ?? 0,
       });
     }

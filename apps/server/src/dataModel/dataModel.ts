@@ -93,11 +93,40 @@ export interface SummaryDonePayload {
   url: string;
 }
 
+export const SOURCE_KIND = {
+  rss: "rss",
+  hackernews: "hackernews",
+  reddit: "reddit",
+  paulgraham: "paulgraham",
+} as const;
+export type SourceKind = (typeof SOURCE_KIND)[keyof typeof SOURCE_KIND];
+
+export const SOURCE_STATUS = {
+  ok: "ok",
+  failed: "failed",
+  empty: "empty",
+} as const;
+export type SourceStatus = (typeof SOURCE_STATUS)[keyof typeof SOURCE_STATUS];
+
+export const SCRAPE_OUTCOME = {
+  scraped: "scraped",
+  prefetched: "prefetched",
+  snippetFallback: "snippet-fallback",
+} as const;
+export type ScrapeOutcome = (typeof SCRAPE_OUTCOME)[keyof typeof SCRAPE_OUTCOME];
+
+export const SELECTION_METHOD = {
+  llm: "llm",
+  scoreFallback: "score-fallback",
+  none: "none",
+} as const;
+export type SelectionMethod = (typeof SELECTION_METHOD)[keyof typeof SELECTION_METHOD];
+
 /** Outcome of querying a single upstream source for a section. */
 export interface SourceQueryResult {
   source: string;
-  kind: "rss" | "hackernews" | "reddit" | "paulgraham";
-  status: "ok" | "failed" | "empty";
+  kind: SourceKind;
+  status: SourceStatus;
   articlesReturned: number;
   error?: string;
 }
@@ -111,8 +140,6 @@ export interface CandidateMeta {
   score?: number;
   picked: boolean;
 }
-
-export type ScrapeOutcome = "scraped" | "snippet-fallback" | "prefetched";
 
 export interface ScrapeAttempt {
   url: string;
@@ -136,7 +163,7 @@ export interface SectionDiagnostics {
   mode?: LongformMode;
   cacheHit: boolean;
   llmModel: string;
-  selectionMethod: "llm" | "score-fallback" | "none";
+  selectionMethod: SelectionMethod;
   personalContextUsed: boolean;
   sources: SourceQueryResult[];
   candidates: CandidateMeta[];
