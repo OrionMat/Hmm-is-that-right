@@ -52,6 +52,7 @@ export const BehindTheScenes = ({ diagnosticsBySection }: BehindTheScenesProps) 
 
   return (
     <details
+      open
       className="w-full max-w-2xl border border-gray-200 rounded-lg p-4 font-mono text-sm"
       data-testid="behind-the-scenes"
     >
