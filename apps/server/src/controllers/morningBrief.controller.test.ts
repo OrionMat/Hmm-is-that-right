@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
+import { cacheGet } from "../service/morningBrief/cache";
 
 vi.mock("../logger.ts");
 
@@ -162,5 +163,44 @@ describe("GET /api/morning-brief/stream", () => {
   it("returns 400 for an invalid date param", async () => {
     const res = await request(app).get("/api/morning-brief/stream?date=not-a-date");
     expect(res.status).toBe(400);
+  });
+
+  it("zeroes stage durations on cache hit and overrides cacheHit to true", async () => {
+    const cachedDiagnostics = {
+      ...diagnosticsFor("world"),
+      durations: {
+        fetchCandidatesMs: 820,
+        selectionMs: 1400,
+        scrapingMs: 2100,
+        summarisationMs: 4900,
+        totalMs: 9220,
+      },
+    };
+    vi.mocked(cacheGet).mockReturnValueOnce({
+      payload: WORLD_PAYLOAD,
+      diagnostics: cachedDiagnostics,
+    });
+
+    const res = await request(app)
+      .get("/api/morning-brief/stream")
+      .buffer(true)
+      .parse((res, callback) => {
+        let data = "";
+        res.on("data", (chunk: Buffer) => (data += chunk.toString()));
+        res.on("end", () => callback(null, data));
+      });
+
+    const body = res.body as string;
+    const worldDiag = body
+      .split("\n\n")
+      .find((block) => block.includes("event: section_diagnostics") && block.includes('"section":"world"'));
+    expect(worldDiag).toBeDefined();
+    expect(worldDiag).toContain('"cacheHit":true');
+    expect(worldDiag).toContain('"fetchCandidatesMs":0');
+    expect(worldDiag).toContain('"selectionMs":0');
+    expect(worldDiag).toContain('"scrapingMs":0');
+    expect(worldDiag).toContain('"summarisationMs":0');
+    // Original timings must not leak through
+    expect(worldDiag).not.toContain('"fetchCandidatesMs":820');
   });
 });

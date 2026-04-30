@@ -85,9 +85,23 @@ export async function morningBriefController(request: Request, response: Respons
           if (cached) {
             // Cache hit — emit the full payload in one shot. Client renders summaries
             // immediately and ignores the streaming protocol for this section.
+            // Override durations: the stored timings are from the original build, which
+            // would be misleading on a sub-millisecond cache hit. Stage timings are zero;
+            // totalMs reflects how long this cache hit actually took to serve.
             log.info({ section, requestId }, "Cache hit");
+            const cacheServeStart = Date.now();
             emit(response, "section_complete", cached.payload);
-            emit(response, "section_diagnostics", { ...cached.diagnostics, cacheHit: true });
+            emit(response, "section_diagnostics", {
+              ...cached.diagnostics,
+              cacheHit: true,
+              durations: {
+                fetchCandidatesMs: 0,
+                selectionMs: 0,
+                scrapingMs: 0,
+                summarisationMs: 0,
+                totalMs: Date.now() - cacheServeStart,
+              },
+            });
             return;
           }
           // Track whether onSectionReady fired so we can fall back to emitting

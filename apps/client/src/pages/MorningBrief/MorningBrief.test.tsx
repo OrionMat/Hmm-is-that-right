@@ -151,6 +151,45 @@ describe("MorningBrief", () => {
     });
   });
 
+  it("shows 'Served from cache' instead of stage timings when cacheHit is true", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onSectionDiagnostics!({
+      section: "world",
+      cacheHit: true,
+      llmModel: "claude-sonnet-4-6",
+      selectionMethod: "llm",
+      personalContextUsed: true,
+      sources: [{ source: "bbc", kind: "rss", status: "ok", articlesReturned: 3 }],
+      candidates: [
+        {
+          id: "c1",
+          title: "Cached headline",
+          source: "bbc",
+          url: "https://bbc.co.uk/a",
+          picked: true,
+        },
+      ],
+      scrapes: [],
+      durations: {
+        fetchCandidatesMs: 0,
+        selectionMs: 0,
+        scrapingMs: 0,
+        summarisationMs: 0,
+        totalMs: 3,
+      },
+    });
+
+    await waitFor(() => {
+      // Match the dedicated cache-hit timing line ("Served from cache (3ms)"),
+      // distinct from the lower "Cache: hit (re-served from cache)" status line.
+      expect(screen.getByText(/^Served from cache \(/)).toBeInTheDocument();
+    });
+    // The per-stage timings line must not render in cache-hit mode
+    expect(screen.queryByText(/Timings:/i)).not.toBeInTheDocument();
+  });
+
   it("appends streaming summary chunks to the matching item by url", async () => {
     render(<MorningBrief />);
     fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));

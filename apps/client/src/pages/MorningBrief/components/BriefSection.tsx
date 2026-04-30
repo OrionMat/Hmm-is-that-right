@@ -2,14 +2,9 @@ import { BriefItem as BriefItemType, LongformMode, MorningBriefSection } from ".
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { BriefItem } from "./BriefItem";
 import { ModeBadge } from "./ModeBadge";
+import { SECTION_TITLE } from "../sectionTitles";
 
 export type SectionStatus = "idle" | "loading" | "complete" | "error";
-
-const SECTION_TITLE: Record<MorningBriefSection, string> = {
-  world: "World Headlines",
-  tech: "Tech & AI",
-  longform: "Long-Form Insight",
-};
 
 interface BriefSectionProps {
   section: MorningBriefSection;

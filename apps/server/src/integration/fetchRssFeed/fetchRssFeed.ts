@@ -1,7 +1,7 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import { getLogger } from "../../logger";
-import { RssArticle } from "../../dataModel/dataModel";
+import { RssArticle, SourceStatus, SOURCE_STATUS } from "../../dataModel/dataModel";
 import { RSS_FEEDS, RSS_ARTICLES_PER_SOURCE } from "../../config/rssFeeds";
 
 const log = getLogger("integration/fetchRssFeed");
@@ -64,7 +64,7 @@ async function fetchFeedForSource(
 export interface RssFeedResult {
   source: string;
   articles: RssArticle[];
-  status: "ok" | "failed" | "empty";
+  status: SourceStatus;
   error?: string;
 }
 
@@ -116,12 +116,12 @@ export async function fetchRssFeedsWithStatus(
       results.push({
         source,
         articles,
-        status: articles.length === 0 ? "empty" : "ok",
+        status: articles.length === 0 ? SOURCE_STATUS.empty : SOURCE_STATUS.ok,
       });
     } else {
       const reason = (result.reason as Error | undefined)?.message ?? "unknown error";
       log.warn({ source, reason }, "Failed to fetch RSS feed");
-      results.push({ source, articles: [], status: "failed", error: reason });
+      results.push({ source, articles: [], status: SOURCE_STATUS.failed, error: reason });
     }
   });
 

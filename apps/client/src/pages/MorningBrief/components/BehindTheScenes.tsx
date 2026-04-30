@@ -2,41 +2,39 @@ import {
   CandidateMeta,
   MorningBriefSection,
   ScrapeAttempt,
+  ScrapeOutcome,
   SectionDiagnostics,
+  SELECTION_METHOD,
   SourceQueryResult,
+  SourceStatus,
 } from "../../../dataModel/dataModel";
+import { SECTION_TITLE } from "../sectionTitles";
 
-const SECTION_TITLE: Record<MorningBriefSection, string> = {
-  world: "World Headlines",
-  tech: "Tech & AI",
-  longform: "Long-Form Insight",
-};
-
-const SOURCE_GLYPH: Record<SourceQueryResult["status"], string> = {
+const SOURCE_GLYPH: Record<SourceStatus, string> = {
   ok: "✓",
   empty: "∅",
   failed: "✗",
 };
 
-const SOURCE_GLYPH_CLASS: Record<SourceQueryResult["status"], string> = {
+const SOURCE_GLYPH_CLASS: Record<SourceStatus, string> = {
   ok: "text-green-600",
   empty: "text-gray-400",
   failed: "text-red-500",
 };
 
-const SCRAPE_GLYPH: Record<ScrapeAttempt["outcome"], string> = {
+const SCRAPE_GLYPH: Record<ScrapeOutcome, string> = {
   scraped: "✓",
   prefetched: "✓",
   "snippet-fallback": "✗",
 };
 
-const SCRAPE_GLYPH_CLASS: Record<ScrapeAttempt["outcome"], string> = {
+const SCRAPE_GLYPH_CLASS: Record<ScrapeOutcome, string> = {
   scraped: "text-green-600",
   prefetched: "text-green-600",
   "snippet-fallback": "text-red-500",
 };
 
-const SCRAPE_LABEL: Record<ScrapeAttempt["outcome"], string> = {
+const SCRAPE_LABEL: Record<ScrapeOutcome, string> = {
   scraped: "scraped",
   prefetched: "pre-fetched",
   "snippet-fallback": "snippet fallback",
@@ -185,9 +183,9 @@ const ScrapesRow = ({ scrapes }: { scrapes: ScrapeAttempt[] }) => (
 const MetaRow = ({ diagnostics }: { diagnostics: SectionDiagnostics }) => {
   const d = diagnostics.durations;
   const selectionLabel =
-    diagnostics.selectionMethod === "score-fallback"
+    diagnostics.selectionMethod === SELECTION_METHOD.scoreFallback
       ? "score fallback (LLM unavailable)"
-      : diagnostics.selectionMethod === "none"
+      : diagnostics.selectionMethod === SELECTION_METHOD.none
         ? "none (no candidates)"
         : `LLM (${diagnostics.llmModel})`;
 
@@ -196,11 +194,15 @@ const MetaRow = ({ diagnostics }: { diagnostics: SectionDiagnostics }) => {
       <ul className="flex flex-col gap-0.5 text-xs text-gray-600">
         <li>Selection: {selectionLabel}</li>
         <li>Personal context: {diagnostics.personalContextUsed ? "applied" : "not configured"}</li>
-        <li>
-          Timings: fetch {fmtMs(d.fetchCandidatesMs)} · select {fmtMs(d.selectionMs)} · scrape{" "}
-          {fmtMs(d.scrapingMs)} · summarise {fmtMs(d.summarisationMs)}
-          <span className="text-gray-400"> · total {fmtMs(d.totalMs)}</span>
-        </li>
+        {diagnostics.cacheHit ? (
+          <li>Served from cache ({fmtMs(d.totalMs)})</li>
+        ) : (
+          <li>
+            Timings: fetch {fmtMs(d.fetchCandidatesMs)} · select {fmtMs(d.selectionMs)} · scrape{" "}
+            {fmtMs(d.scrapingMs)} · summarise {fmtMs(d.summarisationMs)}
+            <span className="text-gray-400"> · total {fmtMs(d.totalMs)}</span>
+          </li>
+        )}
         <li>Cache: {diagnostics.cacheHit ? "hit (re-served from cache)" : "miss (freshly built)"}</li>
       </ul>
     </Row>
