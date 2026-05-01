@@ -108,7 +108,13 @@ export interface IsActiveNewsSources {
 
 // ─── Morning Brief ────────────────────────────────────────────────────────────
 
-export type MorningBriefSection = "world" | "tech" | "longform";
+export const MORNING_BRIEF_SECTION = {
+  world: "world",
+  tech: "tech",
+  longform: "longform",
+} as const;
+export type MorningBriefSection = (typeof MORNING_BRIEF_SECTION)[keyof typeof MORNING_BRIEF_SECTION];
+
 export type LongformMode = "zoom-in" | "zoom-out" | "inversion";
 
 export interface BriefItem {

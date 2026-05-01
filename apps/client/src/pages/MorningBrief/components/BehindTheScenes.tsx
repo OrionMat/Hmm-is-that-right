@@ -1,5 +1,6 @@
 import {
   CandidateMeta,
+  MORNING_BRIEF_SECTION,
   MorningBriefSection,
   ScrapeAttempt,
   ScrapeOutcome,
@@ -8,6 +9,7 @@ import {
   SourceQueryResult,
   SourceStatus,
 } from "../../../dataModel/dataModel";
+import { fmtMs } from "../../../utils/formatMs";
 import { SECTION_TITLE } from "../sectionTitles";
 
 const SOURCE_GLYPH: Record<SourceStatus, string> = {
@@ -44,7 +46,11 @@ interface BehindTheScenesProps {
   diagnosticsBySection: Partial<Record<MorningBriefSection, SectionDiagnostics | undefined>>;
 }
 
-const ORDERED_SECTIONS: MorningBriefSection[] = ["world", "tech", "longform"];
+const ORDERED_SECTIONS: MorningBriefSection[] = [
+  MORNING_BRIEF_SECTION.world,
+  MORNING_BRIEF_SECTION.tech,
+  MORNING_BRIEF_SECTION.longform,
+];
 
 export const BehindTheScenes = ({ diagnosticsBySection }: BehindTheScenesProps) => {
   const sectionsWithData = ORDERED_SECTIONS.filter((s) => diagnosticsBySection[s]);
@@ -217,7 +223,3 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
   </div>
 );
 
-function fmtMs(ms: number): string {
-  if (ms < 1000) return `${ms}ms`;
-  return `${(ms / 1000).toFixed(1)}s`;
-}
