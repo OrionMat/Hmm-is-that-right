@@ -66,7 +66,7 @@ export const BehindTheScenes = ({ diagnosticsBySection }: BehindTheScenesProps) 
       <p className="text-xs text-gray-500 mt-2 mb-4">
         How each section was built — sources checked, headlines considered, and what made the cut.
       </p>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4" aria-hidden="true">
         {sectionsWithData.map((section) => (
           <SectionDiagnosticsBlock
             key={section}
