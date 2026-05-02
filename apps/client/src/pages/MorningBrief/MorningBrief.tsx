@@ -10,6 +10,7 @@ import { subscribeMorningBrief } from "../../service/morningBriefStream";
 import { PageContainer } from "../../components/PageContainer";
 import { BriefSection, SectionStatus } from "./components/BriefSection";
 import { BehindTheScenes } from "./components/BehindTheScenes";
+import { FeedbackForm } from "./components/FeedbackForm";
 
 interface SectionState {
   status: SectionStatus;
@@ -134,6 +135,8 @@ export const MorningBrief = () => {
             }}
           />
         )}
+
+        <FeedbackForm />
       </div>
     </PageContainer>
   );

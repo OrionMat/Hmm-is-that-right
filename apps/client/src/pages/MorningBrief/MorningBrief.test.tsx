@@ -5,6 +5,7 @@ import * as streamService from "../../service/morningBriefStream";
 import { MorningBriefHandlers } from "../../service/morningBriefStream";
 
 vi.mock("../../service/morningBriefStream");
+vi.mock("../../service/submitFeedback");
 
 let capturedHandlers: MorningBriefHandlers | null = null;
 
@@ -21,6 +22,12 @@ describe("MorningBrief", () => {
     render(<MorningBrief />);
     expect(screen.getByRole("button", { name: /get my brief/i })).toBeInTheDocument();
     expect(screen.getByText("Morning Brief")).toBeInTheDocument();
+  });
+
+  it("renders the feedback form", () => {
+    render(<MorningBrief />);
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
   });
 
   it("shows loading state for all sections after clicking the button", async () => {
@@ -71,12 +78,12 @@ describe("MorningBrief", () => {
     render(<MorningBrief />);
     fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
 
-    expect(screen.getByRole("button")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /generating/i })).toBeDisabled();
 
     capturedHandlers!.onDone();
 
     await waitFor(() => {
-      expect(screen.getByRole("button")).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: /get my brief/i })).not.toBeDisabled();
     });
   });
 
