@@ -8,6 +8,7 @@ import { getHeadlineNewsRoute } from "./routes/getHeadlineNews.route";
 import { quizRoute } from "./routes/quiz.route";
 import { morningBriefRoute } from "./routes/morningBrief.route";
 import { submitFeedbackRoute } from "./routes/submitFeedback.route";
+import { paperOfYearRoute } from "./routes/paperOfYear.route";
 import { requestContext } from "./middleware/requestContext";
 
 export const app = express();
@@ -23,4 +24,5 @@ app.use("/getHeadlineNews", getHeadlineNewsRoute);
 app.use("/api/quiz", quizRoute);
 app.use("/api/morning-brief", morningBriefRoute);
 app.use("/api/morning-brief", submitFeedbackRoute);
+app.use("/api/paper-of-year", paperOfYearRoute);
 app.use(errorHandler);

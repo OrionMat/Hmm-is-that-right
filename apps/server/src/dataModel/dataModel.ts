@@ -170,3 +170,34 @@ export interface SectionDiagnostics {
   scrapes: ScrapeAttempt[];
   durations: SectionDurations;
 }
+
+// ─── Paper of the Year ────────────────────────────────────────────────────────
+
+/** Raw candidate returned from Semantic Scholar before LLM selection. */
+export interface PaperCandidate {
+  semanticScholarId: string;
+  arxivId: string;
+  title: string;
+  abstract: string;
+  authors: string[];
+  year: number;
+  citationCount: number;
+}
+
+/** The selected paper stored in the paper-of-year cache. */
+export interface PaperOfYear {
+  arxivId: string;
+  title: string;
+  abstract: string;
+  authors: string[];
+  year: number;
+  citationCount: number;
+  whyInteresting: string;
+  selectedAt: string;
+}
+
+/** One turn in a Q&A conversation. */
+export interface ConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}

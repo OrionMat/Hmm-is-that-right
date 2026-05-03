@@ -4,13 +4,17 @@ import {
   LongformMode,
   MorningBriefSection,
   SectionDiagnostics,
+  PaperOfYear as PaperOfYearType,
   SectionPayload,
 } from "../../dataModel/dataModel";
 import { subscribeMorningBrief } from "../../service/morningBriefStream";
+import { fetchPaperOfYear } from "../../service/paperOfYearService";
 import { PageContainer } from "../../components/PageContainer";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { BriefSection, SectionStatus } from "./components/BriefSection";
 import { BehindTheScenes } from "./components/BehindTheScenes";
 import { FeedbackForm } from "./components/FeedbackForm";
+import { PaperOfYear as PaperOfYearComponent } from "./components/PaperOfYear";
 
 interface SectionState {
   status: SectionStatus;
@@ -33,6 +37,9 @@ export const MorningBrief = () => {
   const [running, setRunning] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const disposeRef = useRef<(() => void) | null>(null);
+  const [paper, setPaper] = useState<PaperOfYearType | null>(null);
+  const [paperLoading, setPaperLoading] = useState(false);
+  const [paperError, setPaperError] = useState<string | null>(null);
 
   const patchSection = (section: MorningBriefSection, patch: Partial<SectionState>) =>
     setSections((prev) => ({ ...prev, [section]: { ...prev[section], ...patch } }));
@@ -79,6 +86,13 @@ export const MorningBrief = () => {
     });
 
     disposeRef.current = dispose;
+
+    setPaperError(null);
+    setPaperLoading(true);
+    fetchPaperOfYear()
+      .then((fetched) => setPaper(fetched))
+      .catch((err: Error) => setPaperError(err.message))
+      .finally(() => setPaperLoading(false));
   };
 
   // Cleanup on unmount
@@ -137,6 +151,19 @@ export const MorningBrief = () => {
         )}
 
         <FeedbackForm />
+
+        {paperLoading && (
+          <div className="w-full max-w-2xl flex items-center gap-2 p-6 border border-gray-200 rounded-lg">
+            <LoadingSpinner className="w-4 h-4 border-[1.5px]" />
+            <span className="font-mono text-sm text-gray-500">Loading paper…</span>
+          </div>
+        )}
+        {paperError && (
+          <p className="font-mono text-sm text-red-500">Paper of the Week unavailable: {paperError}</p>
+        )}
+        {paper && !paperLoading && (
+          <PaperOfYearComponent key={paper.arxivId} paper={paper} />
+        )}
       </div>
     </PageContainer>
   );

@@ -6,6 +6,10 @@ import { MorningBriefHandlers } from "../../service/morningBriefStream";
 
 vi.mock("../../service/morningBriefStream");
 vi.mock("../../service/submitFeedback");
+// Prevent fetchPaperOfYear from causing unhandled act() warnings in these tests
+vi.mock("../../service/paperOfYearService", () => ({
+  fetchPaperOfYear: vi.fn(() => new Promise(() => {})),
+}));
 
 let capturedHandlers: MorningBriefHandlers | null = null;
 

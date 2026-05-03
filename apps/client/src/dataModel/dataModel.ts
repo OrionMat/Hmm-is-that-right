@@ -222,6 +222,24 @@ export interface SectionDiagnostics {
   durations: SectionDurations;
 }
 
+// ─── Paper of the Year ────────────────────────────────────────────────────────
+
+export interface PaperOfYear {
+  arxivId: string;
+  title: string;
+  abstract: string;
+  authors: string[];
+  year: number;
+  citationCount: number;
+  whyInteresting: string;
+  selectedAt: string;
+}
+
+export interface ConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface CardData {
   name: string;
   handle: string;
