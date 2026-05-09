@@ -70,6 +70,7 @@ Hmm-is-that-right/
     ```
 3.  **Environment Configuration**:
     Copy `apps/server/.env.example` to `apps/server/.env` and fill in your keys:
+
     ```env
     # Required for Fact Check (Google Search via SerpAPI)
     SERP_SEARCH_API_KEY=<your-serpapi-key>
@@ -200,3 +201,13 @@ The CI job fails if any of these steps fail, ensuring code quality before mergin
 - [ ] Update HTML parsing selectors periodically as news site structures change.
 - [ ] Improve state management as the application grows.
 - [ ] Integrate TurboRepo for better monorepo management.
+
+### Other TODOs (need looking into)
+
+- great blog on auto research.
+- great blog on adding ai asist bug triaging with swipe right or left (building ai-powered github issue triage with the copilot sdk)
+- make a memory improvement part of the app
+- interview prepper ai agent
+- messaging
+- linting rules, what linting rules would be good to implement
+- think up a crazy hard feature to add to my app and start building it out 30 min moon shot, get lucky build something crazy with ai, like something crazy hard learning | build for the model 1 year away, like figure out how to build ai cyber ciso, or anything that is classicaly very hard and requires specific knowlege but can be done on a computer through language
