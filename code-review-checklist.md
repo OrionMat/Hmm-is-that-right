@@ -68,7 +68,7 @@ Architecture & Design
 
 - [ ] Is business logic placed in the correct layer? (i.e. in services)
 - [ ] Is the code easy to test?
-- [ ] Minimal code duplication?
+- [ ] Minimal code duplication? Review the code for any duplication or opportunities for abstraction.
 - [ ] Will this scale?
 - [ ] Be consistent with existing code in repo where possible.
 
@@ -118,8 +118,9 @@ Configuration & Environment
 
 - [ ] Any hard-coded variables that should be changed to environment variables?
 - [ ] Are defaults safe?
-- [ ] Are configuration values documented in readme
-- [ ] Is an example env file provided
+- [ ] Are configuration values documented in readme?
+- [ ] Is an example env file provided?
+- [ ] Review the code to identify any documentation gaps. Be sure to update the READMR.md to reflect any relevant changes
 
 Documentation
 
