@@ -115,13 +115,26 @@ function rssToSourceResults(results: RssFeedResult[]): SourceQueryResult[] {
   }));
 }
 
-export function worldSpec(): SectionSpec {
+const WORLD_DEFAULT_SOURCES = ["bbc", "ap", "reuters"] as const;
+
+export function worldSpec(enabledToggleSources?: string[]): SectionSpec {
+  // When tile toggles are provided, intersect with world's default set. "reuters"
+  // isn't a toggle-able source today, so it always stays unless we explicitly
+  // strip it. Toggles only meaningfully gate BBC/AP here.
+  const sources = enabledToggleSources
+    ? WORLD_DEFAULT_SOURCES.filter(
+        (s) => enabledToggleSources.includes(s) || !(["bbc", "ap"] as readonly string[]).includes(s),
+      )
+    : [...WORLD_DEFAULT_SOURCES];
   return {
     section: "world",
     displayName: "World Headlines",
     n: 2,
     async fetchCandidates(): Promise<FetchCandidatesResult> {
-      const feeds = await fetchRssFeedsWithStatus(["bbc", "ap", "reuters"]);
+      if (sources.length === 0) {
+        return { candidates: [], sources: [] };
+      }
+      const feeds = await fetchRssFeedsWithStatus(sources);
       const candidates: SectionCandidate[] = [];
       let i = 0;
       for (const feed of feeds) {

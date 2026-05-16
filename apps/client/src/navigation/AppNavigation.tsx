@@ -32,22 +32,6 @@ export const AppNavigation = () => {
             </li>
             <li>
               <Link
-                to={`/${PageNames.factCheck}`}
-                className="text-blue-600 hover:underline"
-              >
-                Fact Check
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={`/${PageNames.newsBytes}`}
-                className="text-blue-600 hover:underline"
-              >
-                News Bytes
-              </Link>
-            </li>
-            <li>
-              <Link
                 to={`/${PageNames.morningBrief}`}
                 className="text-blue-600 hover:underline"
               >

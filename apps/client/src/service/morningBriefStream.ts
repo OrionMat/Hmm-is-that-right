@@ -18,13 +18,31 @@ export interface MorningBriefHandlers {
   onConnectionError: () => void;
 }
 
+export interface MorningBriefOptions {
+  /** Optional free-form query. When set, the server runs a SerpAPI search and
+   *  replaces the three default sections with a single "search" section. */
+  query?: string;
+  /** Which toggle-able sources are enabled (e.g. ["bbc", "nyt", "ap"]). */
+  sources?: string[];
+}
+
 /**
  * Opens an SSE connection to /api/morning-brief/stream and dispatches
  * typed events to the provided handlers.
  * @returns disposer — call to close the stream early.
  */
-export function subscribeMorningBrief(handlers: MorningBriefHandlers): () => void {
-  const es = new EventSource("/api/morning-brief/stream");
+export function subscribeMorningBrief(
+  handlers: MorningBriefHandlers,
+  options: MorningBriefOptions = {},
+): () => void {
+  const params = new URLSearchParams();
+  if (options.query) params.set("query", options.query);
+  for (const source of options.sources ?? []) {
+    params.append("sources", source);
+  }
+  const qs = params.toString();
+  const url = qs ? `/api/morning-brief/stream?${qs}` : "/api/morning-brief/stream";
+  const es = new EventSource(url);
 
   es.addEventListener("section_start", (e: MessageEvent) => {
     const data = JSON.parse(e.data) as { section: MorningBriefSection; mode?: LongformMode };

@@ -112,6 +112,7 @@ export const MORNING_BRIEF_SECTION = {
   world: "world",
   tech: "tech",
   longform: "longform",
+  search: "search",
 } as const;
 export type MorningBriefSection = (typeof MORNING_BRIEF_SECTION)[keyof typeof MORNING_BRIEF_SECTION];
 
@@ -149,6 +150,7 @@ export const SOURCE_KIND = {
   hackernews: "hackernews",
   reddit: "reddit",
   paulgraham: "paulgraham",
+  serpapi: "serpapi",
 } as const;
 export type SourceKind = (typeof SOURCE_KIND)[keyof typeof SOURCE_KIND];
 

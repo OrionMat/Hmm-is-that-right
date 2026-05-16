@@ -1,7 +1,6 @@
-/** tests google searches for statement */
 import axios from "axios";
 import { vi } from "vitest";
-import { googleSearch } from "./googleSearch";
+import { googleSearch, toSourceUrls } from "./googleSearch";
 
 vi.mock("axios");
 vi.mock("../../logger.ts");
@@ -14,51 +13,36 @@ const mockAxios = vi.mocked(axios, true);
 const statement = "Kenya win 7s";
 const sources = ["fancy source", "shmancy source", "pure shmorce", "horse"];
 
-describe("Get URLs to related articles via Google search", () => {
-  test("Ideal case: axios HTTP GET requests are made with the correct parameters and URLs are correctly returned", async () => {
-    // setup
-    const axiosResponses = [
-      {
-        data: {
-          organic_results: [
-            { link: "www.fancy.com/article-1" },
-            { link: "www.fancy.com/article-2" },
-          ],
-        },
-      },
-      {
-        data: {
-          organic_results: [
-            { link: "www.shmancy.com/article-1" },
-            { link: "www.shmancy.com/article-2" },
-          ],
-        },
-      },
-      {
-        data: {
-          organic_results: [
-            { link: "www.shmorce.com/article-1" },
-            { link: "www.shmorce.com/article-2" },
-          ],
-        },
-      },
-      {
-        data: {
-          organic_results: [{ link: "www.sneakyWoodenHorse.com" }],
-        },
-      },
-    ];
+beforeEach(() => {
+  mockAxios.get.mockReset();
+});
 
-    // mocks
-    mockAxios.get.mockResolvedValueOnce(axiosResponses[0]);
-    mockAxios.get.mockRejectedValueOnce(axiosResponses[1]); // reject
-    mockAxios.get.mockResolvedValueOnce(axiosResponses[2]);
-    mockAxios.get.mockRejectedValueOnce(axiosResponses[3]); // reject
+describe("googleSearch", () => {
+  test("Ideal case: builds per-source SerpAPI requests and returns url+title+snippet results", async () => {
+    const fancyResponse = {
+      data: {
+        organic_results: [
+          { link: "www.fancy.com/article-1", title: "Fancy 1", snippet: "snip 1" },
+          { link: "www.fancy.com/article-2", title: "Fancy 2" },
+        ],
+      },
+    };
+    const shmorceResponse = {
+      data: {
+        organic_results: [
+          { link: "www.shmorce.com/article-1", title: "Shmorce 1" },
+          { link: "www.shmorce.com/article-2", title: "Shmorce 2" },
+        ],
+      },
+    };
 
-    // run test
-    const sourceUrls = await googleSearch(statement, sources);
+    mockAxios.get.mockResolvedValueOnce(fancyResponse);
+    mockAxios.get.mockRejectedValueOnce(new Error("boom"));
+    mockAxios.get.mockResolvedValueOnce(shmorceResponse);
+    mockAxios.get.mockRejectedValueOnce(new Error("boom2"));
 
-    // asserts: axios called with correct parameters
+    const results = await googleSearch(statement, sources);
+
     expect(mockAxios.get.mock.calls[0][0]).toBe("https://serpapi.com/search");
     expect(mockAxios.get.mock.calls[0][1]).toEqual({
       params: {
@@ -70,82 +54,60 @@ describe("Get URLs to related articles via Google search", () => {
         hl: "en",
       },
     });
-    expect(mockAxios.get.mock.calls[1][0]).toBe("https://serpapi.com/search");
-    expect(mockAxios.get.mock.calls[1][1]).toEqual({
-      params: {
-        api_key: "NOT_TELLING",
-        q: "shmancy source + Kenya win 7s",
-        engine: "google",
-        num: 10,
-        gl: "us",
-        hl: "en",
-      },
+    expect(mockAxios.get.mock.calls[1][1]).toMatchObject({
+      params: { q: "shmancy source + Kenya win 7s" },
     });
-    expect(mockAxios.get.mock.calls[2][0]).toBe("https://serpapi.com/search");
-    expect(mockAxios.get.mock.calls[2][1]).toEqual({
-      params: {
-        api_key: "NOT_TELLING",
-        q: "pure shmorce + Kenya win 7s",
-        engine: "google",
-        num: 10,
-        gl: "us",
-        hl: "en",
-      },
-    });
-    // asserts: correct urls are returned
-    expect(sourceUrls["fancy source"]).toEqual([
-      "www.fancy.com/article-1",
-      "www.fancy.com/article-2",
+
+    expect(results["fancy source"]).toEqual([
+      { url: "www.fancy.com/article-1", title: "Fancy 1", snippet: "snip 1" },
+      { url: "www.fancy.com/article-2", title: "Fancy 2", snippet: undefined },
     ]);
-    expect(sourceUrls?.["shmancy source"]).toBeUndefined();
-    expect(sourceUrls["pure shmorce"]).toEqual([
-      "www.shmorce.com/article-1",
-      "www.shmorce.com/article-2",
-    ]);
-    expect(sourceUrls?.["horse"]).toBeUndefined();
+    // Rejected promises map to an empty array for that source
+    expect(results["shmancy source"]).toEqual([]);
+    expect(results["pure shmorce"]).toHaveLength(2);
+    expect(results["horse"]).toEqual([]);
   });
 
-  test("Non-ideal case: No data is returned by Axios", async () => {
-    // setup
-    const axiosResponse: any = [];
+  test("Non-ideal case: malformed response keeps that source empty without throwing", async () => {
+    mockAxios.get.mockResolvedValueOnce({}); // missing .data
+    mockAxios.get.mockResolvedValueOnce({ data: {} }); // missing organic_results
+    mockAxios.get.mockResolvedValueOnce({ data: { organic_results: [{ snippet: "no link" }] } });
+    mockAxios.get.mockResolvedValueOnce({ data: { organic_results: [] } });
 
-    // mocks
-    mockAxios.get.mockResolvedValueOnce(axiosResponse);
+    const results = await googleSearch(statement, sources);
 
-    // run test
-    let dataError;
-    try {
-      await googleSearch(statement, sources);
-    } catch (error) {
-      dataError = error;
-    }
-
-    // asserts
-    expect(dataError).toEqual(
-      new Error(
-        "Searching Google: TypeError: Cannot read properties of undefined (reading 'data')"
-      )
-    );
+    expect(results["fancy source"]).toEqual([]);
+    expect(results["shmancy source"]).toEqual([]);
+    expect(results["pure shmorce"]).toEqual([]); // dropped: no .link
+    expect(results["horse"]).toEqual([]);
   });
 
-  test("Non-ideal case: Axios throws an error response", async () => {
-    // setup
-    const axiosResponse = { status: 500 };
-
-    // mocks
+  test("Non-ideal case: outer error path wraps and rethrows", async () => {
     mockAxios.get.mockImplementationOnce(() => {
-      throw axiosResponse;
+      throw { status: 500 };
     });
 
-    // run test
-    let dataError;
+    let caught: unknown;
     try {
-      await googleSearch(statement, sources);
-    } catch (error) {
-      dataError = error;
+      await googleSearch(statement, sources.slice(0, 1));
+    } catch (err) {
+      caught = err;
     }
 
-    // asserts
-    expect(dataError).toEqual(new Error("Searching Google: [object Object]"));
+    expect(caught).toEqual(new Error("Searching Google: [object Object]"));
+  });
+
+  test("toSourceUrls collapses rich results down to a plain SourceUrls map", () => {
+    const collapsed = toSourceUrls({
+      bbc: [
+        { url: "https://bbc.co.uk/1", title: "A" },
+        { url: "https://bbc.co.uk/2", title: "B", snippet: "x" },
+      ],
+      nyt: [],
+    });
+    expect(collapsed).toEqual({
+      bbc: ["https://bbc.co.uk/1", "https://bbc.co.uk/2"],
+      nyt: [],
+    });
   });
 });

@@ -1,9 +1,8 @@
-import { SelectNewsIcon } from "../../../icons/NewsIcons";
+import { SelectNewsIcon } from "../icons/NewsIcons";
 
 interface TileProps {
   source: string;
   isActive: boolean;
-  url: string;
   handleClick(toggledState: boolean): void;
   disabled?: boolean;
 }
