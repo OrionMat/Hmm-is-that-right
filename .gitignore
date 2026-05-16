@@ -51,3 +51,6 @@ Thumbs.db
 
 # Morning Brief personalisation context (contains personal data — never commit)
 apps/server/context/personalContext.md
+
+# Server runtime data (persisted caches)
+apps/server/data/
