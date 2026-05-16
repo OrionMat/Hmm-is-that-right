@@ -108,7 +108,13 @@ export interface IsActiveNewsSources {
 
 // ─── Morning Brief ────────────────────────────────────────────────────────────
 
-export type MorningBriefSection = "world" | "tech" | "longform";
+export const MORNING_BRIEF_SECTION = {
+  world: "world",
+  tech: "tech",
+  longform: "longform",
+} as const;
+export type MorningBriefSection = (typeof MORNING_BRIEF_SECTION)[keyof typeof MORNING_BRIEF_SECTION];
+
 export type LongformMode = "zoom-in" | "zoom-out" | "inversion";
 
 export interface BriefItem {
@@ -136,6 +142,84 @@ export interface SummaryChunkPayload {
 export interface SummaryDonePayload {
   section: MorningBriefSection;
   url: string;
+}
+
+export const SOURCE_KIND = {
+  rss: "rss",
+  hackernews: "hackernews",
+  reddit: "reddit",
+  paulgraham: "paulgraham",
+} as const;
+export type SourceKind = (typeof SOURCE_KIND)[keyof typeof SOURCE_KIND];
+
+export const SOURCE_STATUS = {
+  ok: "ok",
+  failed: "failed",
+  empty: "empty",
+} as const;
+export type SourceStatus = (typeof SOURCE_STATUS)[keyof typeof SOURCE_STATUS];
+
+export const SCRAPE_OUTCOME = {
+  scraped: "scraped",
+  prefetched: "prefetched",
+  snippetFallback: "snippet-fallback",
+} as const;
+export type ScrapeOutcome = (typeof SCRAPE_OUTCOME)[keyof typeof SCRAPE_OUTCOME];
+
+export const SELECTION_METHOD = {
+  llm: "llm",
+  scoreFallback: "score-fallback",
+  none: "none",
+} as const;
+export type SelectionMethod = (typeof SELECTION_METHOD)[keyof typeof SELECTION_METHOD];
+
+/** Outcome of querying a single upstream source for a section. */
+export interface SourceQueryResult {
+  source: string;
+  kind: SourceKind;
+  status: SourceStatus;
+  articlesReturned: number;
+  error?: string;
+}
+
+/** A raw candidate article considered for Stage-1 selection. `picked` flags Stage-1 winners. */
+export interface CandidateMeta {
+  id: string;
+  title: string;
+  source: string;
+  url: string;
+  score?: number;
+  picked: boolean;
+}
+
+export interface ScrapeAttempt {
+  url: string;
+  title: string;
+  source: string;
+  outcome: ScrapeOutcome;
+  contentChars?: number;
+}
+
+export interface SectionDurations {
+  fetchCandidatesMs: number;
+  selectionMs: number;
+  scrapingMs: number;
+  summarisationMs: number;
+  totalMs: number;
+}
+
+/** Behind-the-scenes report of how a section was built. */
+export interface SectionDiagnostics {
+  section: MorningBriefSection;
+  mode?: LongformMode;
+  cacheHit: boolean;
+  llmModel: string;
+  selectionMethod: SelectionMethod;
+  personalContextUsed: boolean;
+  sources: SourceQueryResult[];
+  candidates: CandidateMeta[];
+  scrapes: ScrapeAttempt[];
+  durations: SectionDurations;
 }
 
 export interface CardData {

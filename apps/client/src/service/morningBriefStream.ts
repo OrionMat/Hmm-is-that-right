@@ -4,6 +4,7 @@ import {
   LongformMode,
   SummaryChunkPayload,
   SummaryDonePayload,
+  SectionDiagnostics,
 } from "../dataModel/dataModel";
 
 export interface MorningBriefHandlers {
@@ -12,6 +13,7 @@ export interface MorningBriefHandlers {
   onSectionError: (section: MorningBriefSection, message: string) => void;
   onSummaryChunk?: (payload: SummaryChunkPayload) => void;
   onSummaryDone?: (payload: SummaryDonePayload) => void;
+  onSectionDiagnostics?: (diagnostics: SectionDiagnostics) => void;
   onDone: () => void;
   onConnectionError: () => void;
 }
@@ -47,6 +49,11 @@ export function subscribeMorningBrief(handlers: MorningBriefHandlers): () => voi
   es.addEventListener("summary_done", (e: MessageEvent) => {
     const payload = JSON.parse(e.data) as SummaryDonePayload;
     handlers.onSummaryDone?.(payload);
+  });
+
+  es.addEventListener("section_diagnostics", (e: MessageEvent) => {
+    const payload = JSON.parse(e.data) as SectionDiagnostics;
+    handlers.onSectionDiagnostics?.(payload);
   });
 
   let doneReceived = false;

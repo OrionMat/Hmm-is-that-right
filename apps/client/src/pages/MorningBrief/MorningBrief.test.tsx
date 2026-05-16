@@ -5,6 +5,7 @@ import * as streamService from "../../service/morningBriefStream";
 import { MorningBriefHandlers } from "../../service/morningBriefStream";
 
 vi.mock("../../service/morningBriefStream");
+vi.mock("../../service/submitFeedback");
 
 let capturedHandlers: MorningBriefHandlers | null = null;
 
@@ -21,6 +22,12 @@ describe("MorningBrief", () => {
     render(<MorningBrief />);
     expect(screen.getByRole("button", { name: /get my brief/i })).toBeInTheDocument();
     expect(screen.getByText("Morning Brief")).toBeInTheDocument();
+  });
+
+  it("renders the feedback form", () => {
+    render(<MorningBrief />);
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
   });
 
   it("shows loading state for all sections after clicking the button", async () => {
@@ -71,12 +78,12 @@ describe("MorningBrief", () => {
     render(<MorningBrief />);
     fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
 
-    expect(screen.getByRole("button")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /generating/i })).toBeDisabled();
 
     capturedHandlers!.onDone();
 
     await waitFor(() => {
-      expect(screen.getByRole("button")).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: /get my brief/i })).not.toBeDisabled();
     });
   });
 
@@ -89,6 +96,105 @@ describe("MorningBrief", () => {
     await waitFor(() => {
       expect(screen.getByText(/connection lost/i)).toBeInTheDocument();
     });
+  });
+
+  it("renders the Behind the scenes panel after section_diagnostics arrives", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onSectionDiagnostics!({
+      section: "world",
+      cacheHit: false,
+      llmModel: "claude-sonnet-4-6",
+      selectionMethod: "llm",
+      personalContextUsed: true,
+      sources: [
+        { source: "bbc", kind: "rss", status: "ok", articlesReturned: 3 },
+        { source: "ap", kind: "rss", status: "failed", articlesReturned: 0, error: "timeout" },
+      ],
+      candidates: [
+        {
+          id: "c1",
+          title: "Considered headline A",
+          source: "bbc",
+          url: "https://bbc.co.uk/a",
+          picked: true,
+        },
+        {
+          id: "c2",
+          title: "Considered headline B",
+          source: "ap",
+          url: "https://apnews.com/b",
+          picked: false,
+        },
+      ],
+      scrapes: [
+        {
+          url: "https://bbc.co.uk/a",
+          title: "Considered headline A",
+          source: "bbc",
+          outcome: "scraped",
+          contentChars: 1234,
+        },
+      ],
+      durations: {
+        fetchCandidatesMs: 100,
+        selectionMs: 200,
+        scrapingMs: 300,
+        summarisationMs: 400,
+        totalMs: 1000,
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Behind the scenes/i)).toBeInTheDocument();
+      // Picked headline appears in candidates list and scrape list
+      expect(screen.getAllByText("Considered headline A").length).toBeGreaterThan(0);
+      expect(screen.getByText("Considered headline B")).toBeInTheDocument();
+      // Failed source surfaces its error
+      expect(screen.getByText(/timeout/i)).toBeInTheDocument();
+      // Selection method line
+      expect(screen.getByText(/Selection: LLM/i)).toBeInTheDocument();
+    });
+  });
+
+  it("shows 'Served from cache' instead of stage timings when cacheHit is true", async () => {
+    render(<MorningBrief />);
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    capturedHandlers!.onSectionDiagnostics!({
+      section: "world",
+      cacheHit: true,
+      llmModel: "claude-sonnet-4-6",
+      selectionMethod: "llm",
+      personalContextUsed: true,
+      sources: [{ source: "bbc", kind: "rss", status: "ok", articlesReturned: 3 }],
+      candidates: [
+        {
+          id: "c1",
+          title: "Cached headline",
+          source: "bbc",
+          url: "https://bbc.co.uk/a",
+          picked: true,
+        },
+      ],
+      scrapes: [],
+      durations: {
+        fetchCandidatesMs: 0,
+        selectionMs: 0,
+        scrapingMs: 0,
+        summarisationMs: 0,
+        totalMs: 3,
+      },
+    });
+
+    await waitFor(() => {
+      // Match the dedicated cache-hit timing line ("Served from cache (3ms)"),
+      // distinct from the lower "Cache: hit (re-served from cache)" status line.
+      expect(screen.getByText(/^Served from cache \(/)).toBeInTheDocument();
+    });
+    // The per-stage timings line must not render in cache-hit mode
+    expect(screen.queryByText(/Timings:/i)).not.toBeInTheDocument();
   });
 
   it("appends streaming summary chunks to the matching item by url", async () => {

@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { BriefItem, LongformMode, MorningBriefSection, SectionPayload } from "../../dataModel/dataModel";
+import {
+  BriefItem,
+  LongformMode,
+  MorningBriefSection,
+  SectionDiagnostics,
+  SectionPayload,
+} from "../../dataModel/dataModel";
 import { subscribeMorningBrief } from "../../service/morningBriefStream";
 import { PageContainer } from "../../components/PageContainer";
 import { BriefSection, SectionStatus } from "./components/BriefSection";
+import { BehindTheScenes } from "./components/BehindTheScenes";
+import { FeedbackForm } from "./components/FeedbackForm";
 
 interface SectionState {
   status: SectionStatus;
   items?: BriefItem[];
   mode?: LongformMode;
   error?: string;
+  diagnostics?: SectionDiagnostics;
 }
 
 type SectionsState = Record<MorningBriefSection, SectionState>;
@@ -60,6 +69,8 @@ export const MorningBrief = () => {
             },
           };
         }),
+      onSectionDiagnostics: (diagnostics) =>
+        patchSection(diagnostics.section, { diagnostics }),
       onDone: () => setRunning(false),
       onConnectionError: () => {
         setRunning(false);
@@ -74,6 +85,7 @@ export const MorningBrief = () => {
   useEffect(() => () => disposeRef.current?.(), []);
 
   const allIdle = Object.values(sections).every((s) => s.status === "idle");
+  const anyDiagnostics = Object.values(sections).some((s) => s.diagnostics);
 
   return (
     <PageContainer id="morning-brief-content">
@@ -113,6 +125,18 @@ export const MorningBrief = () => {
             ))}
           </div>
         )}
+
+        {anyDiagnostics && (
+          <BehindTheScenes
+            diagnosticsBySection={{
+              world: sections.world.diagnostics,
+              tech: sections.tech.diagnostics,
+              longform: sections.longform.diagnostics,
+            }}
+          />
+        )}
+
+        <FeedbackForm />
       </div>
     </PageContainer>
   );

@@ -32,7 +32,7 @@ vi.mock("../parseHtml/parseHtml", () => ({
   parseHtmlWithMetrics: mockParseHtmlWithMetrics,
 }));
 
-import { buildSection, SectionCandidate, SectionSpec } from "./buildSection";
+import { buildSection, FetchCandidatesResult, SectionCandidate, SectionSpec } from "./buildSection";
 
 const CANDIDATES: SectionCandidate[] = [
   { id: "c1", title: "Story One", source: "bbc", url: "https://bbc.co.uk/1", score: 100 },
@@ -40,12 +40,16 @@ const CANDIDATES: SectionCandidate[] = [
   { id: "c3", title: "Story Three", source: "reuters", url: "https://reuters.com/3", score: 200 },
 ];
 
+function fcResult(candidates: SectionCandidate[]): FetchCandidatesResult {
+  return { candidates, sources: [] };
+}
+
 function makeSpec(overrides: Partial<SectionSpec> = {}): SectionSpec {
   return {
     section: "world",
     displayName: "World Headlines",
     n: 2,
-    fetchCandidates: vi.fn().mockResolvedValue(CANDIDATES),
+    fetchCandidates: vi.fn().mockResolvedValue(fcResult(CANDIDATES)),
     ...overrides,
   };
 }
@@ -60,29 +64,29 @@ beforeEach(() => {
 
 describe("buildSection", () => {
   it("returns an empty payload when no candidates are found", async () => {
-    const spec = makeSpec({ fetchCandidates: vi.fn().mockResolvedValue([]) });
+    const spec = makeSpec({ fetchCandidates: vi.fn().mockResolvedValue(fcResult([])) });
 
-    const result = await buildSection(spec, "ctx", "req-1");
+    const { payload } = await buildSection(spec, "ctx", "req-1");
 
-    expect(result.section).toBe("world");
-    expect(result.items).toEqual([]);
+    expect(payload.section).toBe("world");
+    expect(payload.items).toEqual([]);
   });
 
   it("runs the two-stage pipeline and returns summaries for picked items", async () => {
     mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}'); // stage-1
     mockLlmCompleteStream.mockImplementationOnce(() => streamOf("A great summary."));
 
-    const result = await buildSection(makeSpec(), "ctx", "req-1");
+    const { payload } = await buildSection(makeSpec(), "ctx", "req-1");
 
-    expect(result.items).toHaveLength(1);
-    expect(result.items[0]).toMatchObject({
+    expect(payload.items).toHaveLength(1);
+    expect(payload.items[0]).toMatchObject({
       title: "Story One",
       source: "bbc",
       url: "https://bbc.co.uk/1",
       summary: "A great summary.",
     });
-    expect(result.section).toBe("world");
-    expect(result.generatedAt).toBeTruthy();
+    expect(payload.section).toBe("world");
+    expect(payload.generatedAt).toBeTruthy();
   });
 
   it("invokes streaming callbacks: onSectionReady (skeleton), onSummaryChunk, onSummaryDone", async () => {
@@ -93,7 +97,7 @@ describe("buildSection", () => {
     const onSummaryChunk = vi.fn();
     const onSummaryDone = vi.fn();
 
-    const result = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1", undefined, {
+    const { payload } = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1", undefined, {
       onSectionReady,
       onSummaryChunk,
       onSummaryDone,
@@ -115,7 +119,7 @@ describe("buildSection", () => {
     expect(onSummaryDone).toHaveBeenCalledWith("https://bbc.co.uk/1");
 
     // Final return value still has the full accumulated summary
-    expect(result.items[0].summary).toBe("Hello world.");
+    expect(payload.items[0].summary).toBe("Hello world.");
   });
 
   it("falls back to top-by-score when stage-1 returns invalid JSON", async () => {
@@ -124,10 +128,10 @@ describe("buildSection", () => {
       .mockResolvedValueOnce("Sorry, I cannot help with that.")
       .mockResolvedValueOnce("Still not JSON.");
 
-    const result = await buildSection(makeSpec({ n: 2 }), "ctx", "req-1");
+    const { payload } = await buildSection(makeSpec({ n: 2 }), "ctx", "req-1");
 
     // Should fall back to top 2 by score: c3 (200) and c1 (100)
-    const titles = result.items.map((i) => i.title);
+    const titles = payload.items.map((i) => i.title);
     expect(titles).toContain("Story Three");
     expect(titles).toContain("Story One");
     expect(titles).not.toContain("Story Two");
@@ -136,17 +140,17 @@ describe("buildSection", () => {
   it("falls back to top-by-score when stage-1 LLM throws", async () => {
     mockLlmComplete.mockRejectedValueOnce(new Error("LLM unavailable")); // stage-1 throws
 
-    const result = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1");
+    const { payload } = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1");
 
     // Top by score is c3 (200)
-    expect(result.items[0].title).toBe("Story Three");
+    expect(payload.items[0].title).toBe("Story Three");
   });
 
   it("uses pre-fetched content and skips scraping for candidates that have it", async () => {
     const specWithContent = makeSpec({
-      fetchCandidates: vi.fn().mockResolvedValue([
-        { ...CANDIDATES[0], content: "Pre-fetched article text." },
-      ]),
+      fetchCandidates: vi.fn().mockResolvedValue(
+        fcResult([{ ...CANDIDATES[0], content: "Pre-fetched article text." }]),
+      ),
       n: 1,
     });
     mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}'); // stage-1
@@ -165,13 +169,97 @@ describe("buildSection", () => {
     );
   });
 
+  it("returns diagnostics with sources, candidates marked picked, and scrape outcomes", async () => {
+    mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}'); // stage-1 picks Story One
+    mockLlmCompleteStream.mockImplementationOnce(() => streamOf("Summary."));
+
+    // Simulate scraping returning content for the picked URL
+    mockScrapePageHtml.mockResolvedValueOnce({});
+    mockParseHtmlWithMetrics.mockReturnValueOnce({
+      newsPieces: [
+        {
+          url: "https://bbc.co.uk/1",
+          title: "Story One",
+          date: null,
+          body: ["Article body text."],
+          source: "bbc",
+        },
+      ],
+    });
+
+    const sources = [
+      { source: "bbc", kind: "rss" as const, status: "ok" as const, articlesReturned: 3 },
+      { source: "ap", kind: "rss" as const, status: "failed" as const, articlesReturned: 0, error: "timeout" },
+    ];
+    const spec = makeSpec({
+      n: 1,
+      fetchCandidates: vi.fn().mockResolvedValue({ candidates: CANDIDATES, sources }),
+    });
+
+    const { diagnostics: d } = await buildSection(spec, "ctx", "req-1");
+
+    expect(d.section).toBe("world");
+    expect(d.cacheHit).toBe(false);
+    expect(d.llmModel).toBe("claude-sonnet-4-6");
+    expect(d.selectionMethod).toBe("llm");
+    expect(d.personalContextUsed).toBe(true);
+    expect(d.sources).toEqual(sources);
+    expect(d.candidates).toHaveLength(3);
+    const picked = d.candidates.filter((c) => c.picked);
+    expect(picked).toHaveLength(1);
+    expect(picked[0]).toMatchObject({ id: "c1", title: "Story One", picked: true });
+    expect(d.scrapes).toHaveLength(1);
+    expect(d.scrapes[0]).toMatchObject({ url: "https://bbc.co.uk/1", outcome: "scraped" });
+    expect(d.durations.totalMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("returns diagnostics with selectionMethod=score-fallback when stage-1 LLM fails", async () => {
+    mockLlmComplete.mockRejectedValueOnce(new Error("LLM down"));
+
+    const { diagnostics } = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1");
+
+    expect(diagnostics.selectionMethod).toBe("score-fallback");
+  });
+
+  it("returns diagnostics with selectionMethod=none when there are no candidates", async () => {
+    const spec = makeSpec({ fetchCandidates: vi.fn().mockResolvedValue(fcResult([])) });
+
+    const { diagnostics: d } = await buildSection(spec, "ctx", "req-1");
+
+    expect(d.selectionMethod).toBe("none");
+    expect(d.candidates).toEqual([]);
+    expect(d.scrapes).toEqual([]);
+  });
+
+  it("flags scrape outcome=prefetched for candidates with pre-fetched content", async () => {
+    mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}');
+    const spec = makeSpec({
+      n: 1,
+      fetchCandidates: vi.fn().mockResolvedValue(
+        fcResult([{ ...CANDIDATES[0], content: "Pre-fetched body." }]),
+      ),
+    });
+
+    const { diagnostics } = await buildSection(spec, "ctx", "req-1");
+
+    expect(diagnostics.scrapes[0].outcome).toBe("prefetched");
+  });
+
+  it("flags scrape outcome=snippet-fallback when scraping returns no content", async () => {
+    mockLlmComplete.mockResolvedValueOnce('{"picks":["c1"]}');
+    // Default mocks: scrapePageHtml resolves to {}, parseHtmlWithMetrics returns no pieces
+    const { diagnostics } = await buildSection(makeSpec({ n: 1 }), "ctx", "req-1");
+
+    expect(diagnostics.scrapes[0].outcome).toBe("snippet-fallback");
+  });
+
   it("throws after fetchCandidates when the signal is aborted mid-flight", async () => {
     const ac = new AbortController();
 
     const spec = makeSpec({
       fetchCandidates: vi.fn().mockImplementation(async () => {
         ac.abort(); // abort fires while fetchCandidates is running
-        return CANDIDATES;
+        return fcResult(CANDIDATES);
       }),
     });
 

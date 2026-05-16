@@ -7,6 +7,7 @@ import { getNewsPiecesRoute } from "./routes/getNewsPieces.route";
 import { getHeadlineNewsRoute } from "./routes/getHeadlineNews.route";
 import { quizRoute } from "./routes/quiz.route";
 import { morningBriefRoute } from "./routes/morningBrief.route";
+import { submitFeedbackRoute } from "./routes/submitFeedback.route";
 import { requestContext } from "./middleware/requestContext";
 
 export const app = express();
@@ -21,4 +22,5 @@ app.use("/getNewsPieces", getNewsPiecesRoute);
 app.use("/getHeadlineNews", getHeadlineNewsRoute);
 app.use("/api/quiz", quizRoute);
 app.use("/api/morning-brief", morningBriefRoute);
+app.use("/api/morning-brief", submitFeedbackRoute);
 app.use(errorHandler);

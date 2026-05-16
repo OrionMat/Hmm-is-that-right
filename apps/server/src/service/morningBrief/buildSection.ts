@@ -1,11 +1,25 @@
 import { getLogger } from "../../logger";
-import { LongformMode, MorningBriefSection, SectionPayload, BriefItem, SourceUrls } from "../../dataModel/dataModel";
+import {
+  LongformMode,
+  MorningBriefSection,
+  SectionPayload,
+  BriefItem,
+  SourceUrls,
+  SectionDiagnostics,
+  SourceQueryResult,
+  CandidateMeta,
+  ScrapeAttempt,
+  SCRAPE_OUTCOME,
+  SELECTION_METHOD,
+} from "../../dataModel/dataModel";
 import { llmService } from "../../integration/llmService/llmService";
 import { scrapePageHtml } from "../../integration/scrapePageHtml/scrapePageHtml";
 import { parseHtmlWithMetrics } from "../parseHtml/parseHtml";
 import { buildSelectionPrompt, buildSummaryPrompt } from "./prompts";
 
 const log = getLogger("service/morningBrief/buildSection");
+
+const LLM_MODEL = "claude-sonnet-4-6";
 
 export interface SectionCandidate {
   id: string;
@@ -18,18 +32,26 @@ export interface SectionCandidate {
   content?: string;
 }
 
+/** Result of a spec's candidate-fetching phase, including per-source health for diagnostics. */
+export interface FetchCandidatesResult {
+  candidates: SectionCandidate[];
+  sources: SourceQueryResult[];
+}
+
 export interface SectionSpec {
   section: MorningBriefSection;
   mode?: LongformMode;
   displayName: string;
   n: number;
-  fetchCandidates: () => Promise<SectionCandidate[]>;
+  fetchCandidates: () => Promise<FetchCandidatesResult>;
 }
 
 /**
  * Callbacks for streaming progress updates. All optional — buildSection can
  * be called without them and behaves like a non-streaming function (returns
- * the full payload at the end).
+ * the full payload at the end). Diagnostics are returned as part of the
+ * result rather than via a callback because they're only fully known at the
+ * end of the pipeline.
  */
 export interface BuildSectionCallbacks {
   /** Fires once Stage-1 picks are decided, with empty `summary` strings. */
@@ -40,37 +62,78 @@ export interface BuildSectionCallbacks {
   onSummaryDone?: (url: string) => void;
 }
 
+export interface BuildSectionResult {
+  payload: SectionPayload;
+  diagnostics: SectionDiagnostics;
+}
+
 export async function buildSection(
   spec: SectionSpec,
   personalCtx: string,
   requestId: string,
   signal?: AbortSignal,
   callbacks?: BuildSectionCallbacks,
-): Promise<SectionPayload> {
+): Promise<BuildSectionResult> {
   if (signal?.aborted) throw new Error("Request aborted");
 
-  const candidates = await spec.fetchCandidates();
+  const startedAt = Date.now();
+  const personalContextUsed = personalCtx.trim().length > 0;
+
+  const fetchStart = Date.now();
+  const fetchResult = await spec.fetchCandidates();
+  const fetchCandidatesMs = Date.now() - fetchStart;
+  const candidates = fetchResult.candidates;
+  const sourcesQueried = fetchResult.sources;
 
   if (signal?.aborted) throw new Error("Request aborted");
 
   if (candidates.length === 0) {
     log.warn({ section: spec.section, requestId }, "No candidates found for section");
-    return emptyPayload(spec);
+    const diagnostics = makeDiagnostics({
+      spec,
+      sources: sourcesQueried,
+      candidateMetas: [],
+      selectionMethod: SELECTION_METHOD.none,
+      scrapes: [],
+      personalContextUsed,
+      durations: {
+        fetchCandidatesMs,
+        selectionMs: 0,
+        scrapingMs: 0,
+        summarisationMs: 0,
+        totalMs: Date.now() - startedAt,
+      },
+    });
+    return { payload: emptyPayload(spec), diagnostics };
   }
 
   log.info({ section: spec.section, candidates: candidates.length, requestId }, "Candidates fetched");
 
   // Stage 1: let Claude pick the best N
+  const selectionStart = Date.now();
   const pickedIds = await selectCandidates(candidates, spec.n, spec.section, spec.mode, personalCtx, signal);
   let picked = pickedIds
     .map((id) => candidates.find((c) => c.id === id))
     .filter((c): c is SectionCandidate => c !== undefined);
 
   // Fallback to top-by-score if Claude selection fails
+  let selectionMethod: SectionDiagnostics["selectionMethod"] = SELECTION_METHOD.llm;
   if (picked.length === 0) {
     log.warn({ section: spec.section, requestId }, "Stage-1 selection empty, falling back to score order");
     picked = [...candidates].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, spec.n);
+    selectionMethod = SELECTION_METHOD.scoreFallback;
   }
+  const selectionMs = Date.now() - selectionStart;
+
+  const pickedUrls = new Set(picked.map((p) => p.url));
+  const candidateMetas: CandidateMeta[] = candidates.map((c) => ({
+    id: c.id,
+    title: c.title,
+    source: c.source,
+    url: c.url,
+    score: c.score,
+    picked: pickedUrls.has(c.url),
+  }));
 
   log.info(
     { section: spec.section, requestId, picks: picked.map((p) => `${p.title} [${p.source}]`) },
@@ -98,7 +161,9 @@ export async function buildSection(
   if (signal?.aborted) throw new Error("Request aborted");
 
   // Stage 2: scrape + summarise each pick
-  const contentByUrl = await scrapePickedContent(picked);
+  const scrapeStart = Date.now();
+  const { contentByUrl, scrapes } = await scrapePickedContent(picked);
+  const scrapingMs = Date.now() - scrapeStart;
 
   const withContent = picked.filter((c) => !!contentByUrl.get(c.url));
   const snippetOnly = picked.filter((c) => !contentByUrl.get(c.url));
@@ -115,6 +180,7 @@ export async function buildSection(
     );
   }
 
+  const summariseStart = Date.now();
   const items = await summarisePicked(
     picked,
     contentByUrl,
@@ -124,8 +190,51 @@ export async function buildSection(
     signal,
     callbacks,
   );
+  const summarisationMs = Date.now() - summariseStart;
 
-  return { section: spec.section, mode: spec.mode, items, generatedAt };
+  const diagnostics = makeDiagnostics({
+    spec,
+    sources: sourcesQueried,
+    candidateMetas,
+    selectionMethod,
+    scrapes,
+    personalContextUsed,
+    durations: {
+      fetchCandidatesMs,
+      selectionMs,
+      scrapingMs,
+      summarisationMs,
+      totalMs: Date.now() - startedAt,
+    },
+  });
+
+  return {
+    payload: { section: spec.section, mode: spec.mode, items, generatedAt },
+    diagnostics,
+  };
+}
+
+function makeDiagnostics(args: {
+  spec: SectionSpec;
+  sources: SourceQueryResult[];
+  candidateMetas: CandidateMeta[];
+  selectionMethod: SectionDiagnostics["selectionMethod"];
+  scrapes: ScrapeAttempt[];
+  personalContextUsed: boolean;
+  durations: SectionDiagnostics["durations"];
+}): SectionDiagnostics {
+  return {
+    section: args.spec.section,
+    mode: args.spec.mode,
+    cacheHit: false,
+    llmModel: LLM_MODEL,
+    selectionMethod: args.selectionMethod,
+    personalContextUsed: args.personalContextUsed,
+    sources: args.sources,
+    candidates: args.candidateMetas,
+    scrapes: args.scrapes,
+    durations: args.durations,
+  };
 }
 
 function emptyPayload(spec: SectionSpec): SectionPayload {
@@ -144,7 +253,7 @@ async function selectCandidates(
 
   let raw: string;
   try {
-    raw = await llmService.complete(prompt, "claude-sonnet-4-6", signal);
+    raw = await llmService.complete(prompt, LLM_MODEL, signal);
   } catch (err) {
     if (signal?.aborted) throw err;
     log.warn({ section, err }, "Stage-1 LLM call failed, using score fallback");
@@ -160,7 +269,7 @@ async function selectCandidates(
   try {
     const retryRaw = await llmService.complete(
       prompt + "\n\nReturn ONLY the JSON object. No other text.",
-      "claude-sonnet-4-6",
+      LLM_MODEL,
       signal,
     );
     const retryParsed = tryParsePicksJson(retryRaw);
@@ -188,16 +297,30 @@ function tryParsePicksJson(raw: string): string[] | null {
   return null;
 }
 
-async function scrapePickedContent(picked: SectionCandidate[]): Promise<Map<string, string>> {
+async function scrapePickedContent(
+  picked: SectionCandidate[],
+): Promise<{ contentByUrl: Map<string, string>; scrapes: ScrapeAttempt[] }> {
   const contentByUrl = new Map<string, string>();
+  const scrapes: ScrapeAttempt[] = [];
 
   // Use pre-fetched content where available
   const toScrape = picked.filter((c) => !c.content);
   for (const c of picked) {
-    if (c.content) contentByUrl.set(c.url, c.content);
+    if (c.content) {
+      contentByUrl.set(c.url, c.content);
+      scrapes.push({
+        url: c.url,
+        title: c.title,
+        source: c.source,
+        outcome: SCRAPE_OUTCOME.prefetched,
+        contentChars: c.content.length,
+      });
+    }
   }
 
-  if (toScrape.length === 0) return contentByUrl;
+  if (toScrape.length === 0) {
+    return { contentByUrl, scrapes };
+  }
 
   const sourceUrls: SourceUrls = {};
   for (const c of toScrape) {
@@ -216,7 +339,28 @@ async function scrapePickedContent(picked: SectionCandidate[]): Promise<Map<stri
     log.warn({ err }, "Scraping picked articles failed, will use snippets as fallback");
   }
 
-  return contentByUrl;
+  for (const c of toScrape) {
+    const text = contentByUrl.get(c.url);
+    if (text) {
+      scrapes.push({
+        url: c.url,
+        title: c.title,
+        source: c.source,
+        outcome: SCRAPE_OUTCOME.scraped,
+        contentChars: text.length,
+      });
+    } else {
+      scrapes.push({
+        url: c.url,
+        title: c.title,
+        source: c.source,
+        outcome: SCRAPE_OUTCOME.snippetFallback,
+        contentChars: c.snippet?.length ?? 0,
+      });
+    }
+  }
+
+  return { contentByUrl, scrapes };
 }
 
 async function summarisePicked(
@@ -242,7 +386,7 @@ async function summarisePicked(
       log.debug({ title: candidate.title, requestId }, "Summarising article");
       let summary = "";
       try {
-        for await (const delta of llmService.completeStream(prompt, "claude-sonnet-4-6", signal)) {
+        for await (const delta of llmService.completeStream(prompt, LLM_MODEL, signal)) {
           summary += delta;
           callbacks?.onSummaryChunk?.(candidate.url, delta);
         }

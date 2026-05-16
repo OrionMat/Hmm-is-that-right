@@ -47,6 +47,68 @@ export const HAPPY_PATH_SSE_EVENTS: SseEvent[] = [
   { event: "summary_chunk", data: { section: "world", url: WORLD_ITEM_2_URL, delta: " talks" } },
   { event: "summary_chunk", data: { section: "world", url: WORLD_ITEM_2_URL, delta: " stall." } },
   { event: "summary_done", data: { section: "world", url: WORLD_ITEM_2_URL } },
+  // World diagnostics — emitted at end of section build
+  {
+    event: "section_diagnostics",
+    data: {
+      section: "world",
+      cacheHit: false,
+      llmModel: "claude-sonnet-4-6",
+      selectionMethod: "llm",
+      personalContextUsed: true,
+      sources: [
+        { source: "bbc", kind: "rss", status: "ok", articlesReturned: 5 },
+        { source: "ap", kind: "rss", status: "ok", articlesReturned: 4 },
+        { source: "reuters", kind: "rss", status: "failed", articlesReturned: 0, error: "timeout" },
+      ],
+      candidates: [
+        {
+          id: "c0",
+          title: "Global Climate Summit Opens",
+          source: "bbc",
+          url: WORLD_ITEM_1_URL,
+          picked: true,
+        },
+        {
+          id: "c1",
+          title: "UN Security Council Meets",
+          source: "ap",
+          url: WORLD_ITEM_2_URL,
+          picked: true,
+        },
+        {
+          id: "c2",
+          title: "Other story",
+          source: "bbc",
+          url: "https://bbc.co.uk/other",
+          picked: false,
+        },
+      ],
+      scrapes: [
+        {
+          url: WORLD_ITEM_1_URL,
+          title: "Global Climate Summit Opens",
+          source: "bbc",
+          outcome: "scraped",
+          contentChars: 8421,
+        },
+        {
+          url: WORLD_ITEM_2_URL,
+          title: "UN Security Council Meets",
+          source: "ap",
+          outcome: "snippet-fallback",
+          contentChars: 180,
+        },
+      ],
+      durations: {
+        fetchCandidatesMs: 820,
+        selectionMs: 1400,
+        scrapingMs: 2100,
+        summarisationMs: 4900,
+        totalMs: 9220,
+      },
+    },
+  },
 
   // Tech section complete
   {
