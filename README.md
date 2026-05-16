@@ -72,14 +72,14 @@ Hmm-is-that-right/
     Copy `apps/server/.env.example` to `apps/server/.env` and fill in your keys:
 
     ```env
-    # Required for Fact Check (Google Search via SerpAPI)
+    # Required for Morning Brief search (Google Search via SerpAPI)
     SERP_SEARCH_API_KEY=<your-serpapi-key>
 
-    # Required for NewsBytes LLM summarisation
-    GEMINI_API_KEY=<your-gemini-key>
-
-    # Required for Morning Brief (Claude Sonnet 4.6)
+    # Required for Morning Brief summarisation (Claude Sonnet 4.6)
     ANTHROPIC_API_KEY=<your-anthropic-key>
+
+    # Optional: alternative LLM provider
+    GEMINI_API_KEY=<your-gemini-key>
 
     # Optional
     OPENAI_API_KEY=<your-openai-key>

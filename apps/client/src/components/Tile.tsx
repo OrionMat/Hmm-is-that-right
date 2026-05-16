@@ -1,9 +1,9 @@
-import { SelectNewsIcon } from "../../../icons/NewsIcons";
+import { SelectNewsIcon } from "../icons/NewsIcons";
+import { ToggleSource } from "../dataModel/dataModel";
 
 interface TileProps {
-  source: string;
+  source: ToggleSource;
   isActive: boolean;
-  url: string;
   handleClick(toggledState: boolean): void;
   disabled?: boolean;
 }

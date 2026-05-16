@@ -63,7 +63,7 @@ export interface HeadlineSummary {
 
 // ─── Morning Brief ────────────────────────────────────────────────────────────
 
-export type MorningBriefSection = "world" | "tech" | "longform";
+export type MorningBriefSection = "world" | "tech" | "longform" | "search";
 export type LongformMode = "zoom-in" | "zoom-out" | "inversion";
 
 export interface BriefItem {
@@ -98,6 +98,7 @@ export const SOURCE_KIND = {
   hackernews: "hackernews",
   reddit: "reddit",
   paulgraham: "paulgraham",
+  serpapi: "serpapi",
 } as const;
 export type SourceKind = (typeof SOURCE_KIND)[keyof typeof SOURCE_KIND];
 

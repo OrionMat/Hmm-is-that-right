@@ -197,6 +197,51 @@ describe("MorningBrief", () => {
     expect(screen.queryByText(/Timings:/i)).not.toBeInTheDocument();
   });
 
+  it("passes enabled source toggles through to the stream subscriber", () => {
+    render(<MorningBrief />);
+    // BBC, NYT, AP all start enabled — find the NYT tile by its aria-pressed state
+    // and click it off. Tiles are buttons with aria-pressed.
+    const tiles = screen.getAllByRole("button", { pressed: true });
+    // Three tiles + one feedback-form submit button is also a button but not pressed.
+    expect(tiles.length).toBeGreaterThanOrEqual(3);
+    // Disable the second tile (nyt by ordering: bbc, nyt, ap)
+    fireEvent.click(tiles[1]);
+
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    expect(streamService.subscribeMorningBrief).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ sources: ["bbc", "ap"], query: undefined }),
+    );
+  });
+
+  it("passes the typed query through and renders only the search section", async () => {
+    render(<MorningBrief />);
+    const input = screen.getByPlaceholderText(/search a topic/i);
+    fireEvent.change(input, { target: { value: "AI safety" } });
+    fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));
+
+    expect(streamService.subscribeMorningBrief).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ query: "AI safety" }),
+    );
+
+    capturedHandlers!.onSectionComplete({
+      section: "search",
+      items: [{ title: "Search Hit", url: "https://x/1", source: "bbc", summary: "Body." }],
+      generatedAt: "2026-04-21T08:00:00Z",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Search Results")).toBeInTheDocument();
+      expect(screen.getByText("Search Hit")).toBeInTheDocument();
+    });
+    // Default section titles must NOT render in search mode
+    expect(screen.queryByText("World Headlines")).not.toBeInTheDocument();
+    expect(screen.queryByText("Tech & AI")).not.toBeInTheDocument();
+    expect(screen.queryByText("Long-Form Insight")).not.toBeInTheDocument();
+  });
+
   it("appends streaming summary chunks to the matching item by url", async () => {
     render(<MorningBrief />);
     fireEvent.click(screen.getByRole("button", { name: /get my brief/i }));

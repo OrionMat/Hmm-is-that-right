@@ -9,6 +9,7 @@ import {
   SOURCE_STATUS,
 } from "../../dataModel/dataModel";
 import { getLogger } from "../../logger";
+import { SUPPORTED_TOGGLE_SOURCES, ToggleSource } from "../../schemas/morningBrief.schema";
 import { FetchCandidatesResult, SectionCandidate, SectionSpec } from "./buildSection";
 
 const log = getLogger("service/morningBrief/sectionSpecs");
@@ -115,13 +116,27 @@ function rssToSourceResults(results: RssFeedResult[]): SourceQueryResult[] {
   }));
 }
 
-export function worldSpec(): SectionSpec {
+const WORLD_DEFAULT_SOURCES = ["bbc", "nyt", "ap", "reuters"] as const;
+
+export function worldSpec(enabledToggleSources?: ToggleSource[]): SectionSpec {
+  // Keep non-togglable sources (e.g. reuters) always. For togglable sources,
+  // keep only those the user has enabled.
+  const sources = enabledToggleSources
+    ? WORLD_DEFAULT_SOURCES.filter(
+        (s) =>
+          !(SUPPORTED_TOGGLE_SOURCES as readonly string[]).includes(s) ||
+          (enabledToggleSources as readonly string[]).includes(s),
+      )
+    : [...WORLD_DEFAULT_SOURCES];
   return {
     section: "world",
     displayName: "World Headlines",
     n: 2,
     async fetchCandidates(): Promise<FetchCandidatesResult> {
-      const feeds = await fetchRssFeedsWithStatus(["bbc", "ap", "reuters"]);
+      if (sources.length === 0) {
+        return { candidates: [], sources: [] };
+      }
+      const feeds = await fetchRssFeedsWithStatus(sources);
       const candidates: SectionCandidate[] = [];
       let i = 0;
       for (const feed of feeds) {

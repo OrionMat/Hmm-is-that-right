@@ -2,8 +2,6 @@ import { Navigate } from "react-router-dom";
 import { AppNavigation } from "./AppNavigation";
 import { PageNames } from "../pages/PageNames";
 import ErrorPage from "../pages/ErrorPage";
-import { FactCheck } from "../pages/FactCheck/FactCheck";
-import { NewsBytes } from "../pages/NewsBytes/NewsBytes";
 import { MorningBrief } from "../pages/MorningBrief/MorningBrief";
 import { Academics } from "../pages/Academics/Academics";
 import { SignUp } from "../pages/SignUp/SignUp";
@@ -20,8 +18,6 @@ export const AppRoutes = [
       // i.e www.example.com goes to www.example.com/home
       { index: true, element: <Navigate to={PageNames.home} replace /> },
       { path: PageNames.home, element: <Home /> },
-      { path: PageNames.factCheck, element: <FactCheck /> },
-      { path: PageNames.newsBytes, element: <NewsBytes /> },
       { path: PageNames.morningBrief, element: <MorningBrief /> },
       { path: PageNames.academics, element: <Academics /> },
       { path: PageNames.messenger, element: <div>Messenger</div> },

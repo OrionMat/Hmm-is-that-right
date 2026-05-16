@@ -13,7 +13,11 @@
       "Bash(npm run test:run:*)",
       "Bash(timeout 5 npm run preview:*)",
       "Bash(npm run:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(npx eslint *)",
+      "Bash(npm test *)"
     ]
   }
 }

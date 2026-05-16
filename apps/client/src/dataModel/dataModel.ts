@@ -108,10 +108,18 @@ export interface IsActiveNewsSources {
 
 // ─── Morning Brief ────────────────────────────────────────────────────────────
 
+/**
+ * The togglable news sources surfaced as Tile components on Morning Brief.
+ * Kept in sync with SUPPORTED_TOGGLE_SOURCES in apps/server/src/schemas/morningBrief.schema.ts.
+ */
+export const TOGGLE_SOURCES = ["bbc", "nyt", "ap"] as const;
+export type ToggleSource = (typeof TOGGLE_SOURCES)[number];
+
 export const MORNING_BRIEF_SECTION = {
   world: "world",
   tech: "tech",
   longform: "longform",
+  search: "search",
 } as const;
 export type MorningBriefSection = (typeof MORNING_BRIEF_SECTION)[keyof typeof MORNING_BRIEF_SECTION];
 
@@ -149,6 +157,7 @@ export const SOURCE_KIND = {
   hackernews: "hackernews",
   reddit: "reddit",
   paulgraham: "paulgraham",
+  serpapi: "serpapi",
 } as const;
 export type SourceKind = (typeof SOURCE_KIND)[keyof typeof SOURCE_KIND];
 

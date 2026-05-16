@@ -1,4 +1,3 @@
-/** searches google for statement */
 import axios from "axios";
 import { getLogger } from "../../logger";
 import { serverConfig } from "../../config/serverConfig";
@@ -6,62 +5,73 @@ import { SourceUrls } from "../../dataModel/dataModel";
 
 const log = getLogger("integration/googleSearch");
 
+export interface GoogleSearchResult {
+  url: string;
+  title: string;
+  snippet?: string;
+}
+
+export type SearchResultsBySource = Record<string, GoogleSearchResult[]>;
+
 /**
- * Searches Google for the query statement and returns the top result URLs. 125 credits with SERP google search library
- * @param statement Statement to be fact checked
- * @param sources Sources to cross check statement with
- * @returns Array of URLS for each source. i.e {bbc: ["www.bbc...", "www.bbc..."], nyt: ["www.nyt...", "www.nyt..."], ...}
+ * Searches Google (via SerpAPI) for `statement` scoped per source. Returns the
+ * top organic results (url + title + snippet) keyed by source. ~125 SerpAPI
+ * credits per call (one request per source).
  */
 export async function googleSearch(
   statement: string,
   sources: string[]
-): Promise<SourceUrls> {
-  log.info(
-    `Google searching news sources: ${sources}. With statement: ${statement}`
-  );
+): Promise<SearchResultsBySource> {
+  log.info({ sources, statement }, "Google searching news sources");
 
-  // build array of search queries. i.e ["bbc + Kenya win 7s", "nyt + Kenya win 7s"]
   const queries = sources.map((source) => `${source} + ${statement}`);
 
-  // set up list of request parameters
   const paramsList = queries.map((query) => ({
     api_key: serverConfig.serpSearchApiKey,
-    q: query, // The search query
-    engine: "google", // Specify the search engine
-    num: 10, // Request 5 results
-    gl: "us", // Google location parameter (country)
-    hl: "en", // Host language parameter
+    q: query,
+    engine: "google",
+    num: 10,
+    gl: "us",
+    hl: "en",
   }));
 
-  let sourceUrls: SourceUrls = {};
+  const resultsBySource: SearchResultsBySource = {};
   try {
-    // make the http GET request to Scale SERP
     const rawResults = paramsList.map((params) =>
-      axios.get("https://serpapi.com/search", {
-        params,
-      })
+      axios.get("https://serpapi.com/search", { params })
     );
-    log.debug(`Made get request to Google`);
 
-    // resolve all promised search results
     const rawDataList = (await Promise.allSettled(rawResults)).map((result) =>
       result.status === "fulfilled" ? result.value.data : undefined
     );
-    log.trace(`Resolved search results ${JSON.stringify(rawDataList)}`);
 
-    // map raw data to arrays of urls for each news source
     sources.forEach((source, index) => {
-      if (rawDataList[index]) {
-        const results = rawDataList[index].organic_results;
-        const urls: string[] = results.map((result: any) => result.link);
-        sourceUrls[source] = urls;
-      }
+      const organic = rawDataList[index]?.organic_results ?? [];
+      resultsBySource[source] = organic
+        .filter((r: { link?: unknown }) => typeof r.link === "string")
+        .map((r: { link: string; title?: string; snippet?: string }) => ({
+          url: r.link,
+          title: typeof r.title === "string" ? r.title : "",
+          snippet: typeof r.snippet === "string" ? r.snippet : undefined,
+        }));
     });
   } catch (error) {
-    log.error(`Error searching Google: ${JSON.stringify(error)}`);
+    log.error({ error }, "Error searching Google");
     throw new Error(`Searching Google: ${error}`);
   }
 
-  log.info(`URLs found: ${JSON.stringify(sourceUrls)}`);
-  return sourceUrls;
+  log.info(
+    { counts: Object.fromEntries(Object.entries(resultsBySource).map(([s, r]) => [s, r.length])) },
+    "Google search results"
+  );
+  return resultsBySource;
+}
+
+/** Convenience: collapse the rich result map back to a plain URLs-per-source map. */
+export function toSourceUrls(results: SearchResultsBySource): SourceUrls {
+  const out: SourceUrls = {};
+  for (const [source, items] of Object.entries(results)) {
+    out[source] = items.map((r) => r.url);
+  }
+  return out;
 }

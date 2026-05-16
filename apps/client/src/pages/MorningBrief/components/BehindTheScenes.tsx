@@ -47,6 +47,7 @@ interface BehindTheScenesProps {
 }
 
 const ORDERED_SECTIONS: MorningBriefSection[] = [
+  MORNING_BRIEF_SECTION.search,
   MORNING_BRIEF_SECTION.world,
   MORNING_BRIEF_SECTION.tech,
   MORNING_BRIEF_SECTION.longform,

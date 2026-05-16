@@ -3,8 +3,6 @@ import cors from "cors";
 import express from "express";
 import expressPinoLogger from "express-pino-logger";
 import { errorHandler } from "./middleware/errorHandler";
-import { getNewsPiecesRoute } from "./routes/getNewsPieces.route";
-import { getHeadlineNewsRoute } from "./routes/getHeadlineNews.route";
 import { quizRoute } from "./routes/quiz.route";
 import { morningBriefRoute } from "./routes/morningBrief.route";
 import { submitFeedbackRoute } from "./routes/submitFeedback.route";
@@ -18,8 +16,6 @@ app.use("/", express.static(path.join(__dirname, "../../client/build")));
 app.use(requestContext);
 app.use(expressPinoLogger());
 
-app.use("/getNewsPieces", getNewsPiecesRoute);
-app.use("/getHeadlineNews", getHeadlineNewsRoute);
 app.use("/api/quiz", quizRoute);
 app.use("/api/morning-brief", morningBriefRoute);
 app.use("/api/morning-brief", submitFeedbackRoute);
