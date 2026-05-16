@@ -3,6 +3,9 @@ import { PaperOfYear, ConversationTurn } from "../dataModel/dataModel";
 export async function fetchPaperOfYear(): Promise<PaperOfYear> {
   const response = await fetch("/api/paper-of-year");
   if (!response.ok) {
+    if (response.status === 503 || response.status === 429) {
+      throw new Error("Paper service temporarily unavailable — rate limited. Try again in a few minutes.");
+    }
     throw new Error(`Paper fetch failed: ${response.status}`);
   }
   return response.json() as Promise<PaperOfYear>;

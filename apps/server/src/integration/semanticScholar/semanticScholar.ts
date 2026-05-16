@@ -5,6 +5,13 @@ import { PaperCandidate } from "../../dataModel/dataModel";
 
 const log = getLogger("integration/semanticScholar");
 
+export class SemanticScholarRateLimitError extends Error {
+  constructor() {
+    super("Semantic Scholar rate limit exceeded — try again later");
+    this.name = "SemanticScholarRateLimitError";
+  }
+}
+
 const BASE_URL = "https://api.semanticscholar.org/graph/v1/paper/search";
 const FETCH_TIMEOUT_MS = 15000;
 const OPEN_ACCESS_STATUSES = new Set(["GREEN", "HYBRID"]);
@@ -57,6 +64,10 @@ export async function fetchTopPapers(): Promise<PaperCandidate[]> {
     log.info({ candidateCount: candidates.length }, "Semantic Scholar candidates fetched");
     return candidates;
   } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 429) {
+      log.warn({ err }, "Semantic Scholar fetch failed");
+      throw new SemanticScholarRateLimitError();
+    }
     log.warn({ err }, "Semantic Scholar fetch failed");
     return [];
   }
