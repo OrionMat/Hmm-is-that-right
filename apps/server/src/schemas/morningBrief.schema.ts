@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const SUPPORTED_TOGGLE_SOURCES = ["bbc", "nyt", "ap"] as const;
+export const SUPPORTED_TOGGLE_SOURCES = ["bbc", "nyt", "ap"] as const;
 
 export const morningBriefQuerySchema = z.object({
   /** Override the date for mode rotation testing, format: YYYY-MM-DD */

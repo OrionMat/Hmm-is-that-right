@@ -23,7 +23,7 @@ cd apps/client && npm run test:unit
 
 ## Project Overview
 
-"Hmm is that right?" is a fact-checking web application that automates cross-checking news statements across multiple sources. Users enter a statement, select news sources, and the app scrapes and displays related articles for comparison. It also offers LLM-generated headline summaries (NewsBytes) and a media literacy quiz (Academics).
+"Hmm is that right?" is a news web application centred on a Morning Brief: a daily LLM-summarised digest of world headlines, tech stories, and long-form pieces, plus a free-form news search that scopes SerpAPI queries to user-selected sources. It also offers a media literacy quiz (Academics).
 
 ## Repository Structure
 
@@ -50,10 +50,10 @@ Client and server are independent npm packages — each has its own `node_module
 - **Build**: Vite with TypeScript 5.9.3 (strict mode)
 - **Testing**: Vitest (unit), Playwright (integration + E2E)
 - **Key directories**:
-  - `src/pages/` — Route-level pages (FactCheck, NewsBytes, Academics, Home, SignUp)
-  - `src/components/` — Reusable UI (LoadingSpinner, PageContainer, etc.)
+  - `src/pages/` — Route-level pages (MorningBrief, Academics, Home, SignUp)
+  - `src/components/` — Reusable UI (LoadingSpinner, PageContainer, SearchBar, Tile, etc.)
   - `src/navigation/` — AppRoutes.tsx (all routes), AppNavigation.tsx (wrapper)
-  - `src/service/` — API client functions (`getNewsPieces.ts`, `getHeadlineNews.ts`)
+  - `src/service/` — API client functions (`morningBriefStream.ts`)
   - `src/dataModel/` — Shared TypeScript interfaces (`dataModel.ts`, `quizModel.ts`)
   - `src/hooks/` — Custom React hooks (`useQuiz.ts`)
   - `src/icons/` — Icon components (SVG via vite-plugin-svgr)
@@ -67,8 +67,8 @@ Client and server are independent npm packages — each has its own `node_module
 - **Key directories**:
   - `src/routes/` — Express routers (one file per endpoint)
   - `src/controllers/` — Route handlers (extract params, call service, return JSON)
-  - `src/service/` — Business logic (`getNewsPieces.ts`, `getHeadlineNews.ts`, `cleanUrls/`, `parseHtml/`, `summarizeArticles/`)
-  - `src/integration/` — External API wrappers (`googleSearch/`, `scrapePageHtml/`, `llmService/`, `fetchRssFeed/`, `scrapeHomepageUrls/`)
+  - `src/service/` — Business logic (`morningBrief/`, `cleanUrls/`, `parseHtml/`)
+  - `src/integration/` — External API wrappers (`googleSearch/`, `scrapePageHtml/`, `llmService/`, `fetchRssFeed/`, `hackerNews/`, `reddit/`, `paulGraham/`)
   - `src/schemas/` — Zod validation schemas for request inputs
   - `src/middleware/` — `validateRequest.ts`, `requestContext.ts`, `errorHandler.ts`
   - `src/config/` — `serverConfig.ts` (env vars), `sources.ts` (CSS selectors), `rssFeeds.ts`
@@ -80,8 +80,7 @@ Client and server are independent npm packages — each has its own `node_module
 |------|-----------|--------|
 | `/` | redirects to `/home` | — |
 | `/home` | Home | Landing page |
-| `/fact-check` | FactCheck | Main feature |
-| `/news-bytes` | NewsBytes | LLM summaries |
+| `/morning-brief` | MorningBrief | Main feature — daily brief + free-form news search with source toggles |
 | `/academics` | Academics | Quiz |
 | `/sign-up` | SignUp | Registration |
 | `/messenger`, `/market`, `/account` | Placeholder | Not implemented |
@@ -90,9 +89,14 @@ Client and server are independent npm packages — each has its own `node_module
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/getNewsPieces` | Fact-check a statement across sources |
-| GET | `/getHeadlineNews` | Fetch and summarize headlines |
+| GET | `/api/morning-brief/stream` | SSE stream of the Morning Brief sections |
 | POST | `/api/quiz` | Generate quiz questions |
+
+`/api/morning-brief/stream` query params:
+- `date` (optional, `YYYY-MM-DD`) — override the date for mode rotation testing.
+- `nocache=1` (optional) — bypass the in-memory section cache.
+- `query` (optional, 1–200 chars) — when present, replaces the three default sections with a single SerpAPI-driven search section.
+- `sources` (optional, repeatable, one of `bbc|nyt|ap`) — which toggle sources are enabled. Filters the World section in default mode and scopes the search section in search mode. Defaults to all.
 
 ### Server Request Pipeline
 
@@ -159,8 +163,8 @@ npm run lint             # ESLint (0 warnings allowed)
 npm run type-check       # tsc --noEmit
 
 # Run a single test file (faster feedback)
-npx vitest run src/pages/FactCheck/FactCheck.test.tsx
-npx playwright test tests/integration/fact-check.spec.ts
+npx vitest run src/pages/MorningBrief/MorningBrief.test.tsx
+npx playwright test tests/integration/morning-brief.spec.ts
 ```
 
 ## Environment Setup
@@ -168,13 +172,14 @@ npx playwright test tests/integration/fact-check.spec.ts
 Create `apps/server/.env`:
 
 ```
-SERP_SEARCH_API_KEY=<your-serpapi-key>      # Required: Google search via SerpAPI
-GEMINI_API_KEY=<your-gemini-api-key>        # Required for NewsBytes (free tier available)
-OPENAI_API_KEY=<your-openai-api-key>        # Optional: only for GPT-4o-mini model
+SERP_SEARCH_API_KEY=<your-serpapi-key>      # Required: Google search via SerpAPI (Morning Brief search)
+ANTHROPIC_API_KEY=<your-anthropic-api-key>  # Required: Morning Brief summarisation
+GEMINI_API_KEY=<your-gemini-api-key>        # Optional: alternative LLM provider
+OPENAI_API_KEY=<your-openai-api-key>        # Optional: alternative LLM provider
 LOG_LEVEL=info                              # Optional: trace|debug|info|warn|error|fatal
 ```
 
-The client Vite dev server proxies `/api` requests to `http://localhost:3001` automatically. For non-`/api` routes (e.g., `/getNewsPieces`), the client service calls `http://localhost:3001` directly.
+The client Vite dev server proxies `/api` requests to `http://localhost:3001` automatically.
 
 ## Key Conventions
 
@@ -211,11 +216,8 @@ Use the `?react` suffix for SVG imports (vite-plugin-svgr):
 import MyIcon from './my-icon.svg?react';
 ```
 
-### LLM Models (NewsBytes)
-Supported models defined in `apps/client/src/dataModel/dataModel.ts`:
-- `gemini-2.0-flash-lite` — Gemini 2.0 Flash-Lite (free tier)
-- `gemini-2.5-flash` — Gemini 2.5 Flash
-- `gpt-4o-mini` — OpenAI GPT-4o-mini (requires `OPENAI_API_KEY`)
+### LLM Models
+Supported summarisation models are declared in `apps/client/src/dataModel/dataModel.ts` (`LLM_MODELS`). The server selects a provider based on the model id and requires the matching API key in env.
 
 ## Testing Strategy
 
@@ -261,10 +263,10 @@ When adding new features, use these files as canonical examples of each pattern:
 | Pattern | Reference file(s) |
 |---------|-------------------|
 | Service + unit tests | `apps/server/src/service/cleanUrls/cleanUrls.ts` + `cleanUrls.test.ts` — pure function, metrics logging, full coverage across ideal and non-ideal cases |
-| Route → controller → schema triple | `apps/server/src/routes/getNewsPieces.route.ts`, `src/controllers/getNewsPieces.controller.ts`, `src/schemas/getNewsPieces.schema.ts` |
+| Route → controller → schema triple | `apps/server/src/routes/morningBrief.route.ts`, `src/controllers/morningBrief.controller.ts`, `src/schemas/morningBrief.schema.ts` |
 | Reusable Express middleware | `apps/server/src/middleware/validateRequest.ts` — generic Zod validation, attaches to `request.validated` |
-| Playwright integration test | `apps/client/tests/integration/fact-check.spec.ts` — route interception mock, user actions, assertions |
-| React page with async data | `apps/client/src/pages/FactCheck/FactCheck.tsx` + `FactCheck.test.tsx` |
+| Playwright integration test | `apps/client/tests/integration/morning-brief.spec.ts` — route interception mock, user actions, assertions |
+| React page with async data | `apps/client/src/pages/MorningBrief/MorningBrief.tsx` + `MorningBrief.test.tsx` |
 
 ## Future Plans (from README TODO)
 - Stance detection and summarization via ChatGPT API

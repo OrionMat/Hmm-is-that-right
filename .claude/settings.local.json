@@ -16,7 +16,8 @@
       "Bash(gh pr:*)",
       "Bash(npx tsc *)",
       "Bash(npx vitest *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(npm test *)"
     ]
   }
 }

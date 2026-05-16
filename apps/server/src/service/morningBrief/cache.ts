@@ -6,8 +6,11 @@ interface CacheEntry<T> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const store = new Map<string, CacheEntry<any>>();
 
-export function cacheKey(date: string, section: string, mode?: string): string {
-  return mode ? `${date}:${section}:${mode}` : `${date}:${section}`;
+export function cacheKey(date: string, section: string, ...parts: string[]): string {
+  const filtered = parts.filter((p) => p.length > 0);
+  return filtered.length > 0
+    ? `${date}:${section}:${filtered.join(":")}`
+    : `${date}:${section}`;
 }
 
 export function cacheGet<T>(key: string): T | undefined {

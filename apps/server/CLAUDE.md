@@ -33,7 +33,7 @@ route (src/routes/)
 4. **Service** — create `src/service/<name>.ts`. Accept optional `{ requestId }` context for logging.
 5. **Register** — add router in `src/app.ts`.
 
-Reference triple: `src/routes/getNewsPieces.route.ts` + `src/controllers/getNewsPieces.controller.ts` + `src/schemas/getNewsPieces.schema.ts`
+Reference triple: `src/routes/morningBrief.route.ts` + `src/controllers/morningBrief.controller.ts` + `src/schemas/morningBrief.schema.ts`
 
 ## Logging
 

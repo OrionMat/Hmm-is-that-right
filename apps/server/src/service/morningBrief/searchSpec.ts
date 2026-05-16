@@ -2,11 +2,15 @@ import { googleSearch, toSourceUrls } from "../../integration/googleSearch/googl
 import { cleanUrls } from "../cleanUrls/cleanUrls";
 import { SOURCE_KIND, SOURCE_STATUS, SourceQueryResult } from "../../dataModel/dataModel";
 import { getLogger } from "../../logger";
+import { ToggleSource } from "../../schemas/morningBrief.schema";
 import { FetchCandidatesResult, SectionCandidate, SectionSpec } from "./buildSection";
 
 const log = getLogger("service/morningBrief/searchSpec");
 
 const MAX_CANDIDATES_PER_SOURCE = 5;
+// Up to 2 picks per source, capped at 6 total to keep the section quick to render.
+const MAX_PICKS_PER_SOURCE = 2;
+const MAX_TOTAL_PICKS = 6;
 
 /**
  * Builds a "search" section that uses SerpAPI to find articles matching a free-form
@@ -14,11 +18,11 @@ const MAX_CANDIDATES_PER_SOURCE = 5;
  * (domain allowlist + exclude patterns) before being handed to buildSection's
  * scrape → summarise pipeline.
  */
-export function searchSpec(query: string, sources: string[]): SectionSpec {
+export function searchSpec(query: string, sources: ToggleSource[]): SectionSpec {
   return {
     section: "search",
     displayName: `Search: "${query}"`,
-    n: Math.min(sources.length * 2, 6),
+    n: Math.min(sources.length * MAX_PICKS_PER_SOURCE, MAX_TOTAL_PICKS),
     async fetchCandidates(): Promise<FetchCandidatesResult> {
       if (sources.length === 0) {
         return { candidates: [], sources: [] };

@@ -11,8 +11,8 @@ npm run lint             # ESLint — 0 warnings allowed
 npm run type-check       # tsc --noEmit
 
 # Single-file test (faster feedback)
-npx vitest run src/pages/FactCheck/FactCheck.test.tsx
-npx playwright test tests/integration/fact-check.spec.ts
+npx vitest run src/pages/MorningBrief/MorningBrief.test.tsx
+npx playwright test tests/integration/morning-brief.spec.ts
 ```
 
 ## Adding a new page
@@ -22,13 +22,12 @@ npx playwright test tests/integration/fact-check.spec.ts
 3. Add the page name constant to `src/pages/PageNames.ts`.
 4. Place page-specific sub-components in `src/pages/<PageName>/components/`.
 
-Reference: `src/pages/FactCheck/` (page with async data fetch, loading state, and results).
+Reference: `src/pages/MorningBrief/` (page with async data fetch, loading state, and results).
 
 ## API service layer
 
 - Service files live in `src/service/` — thin axios wrappers only, no UI logic.
 - The Vite dev server proxies `/api/*` to `http://localhost:3001` automatically.
-- Non-`/api` routes (e.g. `/getNewsPieces`) are called with the full `http://localhost:3001` base URL.
 - Use `paramsSerializer: { indexes: null }` when passing array query params so they serialise as `sources=bbc&sources=nyt` (not `sources[0]=bbc`).
 
 ## SVG imports
@@ -47,14 +46,14 @@ This project uses Tailwind **4** (not 3). The config syntax differs from older d
 ## Testing patterns
 
 **Unit / component tests** (Vitest + jsdom):
-- Mock the service layer with `vi.mock("../../service/getNewsPieces")`.
+- Mock the service layer with `vi.mock("../../service/morningBriefStream")`.
 - Use `fireEvent` for user actions, `screen` for queries, `waitFor` for async assertions.
-- Reference: `src/pages/FactCheck/FactCheck.test.tsx`
+- Reference: `src/pages/MorningBrief/MorningBrief.test.tsx`
 
 **Integration tests** (Playwright):
 - Mock API responses with `page.route("**/endpoint?*", ...)`.
 - Tests live in `tests/integration/`; mock data in `tests/integration/mocks/apiResponses/`.
-- Reference: `tests/integration/fact-check.spec.ts`
+- Reference: `tests/integration/morning-brief.spec.ts`
 
 ## Data models
 

@@ -6,6 +6,8 @@ import {
   MorningBriefSection,
   SectionDiagnostics,
   SectionPayload,
+  TOGGLE_SOURCES,
+  ToggleSource,
 } from "../../dataModel/dataModel";
 import { subscribeMorningBrief } from "../../service/morningBriefStream";
 import { PageContainer } from "../../components/PageContainer";
@@ -31,9 +33,6 @@ const INITIAL_STATE: SectionsState = {
   longform: { status: "idle" },
   search: { status: "idle" },
 };
-
-const TOGGLE_SOURCES = ["bbc", "nyt", "ap"] as const;
-type ToggleSource = (typeof TOGGLE_SOURCES)[number];
 
 const INITIAL_SOURCE_STATES: Record<ToggleSource, boolean> = {
   bbc: true,

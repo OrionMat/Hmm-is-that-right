@@ -55,7 +55,7 @@ export async function morningBriefController(request: Request, response: Respons
   const mode = getModeForDate(date);
   const ttlMs = serverConfig.morningBriefCacheTtlMs;
   const bypassCache = nocache === "1";
-  const isSearchMode = !!query;
+  const isSearchMode = query !== undefined;
 
   log.info(
     { requestId, dateStr, mode, bypassCache, isSearchMode, enabledSources },
@@ -85,12 +85,17 @@ export async function morningBriefController(request: Request, response: Respons
     log.info({ requestId }, "Client disconnected mid-stream — brief aborted");
   });
 
-  // Search-mode results are query-specific so the date-based cache key would
-  // collide across queries — disable cache for search.
-  const sections = isSearchMode
-    ? [{ spec: searchSpec(query!, enabledSources), key: undefined }]
+  // Sort so cache keys are stable regardless of the client's toggle order.
+  const sortedEnabled = [...enabledSources].sort();
+  const sections = query !== undefined
+    ? [
+        {
+          spec: searchSpec(query, enabledSources),
+          key: cacheKey(dateStr, "search", query, sortedEnabled.join(",")),
+        },
+      ]
     : [
-        { spec: worldSpec(enabledSources), key: cacheKey(dateStr, "world", enabledSources.join(",")) },
+        { spec: worldSpec(enabledSources), key: cacheKey(dateStr, "world", sortedEnabled.join(",")) },
         { spec: techSpec(), key: cacheKey(dateStr, "tech") },
         { spec: longformSpec(mode), key: cacheKey(dateStr, "longform", mode) },
       ];

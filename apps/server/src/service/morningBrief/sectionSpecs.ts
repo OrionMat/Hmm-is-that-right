@@ -9,6 +9,7 @@ import {
   SOURCE_STATUS,
 } from "../../dataModel/dataModel";
 import { getLogger } from "../../logger";
+import { SUPPORTED_TOGGLE_SOURCES, ToggleSource } from "../../schemas/morningBrief.schema";
 import { FetchCandidatesResult, SectionCandidate, SectionSpec } from "./buildSection";
 
 const log = getLogger("service/morningBrief/sectionSpecs");
@@ -115,15 +116,16 @@ function rssToSourceResults(results: RssFeedResult[]): SourceQueryResult[] {
   }));
 }
 
-const WORLD_DEFAULT_SOURCES = ["bbc", "ap", "reuters"] as const;
+const WORLD_DEFAULT_SOURCES = ["bbc", "nyt", "ap", "reuters"] as const;
 
-export function worldSpec(enabledToggleSources?: string[]): SectionSpec {
-  // When tile toggles are provided, intersect with world's default set. "reuters"
-  // isn't a toggle-able source today, so it always stays unless we explicitly
-  // strip it. Toggles only meaningfully gate BBC/AP here.
+export function worldSpec(enabledToggleSources?: ToggleSource[]): SectionSpec {
+  // Keep non-togglable sources (e.g. reuters) always. For togglable sources,
+  // keep only those the user has enabled.
   const sources = enabledToggleSources
     ? WORLD_DEFAULT_SOURCES.filter(
-        (s) => enabledToggleSources.includes(s) || !(["bbc", "ap"] as readonly string[]).includes(s),
+        (s) =>
+          !(SUPPORTED_TOGGLE_SOURCES as readonly string[]).includes(s) ||
+          (enabledToggleSources as readonly string[]).includes(s),
       )
     : [...WORLD_DEFAULT_SOURCES];
   return {
