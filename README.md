@@ -181,40 +181,4 @@ The CI job fails if any of these steps fail, ensuring code quality before mergin
 
 ## Roadmap & TODOs
 
-### Morning Brief — Known Limitations & Future Work
-
-- [ ] **Seen-content tracking**: Paul Graham essays and other non-daily sources can repeat across runs. A simple "seen list" (JSON file storing seen URLs) would prevent repetition.
-- [ ] **Token-level streaming**: The SSE stream currently delivers each section as a complete payload. Per-token streaming (using Claude's streaming API) would make the UI feel more alive.
-- [ ] **Personalisation UI**: The `personalContext.md` file is currently edited manually. A simple textarea on the Morning Brief page that saves to the server would be more convenient.
-
-### Upcoming Features
-
-- [ ] **Stance Detection**: Integrate ChatGPT API to summarize articles and detect agreement/disagreement between sources.
-- [ ] **Infrastructure**: Deploy on AWS using CloudFormation/Terraform.
-- [ ] **Architecture**: Integrate Next.js for better routing and SEO.
-- [ ] **Containers**: Package backend with Docker for consistent environments.
-- [ ] **Micro-frontends**: Explore `single-spa` for modular UI development.
-- [ ] **UI/UX**: Implement AI-assisted form filling for the Sign-Up/Profile page.
-
-### Maintenance
-
-- [ ] Update HTML parsing selectors periodically as news site structures change.
-- [ ] Improve state management as the application grows.
-- [ ] Integrate TurboRepo for better monorepo management.
-
-### Other TODOs (need looking into)
-
-- exactly what I want to know each morning.
-- great blog on auto research.
-- great blog on adding ai asist bug triaging with swipe right or left (building ai-powered github issue triage with the copilot sdk)
-- make a memory improvement part of the app
-- interview prepper ai agent
-- messaging
-- linting rules, what linting rules would be good to implement
-- think up a crazy hard feature to add to my app and start building it out 30 min moon shot, get lucky build something crazy with ai, like something crazy hard learning | build for the model 1 year away, like figure out how to build ai cyber ciso, or anything that is classicaly very hard and requires specific knowlege but can be done on a computer through language
-- Claude session - catch you up on everything you've missed since that last time you got your morning brief. "You last read X, since then Y, Z has happened". Continuity. (Currently on a branch)
-- What are the top ~20 seminal works (Like the Principia, Attention Is All You Need, Shannon's '48 paper, Watson & Crick, etc.). I'm looking for a list of the timeless curated cannon. See chat: https://chatgpt.com/c/69ff606b-1c60-8325-93e6-ea30d061c75c (and 'A Computer Scientist's Guide to Cell Biology.')
-- How did I not hear about open claw earlier? What do I need to do to get on top of this info gap?
-- Project specific podcasts, suggestions, etc. Personalized content.
-- Use agent internet search & summarize mode.
-  - Prompts: What have been the biggest headline news stories of the month? Could get the full list of stories, de-duplicate them, and then prioritize them in terms of impact to civilization? The output I'm looking for is a condensed list of bulletpoints with high signal and low everyday noise.
+See [apps/server/src/service/morningBrief/TODO.md](apps/server/src/service/morningBrief/TODO.md) for the consolidated roadmap, backlog, and in-app feedback log.
